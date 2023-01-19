@@ -68,11 +68,13 @@ if __name__ == '__main__':
     sig1 = torch.diag(torch.tensor([1, 1e-3, 1e-3]))
     sig2 = torch.eye(3) + 0.9 * (torch.ones(3) - torch.eye(3))
     sig3 = torch.diag(torch.tensor([1e-3, 1, 1])) \
-           + 0.9 * torch.tensor([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
+           + 0.5 * torch.tensor([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
     # print(torch.linalg.eigh(sig1))
-    SIGMAs = torch.stack([sig1, sig2, sig3], dim=0)
+    #SIGMAs = torch.stack([sig1, sig2, sig3], dim=0)
+    SIGMAs = torch.stack([sig1], dim=0)
     #print(SIGMAs)
-    PI = [0.5, 0.2, 0.3]
+    #PI = [0.5, 0.2, 0.3]
+    PI = [1]
     X, cluster_id = syntheticMixture3D(pi=PI, Sigmas=SIGMAs, num_points=3000, as_array=True)
     print(X.shape)
     fig = plt.figure()
@@ -85,7 +87,10 @@ if __name__ == '__main__':
 
     #ax.scatter(1, 1e-3, 1e-3, s=80, c='black')
     ax.scatter(X[:, 0], X[:, 1], X[:, 2], s=4, alpha=0.5, c=label_color)
-    ax.set_xlabel('$x$', fontsize=15)
-    ax.set_ylabel('$y$', fontsize=15)
-    ax.set_zlabel('$z$', fontsize=15)
+    #ax.set_xlabel('$x$', fontsize=15)
+    #ax.set_ylabel('$y$', fontsize=15)
+    #ax.set_zlabel('$z$', fontsize=15)
+    ax.axis('off')
+    ax.set_aspect('equal')
+
     plt.show()
