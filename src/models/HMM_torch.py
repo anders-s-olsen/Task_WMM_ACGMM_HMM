@@ -196,7 +196,7 @@ class HiddenMarkovModel(nn.Module):
 
 
 if __name__ == '__main__':
-    from src.distributions.Watson_torch import Watson
+    from src import Watson
 
     torch.manual_seed(5)
     dim = 3
