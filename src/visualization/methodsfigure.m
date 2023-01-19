@@ -6,6 +6,7 @@ atlas = int16(niftiread('data/external/Schaefer2018_200Parcels_7Networks_order_F
 V = reshape(V,prod(size(V,[1,2,3])),size(V,4));
 atlas = reshape(atlas,prod(size(atlas,[1,2,3])),1);
 
+target = table2array(readtable('data/raw/motor_ref.txt'));
 %% filter data
 
 for i = 1:numel(unique(atlas(atlas>0)))
@@ -35,11 +36,16 @@ V_filt_norm = normc(V_filt);
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_filt_norm(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,500,300])
+figure('Position',[50,50,500,400])
+tiledlayout(7,1)
+nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+0.05*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
 set(gca,'box','off')
 xlim([-.1 10.1])
-yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),xlabel('Time [min]'),%title('fMRI time-series')
+yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%title('fMRI time-series')
+nexttile(6,[2,1])
+plot(t_fMRI/60,target+[0,max(target(:))])
+xlabel('Time [min]'),
 exportgraphics(gca,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
 %% Simple time series plot, Hilbert fMRI, 5min
