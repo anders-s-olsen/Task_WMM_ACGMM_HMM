@@ -18,8 +18,9 @@ class AngularCentralGaussian(nn.Module):
         self.p = p
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
-        self.L_diag = nn.Parameter(torch.rand(self.p))
-        self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
+        #self.L_diag = nn.Parameter(torch.rand(self.p))
+        #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
+        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p))) # addition
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 
@@ -33,42 +34,29 @@ class AngularCentralGaussian(nn.Module):
     def Alter_compose_A(self, read_A_param=False):
 
         """ Cholesky Component -> A """
-        L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
-        L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
-        log_det_A = -2 * torch.sum(torch.log(L_diag_pos_definite))  # - det(A)
+        #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
+        #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
+        log_det_A = -2 * torch.sum(torch.log(torch.abs(torch.diag(self.L_tri_inv))))  # - det(A)
+        
 
         if read_A_param:
-            return torch.linalg.inv((L_inv.T @ L_inv))
+            return torch.linalg.inv((self.L_tri_inv.T @ self.L_tri_inv))
 
-        return log_det_A, L_inv
-
-    def compose_A(self, read_A_param=False):
-
-        L_diag_pos_definite = self.SoftPlus(self.L_diag)  #this is only semidefinite...Need definite
-
-        L = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
-        A = L @ L.T
-
-        log_det_A = 2 * torch.sum(torch.log(L_diag_pos_definite))
-
-        if read_A_param:
-            return A
-
-        return log_det_A, A
+        return log_det_A, self.L_tri_inv
 
     # Probability Density function
     def log_pdf(self, X):
-        log_det_A, L_inv = self.Alter_compose_A()
+        log_det_A, L_tri_inv = self.Alter_compose_A()
 
 
         #matmul1 = torch.diag(X @ L_inv @ X.T)
 
-        B = X @ L_inv
+        B = X @ L_tri_inv
         matmul2 = torch.sum(B * B, dim=1)
 
         if torch.isnan(matmul2.sum()):
             print(matmul2)
-            print(L_inv)
+            print(L_tri_inv)
             print(self.L_diag)
             raise ValueError('NaN was produced!')
 

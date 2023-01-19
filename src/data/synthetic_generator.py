@@ -19,7 +19,7 @@ def syntheticMixture3D(pi, Sigmas, num_points: int = 1000, point_dim: int = 3, a
     for n in range(num_points):
         cluster_list = list(range(num_clusters))
         n_clust_id = int(np.random.choice(cluster_list, 1, p=pi))  # sample one cluster with pi probaility
-        nx = Lower_chol[n_clust_id] @ torch.randn(point_dim)
+        nx = Lower_chol[n_clust_id] @ (torch.randn(point_dim))
         X[n] = nn.functional.normalize(nx, dim=0)
         cluster_allocation[n] = n_clust_id
 
@@ -66,15 +66,13 @@ def syntheticHMM(pi, Sigmas, transition_matrix, seq_len: int = 150, num_subject 
 
 if __name__ == '__main__':
     sig1 = torch.diag(torch.tensor([1, 1e-3, 1e-3]))
-    sig2 = torch.eye(3) + 0.9 * (torch.ones(3) - torch.eye(3))
+    sig2 = (torch.eye(3) + 0.99 * (torch.ones(3) - torch.eye(3)))
     sig3 = torch.diag(torch.tensor([1e-3, 1, 1])) \
            + 0.5 * torch.tensor([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
     # print(torch.linalg.eigh(sig1))
-    #SIGMAs = torch.stack([sig1, sig2, sig3], dim=0)
-    SIGMAs = torch.stack([sig1], dim=0)
+    SIGMAs = torch.stack([sig1, sig2, sig3], dim=0)
     #print(SIGMAs)
-    #PI = [0.5, 0.2, 0.3]
-    PI = [1]
+    PI = [0.5, 0.2, 0.3]
     X, cluster_id = syntheticMixture3D(pi=PI, Sigmas=SIGMAs, num_points=3000, as_array=True)
     print(X.shape)
     fig = plt.figure()
@@ -86,11 +84,13 @@ if __name__ == '__main__':
     label_color = [id_2_color[id] for id in cluster_id]
 
     #ax.scatter(1, 1e-3, 1e-3, s=80, c='black')
-    ax.scatter(X[:, 0], X[:, 1], X[:, 2], s=4, alpha=0.5, c=label_color)
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], s=0.5, alpha=0.5, c=label_color)
+
     #ax.set_xlabel('$x$', fontsize=15)
     #ax.set_ylabel('$y$', fontsize=15)
     #ax.set_zlabel('$z$', fontsize=15)
     ax.axis('off')
     ax.set_aspect('equal')
+    ax.view_init(elev=30,azim=30)
 
     plt.show()
