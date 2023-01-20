@@ -40,8 +40,8 @@ class TorchMixtureModel(nn.Module):
 
 
 if __name__ == "__main__":
-    from src.distributions.Watson_torch import Watson
-    from src.distributions.AngularCentralGauss_torch import AngularCentralGaussian
+    from Watson_torch import Watson
+    from AngularCentralGauss_torch import AngularCentralGaussian
 
     torch.set_printoptions(precision=4)
     MW = TorchMixtureModel(Watson, K=2, dist_dim=3)
