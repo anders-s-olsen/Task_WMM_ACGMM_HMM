@@ -196,15 +196,16 @@ class HiddenMarkovModel(nn.Module):
 
 
 if __name__ == '__main__':
-    from src import Watson
+    from Watson_torch import Watson
+    from AngularCentralGauss_torch import AngularCentralGaussian as ACG
 
     torch.manual_seed(5)
     dim = 3
 
-    HMM = HiddenMarkovModel(num_states=3, observation_dim=dim, emission_dist=Watson)
+    HMM = HiddenMarkovModel(num_states=3, observation_dim=dim, emission_dist=ACG)
     X = torch.randint(1, 8, (2, 8, dim), dtype=torch.float)  # num_subject, seq_max, observation_dim
 
-    seq, probs = HMM.viterbi(X)
-
+    seq, probs = HMM.viterbi2(X)
+    print(X)
     print(seq)
     print(probs)

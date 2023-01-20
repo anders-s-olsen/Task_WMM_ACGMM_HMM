@@ -1,6 +1,6 @@
 #%%
-from math import factorial
-from scipy.special import poch
+#from math import factorial
+#from scipy.special import poch
 import numpy as np
 
 def matrix_vector_product(a,b):

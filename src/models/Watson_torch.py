@@ -17,9 +17,10 @@ class Watson(nn.Module):
         self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
         self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
-        assert self.p != 1, 'Not proper implemented'
+        assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
+        # unused?
         mu_param = nn.functional.normalize(self.mu.data, dim=0)
         kappa_param = self.kappa.data
         return {'mu': mu_param,
@@ -32,10 +33,11 @@ class Watson(nn.Module):
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
         max_iter = 50000
-        tol = 10^(-5);
-        M = torch.zeros(1);
-        Mold = 2*torch.ones(1);
-        foo = torch.zeros(1);
+        tol = 10^(-5)
+        M = torch.zeros(1)
+        Mold = 2*torch.ones(1)
+        foo = torch.zeros(1)
+        logkum = torch.zeros(1)
         j = 1
 
         while torch.abs(M-Mold)>tol and j<max_iter:
@@ -59,7 +61,7 @@ class Watson(nn.Module):
         return logkum
 
     def log_sphere_surface(self):
-        logSA = torch.lgamma(torch.tensor(self.c)) - torch.log(2) - torch.tensor(self.c)*torch.log(np.pi)
+        logSA = torch.lgamma(torch.tensor(self.c)) - torch.log(torch.tensor(2)) - torch.tensor(self.c)*torch.log(torch.tensor(np.pi))
 
         return logSA
 

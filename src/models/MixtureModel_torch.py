@@ -47,5 +47,6 @@ if __name__ == "__main__":
     MW = TorchMixtureModel(Watson, K=2, dist_dim=3)
 
     data = torch.rand(6, 3)
+    out = MW(data)
     print(data)
-    print(MW(data))
+    print(MW(data)) #likelihood of data

@@ -4,7 +4,6 @@ import numpy as np
 from torch import nn, optim, backends
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-import h5py
 
 from tqdm.notebook import trange, tqdm
 
