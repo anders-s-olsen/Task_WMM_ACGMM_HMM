@@ -26,6 +26,7 @@ class HiddenMarkovModel(nn.Module):
     @torch.no_grad()
     def get_model_param(self):
         priors_softmax = self.state_priors.data
+
         mixture_param_dict = {'un_norm_priors': priors_softmax}
         mixture_param_dict['un_norm_Transition_matrix'] = self.transition_matrix.data
         for comp_id, comp_param in enumerate(self.emission_models):
@@ -151,6 +152,7 @@ class HiddenMarkovModel(nn.Module):
 
         subject_Z_path = []
         subject_Z_path_prob = []
+        subject_emissions = torch.zeros(num_subjects, seq_len, self.N).to(device)
 
         for subject in range(num_subjects):
             with torch.no_grad():
@@ -161,14 +163,15 @@ class HiddenMarkovModel(nn.Module):
                 psi = torch.zeros(seq_len, self.N, dtype=torch.int32)  # intergers - state seqeunces
 
                 # Init - time t=0
-                states_emission_0 = self.emission_models_forward(X_sub[0].unsqueeze(dim=0)).squeeze()
-                log_delta[0, :] = log_pi + states_emission_0
+                subject_emissions[subject,0,:] = self.emission_models_forward(X_sub[0].unsqueeze(dim=0)).squeeze()
+                #states_emission_0 = self.emission_models_forward(X_sub[0].unsqueeze(dim=0)).squeeze()
+                log_delta[0, :] = log_pi + subject_emissions[subject,0,:]
 
                 # Recursion 2)
                 # for time:  t = 1 -> seq_max
                 for t in range(1, seq_len):
-                    states_emission_t = self.emission_models_forward(X_sub[t].unsqueeze(dim=0)).squeeze()
-                    expression = (log_delta[t - 1, :, None] + log_A) + states_emission_t
+                    subject_emissions[subject,t,:] = self.emission_models_forward(X_sub[t].unsqueeze(dim=0)).squeeze()
+                    expression = (log_delta[t - 1, :, None] + log_A) + subject_emissions[subject,t,:]
 
                     max_value, arg_max = torch.max(expression, dim=1)
 
@@ -192,7 +195,7 @@ class HiddenMarkovModel(nn.Module):
                 subject_Z_path.append(Z_path)
                 subject_Z_path_prob.append(Z_T_prob)
 
-        return np.array(subject_Z_path), np.array(subject_Z_path_prob)
+        return np.array(subject_Z_path), np.array(subject_Z_path_prob),np.array(subject_emissions)
 
 
 if __name__ == '__main__':

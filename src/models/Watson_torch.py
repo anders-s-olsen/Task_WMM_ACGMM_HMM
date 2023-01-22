@@ -20,7 +20,6 @@ class Watson(nn.Module):
         assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
-        # unused?
         mu_param = nn.functional.normalize(self.mu.data, dim=0)
         kappa_param = self.kappa.data
         return {'mu': mu_param,
