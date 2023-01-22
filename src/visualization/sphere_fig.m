@@ -22,6 +22,7 @@ T(2,1) = mean(next2==1);
 T(2,2) = mean(next2==2);
 
 % [X, cluster_id] = syntheticMixture3D(PI, SIGMAs, size(PI,1));
+rng default
 [X,cluster_id] = syntheticHMM(PI,SIGMAs, T,size(PI,1),1);
 
 %% Figure random data
