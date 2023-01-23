@@ -45,8 +45,8 @@ class HiddenMarkovModel(nn.Module):
 
         log_A = self.logsoftmax_transition(self.transition_matrix)
         log_pi = self.logsoftmax_prior(self.state_priors)
-        num_subjects = X.shape[0]
-        seq_max = X.shape[1]
+        num_subjects = torch.tensor(X.shape[0]).to(self.device)
+        seq_max = torch.tensor(X.shape[1]).to(self.device)
         log_alpha = torch.zeros(num_subjects, seq_max, self.N).to(self.device)
 
         # time t=0
@@ -64,8 +64,6 @@ class HiddenMarkovModel(nn.Module):
         # Termination 3)
         # LogSum for states N for each time t.
         log_t_sums = torch.logsumexp(log_alpha, dim=2)
-
-        print(log_t_sums.get_device())
 
         # Retrive the alpha for the last time t in the seq, per subject
         log_props = torch.gather(log_t_sums.to(self.device), dim=1,
