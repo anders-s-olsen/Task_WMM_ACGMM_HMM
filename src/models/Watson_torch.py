@@ -38,7 +38,7 @@ class Watson(nn.Module):
         Mold = 2*torch.ones(1)
         foo = torch.zeros(1)
         logkum = torch.zeros(1)
-        j = 1
+        j = torch.tensor(1).to(self.device)
 
         while torch.abs(M-Mold)>tol and j<max_iter:
             Mold = M
