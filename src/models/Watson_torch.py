@@ -14,8 +14,8 @@ class Watson(nn.Module):
 
         self.p = p
         self.c = self.p/2
-        self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0)).to(device)
-        self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32)).to(device)
+        self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0).to(device))
+        self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
         self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
         assert self.p != 1, 'Not properly implemented'

@@ -21,7 +21,7 @@ class AngularCentralGaussian(nn.Module):
         self.half_p = torch.tensor(p / 2)
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
-        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p))).to(device) # addition
+        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(device)) # addition
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 

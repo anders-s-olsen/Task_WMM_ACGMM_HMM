@@ -12,10 +12,10 @@ class HiddenMarkovModel(nn.Module):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.N = num_states
-        self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N)).to(device)
+        self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N).to(device))
         self.emission_density = emission_dist
         self.obs_dim = observation_dim
-        self.state_priors = nn.Parameter(torch.rand(self.N)).to(device)
+        self.state_priors = nn.Parameter(torch.rand(self.N).to(device))
         self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim) for _ in range(self.N)])
         self.softplus = nn.Softplus()
         self.logsoftmax_transition = nn.LogSoftmax(dim=1)
