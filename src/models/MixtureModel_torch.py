@@ -38,6 +38,16 @@ class TorchMixtureModel(nn.Module):
     def forward(self, X):
         return self.log_likelihood_mixture(X)
 
+    def posterior(self,X):
+        inner_pi = self.LogSoftMax(self.softplus(self.pi))[:, None]
+        inner_pdf = torch.stack([K_comp_pdf(X) for K_comp_pdf in self.mix_components])
+
+        inner = inner_pi + inner_pdf
+        loglikelihood_x_i = torch.logsumexp(inner, dim=0)
+
+        return torch.exp(inner-loglikelihood_x_i)
+        
+
 
 if __name__ == "__main__":
     from Watson_torch import Watson
