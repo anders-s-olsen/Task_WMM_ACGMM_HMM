@@ -32,7 +32,7 @@ class Watson(nn.Module):
 
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
-        max_iter = torch.tensor(50000).to(self.device)
+        max_iter = torch.tensor(5000).to(self.device)
         tol = torch.tensor(10^(-5)).to(self.device)
         M = torch.zeros(1).to(self.device)
         Mold = 2*torch.ones(1).to(self.device)
