@@ -67,7 +67,7 @@ class HiddenMarkovModel(nn.Module):
 
         # Retrive the alpha for the last time t in the seq, per subject
         log_props = torch.gather(log_t_sums, dim=1,
-                                 index=torch.tensor([[seq_max - 1]] * num_subjects)).squeeze().to(self.device)
+                                 index=torch.tensor([[seq_max - 1]] * num_subjects).to(self.device)).squeeze()
         # faster on GPU than just indexing...according to stackoverflow
 
         return log_props.sum(dim=0)  # return sum of log_prop for all subjects
