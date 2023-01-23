@@ -12,7 +12,8 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     return b, a
 
 # Apply Filter
-def butter_bandpass_filter(data, lowcut=0.01, highcut=0.1, fs=4/3, order=5):
+# Changed by Anders to be correct range (from 0.01-0.1 to 0.009-0.08)
+def butter_bandpass_filter(data, lowcut=0.009, highcut=0.08, fs=1/2.490, order=5):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
     y = filtfilt(b, a, data)
     return y
