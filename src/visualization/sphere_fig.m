@@ -3,7 +3,7 @@ clear,close all
 ff = 'reports/methods/'; %figure folder
 %% specify sig
 %sig1 = diag([1,1e-3,1e-3]);
-sig2 = eye(3)+0.99*(ones(3)-eye(3));
+sig2 = 1*(eye(3)+0.99*(ones(3)-eye(3)));
 sig3 = diag([1e-2,1,1])+0.9*[0,0,0;0,0,1;0,1,0];
 SIGMAs = cat(3,sig2,sig3);
 % PI = [0.33,0.33,0.34];
@@ -23,8 +23,11 @@ T(2,2) = mean(next2==2);
 
 % [X, cluster_id] = syntheticMixture3D(PI, SIGMAs, size(PI,1));
 rng default
-[X,cluster_id] = syntheticHMM(PI,SIGMAs, T,size(PI,1),1);
-
+% [X,cluster_id] = syntheticHMM(PI,SIGMAs, T,size(PI,1),1);
+[X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1));
+delete('data/synthetic/HMMdata.h5')
+h5create('data/synthetic/HMMdata.h5','/X',size(X))
+h5write('data/synthetic/HMMdata.h5','/X',X)
 %% Figure random data
 
 gridPoints = 1000;
@@ -166,6 +169,7 @@ Lower_chol = zeros(point_dim,point_dim,num_states);
 for idx = 1:num_states
     Lower_chol(:,:,idx) = chol(SIGMAs(:,:,idx),'lower');
 end
+
 X_emission = zeros(num_subject, seq_len, point_dim);
 Z_state_seq = zeros(num_subject, seq_len);
 T_matrix = normr(transition_matrix);
