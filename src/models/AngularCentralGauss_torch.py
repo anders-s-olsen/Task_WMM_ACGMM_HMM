@@ -14,14 +14,14 @@ class AngularCentralGaussian(nn.Module):
 
     def __init__(self, p):
         super().__init__()
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
-        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(device)) # addition
+        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 

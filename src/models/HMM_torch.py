@@ -9,13 +9,12 @@ class HiddenMarkovModel(nn.Module):
 
     def __init__(self, num_states, emission_dist, observation_dim: int = 90):
         super().__init__()
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.N = num_states
-        self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N).to(device))
+        self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N).to(self.device))
         self.emission_density = emission_dist
         self.obs_dim = observation_dim
-        self.state_priors = nn.Parameter(torch.rand(self.N).to(device))
+        self.state_priors = nn.Parameter(torch.rand(self.N).to(self.device))
         self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim) for _ in range(self.N)])
         self.softplus = nn.Softplus()
         self.logsoftmax_transition = nn.LogSoftmax(dim=1)
@@ -48,7 +47,7 @@ class HiddenMarkovModel(nn.Module):
         log_pi = self.logsoftmax_prior(self.state_priors)
         num_subjects = X.shape[0]
         seq_max = X.shape[1]
-        log_alpha = torch.zeros(num_subjects, seq_max, self.N)
+        log_alpha = torch.zeros(num_subjects, seq_max, self.N).to(self.device)
 
         # time t=0
         # log_pi: (n states priors)
