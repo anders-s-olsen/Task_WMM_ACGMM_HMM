@@ -32,17 +32,18 @@ class Watson(nn.Module):
 
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
-        max_iter = 50000
-        tol = 10^(-5)
-        M = torch.zeros(1)
-        Mold = 2*torch.ones(1)
+        max_iter = torch.tensor(50000).to(self.device)
+        tol = torch.tensor(10^(-5)).to(self.device)
+        M = torch.zeros(1).to(self.device)
+        Mold = 2*torch.ones(1).to(self.device)
         foo = torch.zeros(1).to(self.device)
         logkum = torch.zeros(1).to(self.device)
         j = torch.tensor(1).to(self.device)
+        one = torch.tensor(1).to(self.device)
 
         while torch.abs(M-Mold)>tol and j<max_iter:
             Mold = M
-            foo = foo + torch.log((a+j-1)/(j*(b+j-1))*kappa)
+            foo = foo + torch.log((a+j-one)/(j*(b+j-one))*kappa)
             M = foo
             logkum = self.log_sum(logkum,foo)
             j+=1
@@ -61,12 +62,12 @@ class Watson(nn.Module):
         return logkum
 
     def log_sphere_surface(self):
-        logSA = torch.lgamma(torch.tensor(self.c)) - torch.log(torch.tensor(2)) - torch.tensor(self.c)*torch.log(torch.tensor(np.pi))
+        logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)).to(self.device) - self.c*torch.log(torch.tensor(np.pi)).to(self.device)
 
         return logSA
 
     def log_norm_constant(self, kappa_pos):
-        logC = self.log_sphere_surface() - self.log_kummer_anders(self.const_a, torch.tensor(self.c), kappa_pos)
+        logC = self.log_sphere_surface() - self.log_kummer_anders(self.const_a, self.c, kappa_pos)
         return logC
 
     def log_pdf(self, X):
