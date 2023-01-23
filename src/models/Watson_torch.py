@@ -13,11 +13,11 @@ class Watson(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
-        self.c = self.p/2
+        self.c = torch.tensor(self.p/2).to(self.device)
         self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0).to(self.device))
         self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(self.device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
-        self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
+        self.const_a = torch.tensor(0.5).to(self.device)  # a = 1/2,  !constant
         assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
@@ -36,8 +36,8 @@ class Watson(nn.Module):
         tol = 10^(-5)
         M = torch.zeros(1)
         Mold = 2*torch.ones(1)
-        foo = torch.zeros(1)
-        logkum = torch.zeros(1)
+        foo = torch.zeros(1).to(self.device)
+        logkum = torch.zeros(1).to(self.device)
         j = torch.tensor(1).to(self.device)
 
         while torch.abs(M-Mold)>tol and j<max_iter:
