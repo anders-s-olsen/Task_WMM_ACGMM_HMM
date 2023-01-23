@@ -1,9 +1,7 @@
 import torch
 import numpy as np
 
-from tqdm.notebook import trange, tqdm
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+from tqdm import tqdm
 
 # Train Mixture model
 def train_mixture(MixtureModel, data, optimizer, num_epoch=100, keep_bar=True):

@@ -13,7 +13,7 @@ import h5py
 import torch
 from torch import optim
 import numpy as np
-from tqdm.notebook import trange, tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join('..')))
