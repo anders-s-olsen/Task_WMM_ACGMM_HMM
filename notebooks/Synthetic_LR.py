@@ -70,18 +70,20 @@ for idx, LR in enumerate(tqdm(eval_LR)):
     Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
     Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
     
-    Adam_optimizer = optim.Adam(model.parameters(), lr=LR)
-    
-    ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=Adam_optimizer, num_epoch=int_epoch, keep_bar=False)
+    ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=LR)
+    ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
     acg_mm_LR_results[idx] = ACG_MM_ll
     
-    ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=Adam_optimizer, num_epoch=int_epoch, keep_bar=False)
+    ACG_HMM_optimizer = optim.Adam(ACG_HMM.parameters(), lr=LR)
+    ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
     acg_hmm_LR_results[idx] = ACG_HMM_ll
     
-    Watson_MM_ll = train_hmm(Watson_MM, data=torch.squeeze(data), optimizer=Adam_optimizer, num_epoch=int_epoch, keep_bar=False)
+    Watson_MM_optimizer = optim.Adam(Watson_MM.parameters(), lr=LR)
+    Watson_MM_ll = train_hmm(Watson_MM, data=torch.squeeze(data), optimizer=Watson_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
     watson_mm_LR_results[idx] = Watson_MM_ll
     
-    Watson_HMM_ll = train_hmm(Watson_HMM, data=data, optimizer=Adam_optimizer, num_epoch=int_epoch, keep_bar=False)
+    Watson_HMM_optimizer = optim.Adam(Watson_HMM.parameters(), lr=LR)
+    Watson_HMM_ll = train_hmm(Watson_HMM, data=data, optimizer=Watson_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
     watson_hmm_LR_results[idx] = Watson_HMM_ll
     
 
@@ -92,13 +94,12 @@ for idx, LR in enumerate(tqdm(eval_LR)):
 
 
 plt.close()
-get_ipython().run_line_magic('matplotlib', 'inline')
 fig, axs = plt.subplots(2, 2,figsize=(15, 15))
 
 for ax in axs:
     axs[ax].xlabel('Epochs')
     axs[ax].ylabel('Log-Likelihood')
-    axs[ax].legend(np.round(hmm_eval_LR, 3), ncol=1, bbox_to_anchor=(1.01, 1.05), loc='upper left', borderaxespad=0.)
+    axs[ax].legend(np.round(eval_LR, 3), ncol=1, bbox_to_anchor=(1.01, 1.05), loc='upper left', borderaxespad=0.)
     axs[ax].grid()
 
 
