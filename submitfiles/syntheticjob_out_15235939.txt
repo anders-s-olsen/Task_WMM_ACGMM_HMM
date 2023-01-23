@@ -1,0 +1,18 @@
+Collecting tqdm
+  Downloading tqdm-4.64.1-py2.py3-none-any.whl (78 kB)
+Collecting torch
+  Downloading torch-1.13.1-cp310-cp310-manylinux1_x86_64.whl (887.5 MB)
+Collecting nvidia-cudnn-cu11==8.5.0.96
+  Downloading nvidia_cudnn_cu11-8.5.0.96-2-py3-none-manylinux1_x86_64.whl (557.1 MB)
+Collecting nvidia-cuda-nvrtc-cu11==11.7.99
+  Downloading nvidia_cuda_nvrtc_cu11-11.7.99-2-py3-none-manylinux1_x86_64.whl (21.0 MB)
+Collecting nvidia-cuda-runtime-cu11==11.7.99
+  Downloading nvidia_cuda_runtime_cu11-11.7.99-py3-none-manylinux1_x86_64.whl (849 kB)
+Collecting typing-extensions
+  Downloading typing_extensions-4.4.0-py3-none-any.whl (26 kB)
+Collecting nvidia-cublas-cu11==11.10.3.66
+  Downloading nvidia_cublas_cu11-11.10.3.66-py3-none-manylinux1_x86_64.whl (317.1 MB)
+Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
+Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
+Installing collected packages: nvidia-cublas-cu11, typing-extensions, nvidia-cudnn-cu11, nvidia-cuda-runtime-cu11, nvidia-cuda-nvrtc-cu11, tqdm, torch
+Successfully installed nvidia-cublas-cu11-11.10.3.66 nvidia-cuda-nvrtc-cu11-11.7.99 nvidia-cuda-runtime-cu11-11.7.99 nvidia-cudnn-cu11-8.5.0.96 torch-1.13.1 tqdm-4.64.1 typing-extensions-4.4.0
