@@ -13,11 +13,11 @@ class Watson(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
-        self.c = torch.tensor(self.p/2).to(self.device)
+        self.c = torch.tensor(self.p/2)
         self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0).to(self.device))
         self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(self.device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
-        self.const_a = torch.tensor(0.5).to(self.device)  # a = 1/2,  !constant
+        self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
         assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
@@ -32,18 +32,17 @@ class Watson(nn.Module):
 
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
-        max_iter = torch.tensor(5000).to(self.device)
-        tol = torch.tensor(10^(-5)).to(self.device)
-        M = torch.zeros(1).to(self.device)
-        Mold = 2*torch.ones(1).to(self.device)
-        foo = torch.zeros(1).to(self.device)
-        logkum = torch.zeros(1).to(self.device)
-        j = torch.tensor(1).to(self.device)
-        one = torch.tensor(1).to(self.device)
+        max_iter = 5000
+        tol = 10^(-5)
+        M = torch.zeros()
+        Mold = 2*torch.ones(1)
+        foo = torch.zeros(1)
+        logkum = torch.zeros(1)
+        j = 1
 
         while torch.abs(M-Mold)>tol and j<max_iter:
             Mold = M
-            foo = foo + torch.log((a+j-one)/(j*(b+j-one))*kappa)
+            foo = foo + torch.log((a+j-1)/(j*(b+j-1))*kappa)
             M = foo
             logkum = self.log_sum(logkum,foo)
             j+=1
@@ -62,7 +61,7 @@ class Watson(nn.Module):
         return logkum
 
     def log_sphere_surface(self):
-        logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)).to(self.device) - self.c*torch.log(torch.tensor(np.pi)).to(self.device)
+        logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)) - self.c*torch.log(torch.tensor(np.pi))
 
         return logSA
 
@@ -82,7 +81,7 @@ class Watson(nn.Module):
             kappa_positive += 1e-15
 
 
-        logpdf = self.log_norm_constant(kappa_positive) + kappa_positive * ((mu_unit @ X.T) ** 2)
+        logpdf = self.log_norm_constant(kappa_positive).to(self.device) + kappa_positive * ((mu_unit @ X.T) ** 2)
 
         if torch.isnan(logpdf.sum()):
             print(kappa_positive)
