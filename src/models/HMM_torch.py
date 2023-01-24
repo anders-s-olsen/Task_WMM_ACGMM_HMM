@@ -149,7 +149,7 @@ class HiddenMarkovModel(nn.Module):
 
         subject_Z_path = []
         subject_Z_path_prob = []
-        subject_emissions = torch.zeros(num_subjects, seq_len, self.N).to(device)
+        subject_emissions = torch.zeros(num_subjects, seq_len, self.N).to(self.device)
 
         for subject in range(num_subjects):
             with torch.no_grad():
