@@ -57,7 +57,7 @@ print(torch.norm(data,dim=2))
 
 
 best_LR = 0.1
-int_epoch = 1
+int_epoch = 50
 
 ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
 ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
