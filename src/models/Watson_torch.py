@@ -33,32 +33,30 @@ class Watson(nn.Module):
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
         max_iter = 5000
-        tol = 10^(-5)
-        M = torch.zeros(1)
-        Mold = 2*torch.ones(1)
+        tol = 10**(-10)
         foo = torch.zeros(1)
         logkum = torch.zeros(1)
+        logkum_old = torch.ones(1)
         j = 1
-
-        while torch.abs(M-Mold)>tol and j<max_iter:
-            Mold = M
+        while torch.abs(logkum-logkum_old)>tol and j<max_iter:
+            logkum_old = logkum
             foo = foo + torch.log((a+j-1)/(j*(b+j-1))*kappa)
-            M = foo
             logkum = self.log_sum(logkum,foo)
             j+=1
+        print(j)
         return logkum
 
 
-    def deprecated_log_kummer(self, a, b, kappa):
-        # replaced by Anders' log_kummer
-        n = torch.arange(1000).to(device)
-
-        inner = torch.lgamma(a + n) + torch.lgamma(b) - torch.lgamma(a) - torch.lgamma(b + n) \
-                + n * torch.log(kappa) - torch.lgamma(n + torch.tensor(1.).to(device))
-
-        logkum = torch.logsumexp(inner, dim=0).to(device)
-
-        return logkum
+    #def deprecated_log_kummer(self, a, b, kappa):
+    #    # replaced by Anders' log_kummer
+    #   n = torch.arange(1000).to(device)
+    #
+    #    inner = torch.lgamma(a + n) + torch.lgamma(b) - torch.lgamma(a) - torch.lgamma(b + n) \
+    #            + n * torch.log(kappa) - torch.lgamma(n + torch.tensor(1.).to(device))
+    #
+    #    logkum = torch.logsumexp(inner, dim=0).to(device)
+    #
+    #    return logkum
 
     def log_sphere_surface(self):
         logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)) - self.c*torch.log(torch.tensor(np.pi))
