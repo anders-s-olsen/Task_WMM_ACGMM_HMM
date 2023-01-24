@@ -109,12 +109,12 @@ np.savetxt('../data/synthetic/Watson_MM_posterior.csv',np.transpose(Watson_MM_po
 
 watsonhmm_param = get_param(Watson_HMM)
 Watson_HMM_best_paths, Watson_HMM_paths_probs, Watson_HMM_emission_probs = Watson_HMM.viterbi2(data)
-np.savetxt('../data/synthetic/Watson_MM_prior.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_priors'],dim=0).detach())
-np.savetxt('../data/synthetic/Watson_MM_T.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_Transition_matrix'],dim=1).detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0mu.csv',watsonhmm_param['emission_model_0']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0kappa.csv',watsonhmm_param['emission_model_0']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1mu.csv',watsonhmm_param['emission_model_1']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1kappa.csv',watsonhmm_param['emission_model_1']['kappa'].detach())
+np.savetxt('../data/synthetic/Watson_HMM_prior.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_priors'],dim=0).detach())
+np.savetxt('../data/synthetic/Watson_HMM_T.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_Transition_matrix'],dim=1).detach())
+np.savetxt('../data/synthetic/Watson_HMM_comp0mu.csv',watsonhmm_param['emission_model_0']['mu'].detach())
+np.savetxt('../data/synthetic/Watson_HMM_comp0kappa.csv',watsonhmm_param['emission_model_0']['kappa'].detach())
+np.savetxt('../data/synthetic/Watson_HMM_comp1mu.csv',watsonhmm_param['emission_model_1']['mu'].detach())
+np.savetxt('../data/synthetic/Watson_HMM_comp1kappa.csv',watsonhmm_param['emission_model_1']['kappa'].detach())
 np.savetxt('../data/synthetic/Watson_HMM_viterbi.csv',np.transpose(Watson_HMM_best_paths))
 np.savetxt('../data/synthetic/Watson_HMM_emissionprobs.csv',np.squeeze(Watson_HMM_emission_probs))
 
