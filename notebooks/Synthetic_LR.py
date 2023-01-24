@@ -65,14 +65,14 @@ watson_hmm_LR_results = np.zeros((len(eval_LR),int_epoch))
 
 for idx, LR in enumerate(tqdm(eval_LR)):
     #
-    ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+    #ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
     ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
-    Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
-    Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+    #Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+    #Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
     
-    ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=LR)
-    ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
-    acg_mm_LR_results[idx] = ACG_MM_ll
+    #ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=LR)
+    #ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
+    #acg_mm_LR_results[idx] = ACG_MM_ll
     
     ACG_HMM_optimizer = optim.Adam(ACG_HMM.parameters(), lr=LR)
     ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
