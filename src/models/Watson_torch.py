@@ -43,7 +43,7 @@ class Watson(nn.Module):
             foo = foo + torch.log((a+j-1)/(j*(b+j-1))*kappa)
             logkum = self.log_sum(logkum,foo)
             j+=1
-        print(j)
+        #print(j)
         return logkum
 
 
