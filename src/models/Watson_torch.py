@@ -34,7 +34,7 @@ class Watson(nn.Module):
         # Not implemented here in vector space
         max_iter = 5000
         tol = 10^(-5)
-        M = torch.zeros()
+        M = torch.zeros(1)
         Mold = 2*torch.ones(1)
         foo = torch.zeros(1)
         logkum = torch.zeros(1)
@@ -80,8 +80,9 @@ class Watson(nn.Module):
             print('Code reached here') # if kappa is zeros
             kappa_positive += 1e-15
 
-
-        logpdf = self.log_norm_constant(kappa_positive).to(self.device) + kappa_positive * ((mu_unit @ X.T) ** 2)
+        with torch.no_grad():
+            norm_constant = self.log_norm_constant(kappa_positive).to(self.device)
+        logpdf = norm_constant + kappa_positive * ((mu_unit @ X.T) ** 2)
 
         if torch.isnan(logpdf.sum()):
             print(kappa_positive)
@@ -104,6 +105,7 @@ if __name__ == "__main__":
     mpl.use('Qt5Agg')
 
     W = Watson(p=2)
+    print(W.log_kummer_anders(torch.tensor(0.5),torch.tensor(45),torch.tensor(2)))
     # phi = linspace(0, 2 * pi, 320);
     # x = [cos(phi);sin(phi)];
     #
