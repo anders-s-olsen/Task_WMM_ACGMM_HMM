@@ -21,7 +21,7 @@ class AngularCentralGaussian(nn.Module):
         self.half_p = torch.tensor(p / 2)
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
-        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
+        self.L_tri_inv = nn.Parameter(torch.triu(torch.randn(self.p, self.p)).to(self.device)) # addition
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 
@@ -52,7 +52,7 @@ class AngularCentralGaussian(nn.Module):
 
         #matmul1 = torch.diag(X @ L_inv @ X.T)
 
-        B = X @ L_tri_inv
+        B = X @ L_tri_inv.T
         matmul2 = torch.sum(B * B, dim=1)
 
         if torch.isnan(matmul2.sum()):
@@ -62,7 +62,7 @@ class AngularCentralGaussian(nn.Module):
             raise ValueError('NaN was produced!')
 
         log_acg_pdf = self.log_sphere_surface() \
-                      - 0.5 * log_det_A \
+                      + 0.5 * log_det_A \
                       - self.half_p * torch.log(matmul2)
 
         return log_acg_pdf
