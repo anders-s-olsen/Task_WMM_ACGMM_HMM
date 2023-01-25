@@ -56,11 +56,11 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 # In[7]:
 
 
-best_LR = 0.001
+best_LR = 0.01
 int_epoch = 1000
-ACG_MM_ll = np.zeros((10,int_epoch))
+ACG_MM_ll = np.zeros((20,int_epoch))
 best_like = 100000000
-for idx in range(10):
+for idx in range(20):
     ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
 #ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
 #Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
