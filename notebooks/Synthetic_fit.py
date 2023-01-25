@@ -67,7 +67,8 @@ for idx in range(5):
 #Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
     ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=best_LR)
-    ACG_MM_ll[idx] = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
+    like = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
+    ACG_MM_ll[idx] = like
     if ACG_MM_ll[-1] < best_like:
         best_model = ACG_MM
         best_like = ACG_MM_ll[-1]
