@@ -9,7 +9,7 @@ SIGMAs = cat(3,sig2,sig3);
 % PI = [0.33,0.33,0.34];
 
 %% calculate PI and transition matrix
-task = resample(table2array(readtable('data/raw/motor_ref.txt')),12,1);
+task = resample(table2array(readtable('data/raw/motor_ref.txt')),6,1);
 PI = (task-min(task))./sum(task-min(task),2);
 [~,maxseq] = max(PI,[],2);
 
