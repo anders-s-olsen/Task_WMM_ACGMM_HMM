@@ -58,15 +58,20 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
 best_LR = 0.1
 int_epoch = 1000
-
-ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+ACG_MM_ll = np.zeros(5)
+best_like = 100000000
+for idx in range(5):
+    ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
 #ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
 #Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
 #Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
-ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=best_LR)
-ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
-
+    ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=best_LR)
+    ACG_MM_ll[idx] = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
+    if ACG_MM_ll[-1] < best_like:
+        best_model = ACG_MM
+        best_like = ACG_MM_ll[-1]
+        best_idx = idx
 #ACG_HMM_optimizer = optim.Adam(ACG_HMM.parameters(), lr=best_LR)
 #ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
 
@@ -82,8 +87,8 @@ ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimiz
 # In[14]:
 
 
-acgmm_param = get_param(ACG_MM)
-ACG_MM_post = ACG_MM.posterior(torch.squeeze(data))
+acgmm_param = get_param(best_model)
+ACG_MM_post = best_model.posterior(torch.squeeze(data))
 np.savetxt('../data/synthetic/ACG_MM_prior.csv',torch.nn.functional.softmax(acgmm_param['un_norm_pi'],dim=0).detach())
 np.savetxt('../data/synthetic/ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach())
 np.savetxt('../data/synthetic/ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
