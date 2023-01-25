@@ -41,7 +41,7 @@ class AngularCentralGaussian(nn.Module):
         
 
         if read_A_param:
-            return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
+            return torch.linalg.inv((self.L_tri_inv.T @ self.L_tri_inv))
 
         return log_det_A, self.L_tri_inv
 
