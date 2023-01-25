@@ -58,7 +58,7 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
 best_LR = 0.1
 int_epoch = 1000
-ACG_MM_ll = np.zeros(5,int_epoch)
+ACG_MM_ll = np.zeros((5,int_epoch))
 best_like = 100000000
 for idx in range(5):
     ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
