@@ -1,39 +1,0 @@
-Loaded dependency [python3/3.10.7]: gcc/11.3.0-binutils-2.38
-Loaded module: python3/3.10.7
-
-Loading python3/3.10.7
-  Loading requirement: gcc/11.3.0-binutils-2.38
-Loaded dependency [numpy/1.23.3-python-3.10.7-openblas-0.3.21]: openblas/0.3.21
-Loaded module: numpy/1.23.3-python-3.10.7-openblas-0.3.21
-
-Loading numpy/1.23.3-python-3.10.7-openblas-0.3.21
-  Loading requirement: openblas/0.3.21
-Loaded module: matplotlib/3.6.0-numpy-1.23.3-python-3.10.7
-Loaded module: h5py/3.7.0-python-3.10.7
-WARNING: Value for scheme.headers does not match. Please report this to <https://github.com/pypa/pip/issues/9617>
-distutils: /zhome/61/4/109113/.local/include/python3.10/UNKNOWN
-sysconfig: /zhome/61/4/109113/.local/include/python3.10
-WARNING: Additional context:
-user = True
-home = None
-root = None
-prefix = None
-WARNING: You are using pip version 21.1; however, version 22.3.1 is available.
-You should consider upgrading via the '/appl/python/3.10.7/bin/python3 -m pip install --upgrade pip' command.
-  0%|          | 0/9 [00:00<?, ?it/s]
-  0%|          | 0/100 [00:00<?, ?it/s][A
-  1%|          | 1/100 [00:04<06:36,  4.01s/it][A
- 60%|██████    | 60/100 [00:04<00:01, 20.53it/s][A
-                                                [A
-  0%|          | 0/100 [00:00<?, ?it/s][A
-                                       [A  0%|          | 0/9 [00:11<?, ?it/s]
-Traceback (most recent call last):
-  File "/dtu-compute/macaroni/Task_WMM_ACGMM_HMM/notebooks/Synthetic_LR.py", line 78, in <module>
-    ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
-  File "/dtu-compute/macaroni/Task_WMM_ACGMM_HMM/src/various/training.py", line 67, in train_hmm
-    NegativeLogLikelihood = -model(subject_leida_vectors)  # OBS! Negative
-  File "/zhome/61/4/109113/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
-    return forward_call(*input, **kwargs)
-  File "/dtu-compute/macaroni/Task_WMM_ACGMM_HMM/src/models/HMM_torch.py", line 65, in forward
-    + torch.logsumexp(log_alpha[:, t - 1, :, None] + log_A, dim=1)
-RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!

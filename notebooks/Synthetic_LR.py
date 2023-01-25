@@ -13,7 +13,7 @@ import h5py
 import torch
 from torch import optim
 import numpy as np
-from tqdm.notebook import trange, tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join('..')))
@@ -94,7 +94,7 @@ for idx, LR in enumerate(tqdm(eval_LR)):
 
 
 plt.close()
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 fig, axs = plt.subplots(2, 2,figsize=(15, 15))
 
 #for ax in 1:len(axs):
