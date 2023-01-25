@@ -85,7 +85,7 @@ contourspherefig([],[],cat(3,A1,A2))
 gcf,title('ACG mixture')
 view(-29,-13)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
-
+return
 %%% Watson HMM
 mu1 = table2array(readtable('data/synthetic/Watson_HMM_comp0mu.csv'));
 kappa1 = table2array(readtable('data/synthetic/Watson_HMM_comp0kappa.csv'));
@@ -234,22 +234,23 @@ if ~isempty(mu)&&~isempty(kappa)
 elseif ~isempty(A)
 %     L_chol1 = chol(A(:,:,1),'lower');
 %     L_chol2 = chol(A(:,:,2),'lower');
-likelihood_threshold = -5;
-Cp(1) = gammaln(1.5)-1.5*log(2*pi)+log(sqrt(det(A(:,:,1))));
-Cp(2) = gammaln(1.5)-1.5*log(2*pi)+log(sqrt(det(A(:,:,2))));
-
+likelihood_threshold = 0;
+Cp(1) = gammaln(1.5)-1.5*log(2*pi)-0.5*log(det(A(:,:,1)));
+Cp(2) = gammaln(1.5)-1.5*log(2*pi)-0.5*log(det(A(:,:,2)));
+A1_inv = inv(A(:,:,1));
+A2_inv = inv(A(:,:,2));
 
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
             tmp = [XX(i,j),YY(i,j),ZZ(i,j)];
-%             ll1(i,j) = Cp(1)+(-1.5)*log(tmp*A1_inv*tmp');
-%             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A2_inv*tmp');
+%             ll1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
+%             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
             
             
-            if Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp')>likelihood_threshold
-                T1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
-            elseif Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp')>likelihood_threshold
-                T2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
+            if Cp(1)+(-1.5)*log(tmp*A1_inv*tmp')>likelihood_threshold
+                T1(i,j) = Cp(1)+(-1.5)*log(tmp*A1_inv*tmp');
+            elseif Cp(2)+(-1.5)*log(tmp*A2_inv*tmp')>likelihood_threshold
+                T2(i,j) = Cp(2)+(-1.5)*log(tmp*A2_inv*tmp');
             end
             
             

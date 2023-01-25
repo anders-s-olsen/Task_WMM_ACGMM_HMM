@@ -1,12 +1,12 @@
 Requirement already satisfied: tqdm in /zhome/61/4/109113/.local/lib/python3.10/site-packages (4.64.1)
 Requirement already satisfied: torch in /zhome/61/4/109113/.local/lib/python3.10/site-packages (1.13.1)
-Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
 Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (8.5.0.96)
 Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
 Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
 Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
-Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
 Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
+Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
 torch.Size([1, 480, 3])
 torch.float32
 tensor([[1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
@@ -63,3 +63,16 @@ tensor([[1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000]])
+un_norm_pi
+tensor([0.1054, 0.7829])
+------------------------------
+mix_comp_0
+tensor([[ 3.2037e+01, -9.1789e+02, -2.1303e+03],
+        [-9.1789e+02,  2.6443e+04,  6.1366e+04],
+        [-2.1303e+03,  6.1366e+04,  1.4241e+05]])
+------------------------------
+mix_comp_1
+tensor([[ 0.3492, -0.2375, -0.0710],
+        [-0.2375,  1.1132, -0.1560],
+        [-0.0710, -0.1560,  0.2797]])
+------------------------------

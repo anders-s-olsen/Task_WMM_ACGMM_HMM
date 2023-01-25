@@ -3,8 +3,8 @@ Requirement already satisfied: torch in /zhome/61/4/109113/.local/lib/python3.10
 Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
 Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (8.5.0.96)
 Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
-Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
 Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
 Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
 Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
 torch.Size([1, 480, 3])
@@ -63,3 +63,16 @@ tensor([[1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000,
          1.0000, 1.0000, 1.0000]])
+un_norm_pi
+tensor([0.0597, 0.1134])
+------------------------------
+mix_comp_0
+tensor([[1.0868e-01, 2.1909e-02, 2.9029e-01],
+        [2.1909e-02, 4.2115e+00, 1.3106e+01],
+        [2.9029e-01, 1.3106e+01, 4.7112e+01]])
+------------------------------
+mix_comp_1
+tensor([[ 1.7281,  3.1202,  1.4048],
+        [ 3.1202,  8.6835,  8.0207],
+        [ 1.4048,  8.0207, 33.3852]])
+------------------------------
