@@ -62,7 +62,7 @@ class AngularCentralGaussian(nn.Module):
             raise ValueError('NaN was produced!')
 
         log_acg_pdf = self.log_sphere_surface() \
-                      + 0.5 * log_det_A \
+                      - 0.5 * log_det_A \
                       - self.half_p * torch.log(matmul2)
 
         return log_acg_pdf
