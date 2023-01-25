@@ -1,0 +1,64 @@
+Requirement already satisfied: tqdm in /zhome/61/4/109113/.local/lib/python3.10/site-packages (4.64.1)
+Requirement already satisfied: torch in /zhome/61/4/109113/.local/lib/python3.10/site-packages (1.13.1)
+Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (8.5.0.96)
+Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
+Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
+Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
+torch.Size([1, 2880, 3])
+torch.float32
+tensor([[1., 1., 1.,  ..., 1., 1., 1.]])
+un_norm_pi
+tensor([0.3350, 0.6632])
+------------------------------
+mix_comp_0
+tensor([[   85520.1953,   525840.9375,  -550113.6875],
+        [  525840.8125,  3233268.0000, -3382513.7500],
+        [ -550113.6875, -3382514.0000,  3538649.2500]])
+------------------------------
+mix_comp_1
+tensor([[ 1115.7048,  1045.2460, -1342.3433],
+        [ 1045.2460,   980.1301, -1258.1436],
+        [-1342.3433, -1258.1434,  1615.8599]])
+------------------------------
+un_norm_priors
+tensor([-1.5476,  3.0952])
+------------------------------
+un_norm_Transition_matrix
+tensor([[ 1.8322, -0.3467],
+        [-0.3117,  1.5084]])
+------------------------------
+emission_model_0
+tensor([[  903.8719, -1198.8339,   763.2840],
+        [-1198.8339,  1590.5631, -1012.8768],
+        [  763.2840, -1012.8768,   645.6224]])
+------------------------------
+emission_model_1
+tensor([[1.5028e+01, 8.9732e+02, 8.5918e+02],
+        [8.9732e+02, 5.4797e+04, 5.2488e+04],
+        [8.5918e+02, 5.2488e+04, 5.0278e+04]])
+------------------------------
+un_norm_pi
+tensor([ 0.7387, -0.1444])
+------------------------------
+mix_comp_0
+{'mu': tensor([0.0800, 0.7085, 0.7012]), 'kappa': tensor([5.9008])}
+------------------------------
+mix_comp_1
+{'mu': tensor([0.5930, 0.5756, 0.5631]), 'kappa': tensor([14.1119])}
+------------------------------
+un_norm_priors
+tensor([ 2.4548, -1.6699])
+------------------------------
+un_norm_Transition_matrix
+tensor([[ 2.2457, -1.4137],
+        [-1.3306,  1.8776]])
+------------------------------
+emission_model_0
+{'mu': tensor([0.0667, 0.7061, 0.7050]), 'kappa': tensor([7.2095])}
+------------------------------
+emission_model_1
+{'mu': tensor([0.5516, 0.5896, 0.5900]), 'kappa': tensor([12.7271])}
+------------------------------
