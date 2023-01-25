@@ -9,7 +9,7 @@ SIGMAs = cat(3,sig2,sig3);
 % PI = [0.33,0.33,0.34];
 
 %% calculate PI and transition matrix
-task = resample(table2array(readtable('data/raw/motor_ref.txt')),6,1);
+task = resample(table2array(readtable('data/raw/motor_ref.txt')),2,1);
 PI = (task-min(task))./sum(task-min(task),2);
 [~,maxseq] = max(PI,[],2);
 
@@ -36,18 +36,46 @@ else
 end
 %% Figure 1
 pointsspherefig(X,cluster_id);
-view(-29,-13)
 % exportgraphics(gcf,[ff,'sphere_WMM_data.png'],'Resolution',300)
+
+
+% WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0)
+
+%% emission probs
+
+figure('units','normalized','outerposition',[0 0.6 .6 0.3]),
+plot(table2array(readtable('data/raw/motor_ref.txt')));
+
+figure('units','normalized','outerposition',[0.6 0.6 .6 0.3]),
+x = table2array(readtable('data/synthetic/Watson_MM_posterior.csv'));
+plot([smooth(x(:,1)),smooth(x(:,2))]);
+ylim([-0.1 1.1])
+figure('units','normalized','outerposition',[0.6 0.3 .6 0.3]),
+x = table2array(readtable('data/synthetic/Watson_HMM_viterbi.csv'));
+plot(x);
+ylim([-0.1 1.1])
+figure('units','normalized','outerposition',[0.6 0.0 .6 0.3]),
+x = table2array(readtable('data/synthetic/ACG_MM_posterior.csv'));
+plot([smooth(x(:,1)),smooth(x(:,2))]);
+ylim([-0.1 1.1])
+figure('units','normalized','outerposition',[0.6 -0.3 .6 0.3]),
+x = table2array(readtable('data/synthetic/ACG_HMM_viterbi.csv'));
+plot(x);
+ylim([-0.1 1.1])
+
+
+
 
 %% Figure 2
 %%% Watson MM
+% WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0);mu1 = WMM_results.mu(:,1);mu2 = WMM_results.mu(:,2);
 mu1 = table2array(readtable('data/synthetic/Watson_MM_comp0mu.csv'));
 kappa1 = table2array(readtable('data/synthetic/Watson_MM_comp0kappa.csv'));
 mu2 = table2array(readtable('data/synthetic/Watson_MM_comp1mu.csv'));
 kappa2 = table2array(readtable('data/synthetic/Watson_MM_comp1kappa.csv'));
 contourspherefig([mu1,mu2],[kappa2,kappa2],[])
 title('Watson mixture')
-view(-29,-13)
+
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG MM
@@ -89,7 +117,7 @@ for idx = 1:num_clusters
 end
 
 X = zeros(num_points,point_dim);
-cluster_allocation = zeros(num_points);
+cluster_allocation = zeros(num_points,1);
 for n = 1:num_points
     n_clust_id = randsample(num_clusters,1,true,PI(n,:));
     nx = Lower_chol(:,:,n_clust_id) * randn(point_dim,1);
@@ -136,25 +164,25 @@ end
 
 function pointsspherefig(X,cluster_id)
 gridPoints = 1000;
-[x,y,z] = sphere(gridPoints);
+[XX,YY,ZZ] = sphere(gridPoints);
 figure('units','normalized','outerposition',[0 0 .5 1]); clf;%'visible','off',
 
-sh(1) = surf(x,y,z, 'FaceAlpha', .2, 'EdgeAlpha', .1,'EdgeColor','none','FaceColor','none');
+sh(1) = surf(XX,YY,ZZ, 'FaceAlpha', .2, 'EdgeAlpha', .1,'EdgeColor','none','FaceColor','none');
 hold on; axis equal;
 xlabel('x'); ylabel('y'); zlabel('z');
+view(-29,-13)
 
 % smaller sphere to show lines on
 [x2,y2,z2] = sphere(20); %30
 sh(2) = surf(x2,y2,z2, 'EdgeAlpha', .2,'FaceColor','none','EdgeColor',[0,0,0]);
-
-%
-% figure;
-cols = [0,0.4,0;0.5,0,0;0,0,0.5];
 set(gca,'XColor', 'none','YColor','none','ZColor','none')
 grid off
+view(-29,-13)
+
+cols = [0,0.4,0;0.5,0,0;0,0,0.5];
 
 for i = 1:numel(unique(cluster_id))
-scatter3(X(cluster_id==i,1), X(cluster_id==i,2), X(cluster_id==i,3),7,cols(i,:),'filled');
+    scatter3(X(cluster_id==i,1), X(cluster_id==i,2), X(cluster_id==i,3),7,cols(i,:),'filled');
 end
 end
 
@@ -168,15 +196,17 @@ ax1 = axes;
 sh(1) = surf(XX,YY,ZZ, 'FaceAlpha', .2, 'EdgeAlpha', .1,'EdgeColor','none','FaceColor','none');
 hold on; axis equal;
 xlabel('x'); ylabel('y'); zlabel('z');
+view(-29,-13)
 
 % smaller sphere to show lines on
 [x2,y2,z2] = sphere(20); %30
 sh(2) = surf(x2,y2,z2, 'EdgeAlpha', .2,'FaceColor','none','EdgeColor',[0,0,0]);
 set(gca,'XColor', 'none','YColor','none','ZColor','none')
 grid off
+view(-29,-13)
 
 addpath('/dtu-compute/HCP_dFC/2023/hcp_dfc/src/models/')
-% WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0)
+% 
 % mu1 = WMM_results.mu(:,1);mu2 = WMM_results.mu(:,2);
 % kappa = WMM_results.kappa;
 
@@ -204,12 +234,10 @@ if ~isempty(mu)&&~isempty(kappa)
 elseif ~isempty(A)
 %     L_chol1 = chol(A(:,:,1),'lower');
 %     L_chol2 = chol(A(:,:,2),'lower');
-likelihood_threshold = -7;
-Cp(1) = gammaln(1.5)-1.5*log(2*pi)+log(inv(sqrt(det(A(:,:,1)))));
-Cp(2) = gammaln(1.5)-1.5*log(2*pi)+log(inv(sqrt(det(A(:,:,1)))));
+likelihood_threshold = -5;
+Cp(1) = gammaln(1.5)-1.5*log(2*pi)+log(sqrt(det(A(:,:,1))));
+Cp(2) = gammaln(1.5)-1.5*log(2*pi)+log(sqrt(det(A(:,:,2))));
 
-A1_inv = inv(A(:,:,1));
-A2_inv = inv(A(:,:,2));
 
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
@@ -218,10 +246,10 @@ A2_inv = inv(A(:,:,2));
 %             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A2_inv*tmp');
             
             
-            if Cp(1)+(-1.5)*log(tmp*A1_inv*tmp')>likelihood_threshold
-                T1(i,j) = Cp(1)+(-1.5)*log(tmp*A1_inv*tmp');
-            elseif Cp(2)+(-1.5)*log(tmp*A2_inv*tmp')>likelihood_threshold
-                T2(i,j) = Cp(2)+(-1.5)*log(tmp*A2_inv*tmp');
+            if Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp')>likelihood_threshold
+                T1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
+            elseif Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp')>likelihood_threshold
+                T2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
             end
             
             
@@ -243,11 +271,13 @@ ax2 = axes;
 sh(3) = surf(ax2,XX,YY,ZZ);
 set(sh(3),'EdgeColor','none');
 set(sh(3),'CData',(T1-min(T1(:)))./(max(T1(:))-min(T1(:))));
+view(-29,-13)
 
 ax3 = axes;
 sh(4) = surf(ax3,XX,YY,ZZ);
 set(sh(4),'EdgeColor','none');
 set(sh(4),'CData',(T2-min(T2(:)))./(max(T2(:))-min(T2(:))));
+view(-29,-13)
 
 % ax4 = axes;
 % sh(4) = surf(ax4,XX,YY,ZZ);
@@ -277,6 +307,8 @@ cmaps{2} = ([linspace(1,0.5,256)',linspace(1,0,256)',linspace(1,0,256)']);
 % 
 colormap(ax2,cmaps{1})
 colormap(ax3,cmaps{2})
+
+
 end
 
 
