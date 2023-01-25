@@ -71,7 +71,7 @@ for idx in range(5):
     ACG_MM_ll[idx] = like
     if ACG_MM_ll[idx,-1] < best_like:
         best_model = ACG_MM
-        best_like = ACG_MM_ll[-1]
+        best_like = ACG_MM_ll[idx,-1]
         best_idx = idx
 #ACG_HMM_optimizer = optim.Adam(ACG_HMM.parameters(), lr=best_LR)
 #ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
