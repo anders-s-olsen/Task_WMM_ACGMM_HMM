@@ -45,9 +45,9 @@ synth_dataset = '../data/synthetic/HMMdata.h5'
 dataf = h5py.File(synth_dataset, mode='r')
 data = torch.tensor(np.array(dataf['X']))
 data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
-print(data.shape) #needs to be subjects, time, dims
-print(data.dtype)
-print(torch.norm(data,dim=2))
+#print(data.shape) #needs to be subjects, time, dims
+#print(data.dtype)
+#print(torch.norm(data,dim=2))
 
 
 # ## ACG mixture
