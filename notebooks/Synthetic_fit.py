@@ -56,7 +56,7 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 # In[7]:
 
 
-best_LR = 0.1
+best_LR = 0.01
 int_epoch = 1000
 ACG_MM_ll = np.zeros((5,int_epoch))
 best_like = 100000000
@@ -69,7 +69,7 @@ for idx in range(5):
     ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=best_LR)
     like = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
     ACG_MM_ll[idx] = like
-    if ACG_MM_ll[-1] < best_like:
+    if ACG_MM_ll[idx,-1] < best_like:
         best_model = ACG_MM
         best_like = ACG_MM_ll[-1]
         best_idx = idx
