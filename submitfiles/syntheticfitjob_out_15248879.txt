@@ -1,0 +1,44 @@
+Requirement already satisfied: tqdm in /zhome/61/4/109113/.local/lib/python3.10/site-packages (4.64.1)
+Requirement already satisfied: torch in /zhome/61/4/109113/.local/lib/python3.10/site-packages (1.13.1)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (8.5.0.96)
+Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
+Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
+Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
+Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
+un_norm_pi
+tensor([0.1124, 0.2973])
+------------------------------
+mix_comp_0
+tensor([[397667.2188, 394930.4375, 396616.6875],
+        [394930.4375, 392213.0938, 393886.9062],
+        [396616.6562, 393886.9062, 395570.0000]])
+------------------------------
+mix_comp_1
+tensor([[5.8144e+00, 6.3263e+03, 6.3753e+03],
+        [6.3264e+03, 7.1272e+06, 7.1825e+06],
+        [6.3753e+03, 7.1825e+06, 7.2382e+06]])
+------------------------------
+un_norm_pi
+tensor([0.7192, 0.8908])
+------------------------------
+mix_comp_0
+{'mu': tensor([0.5798, 0.5937, 0.5580]), 'kappa': tensor([10.2701])}
+------------------------------
+mix_comp_1
+{'mu': tensor([0.0121, 0.7202, 0.6937]), 'kappa': tensor([12.0132])}
+------------------------------
+un_norm_pi
+tensor([0.1124, 0.2973])
+------------------------------
+mix_comp_0
+tensor([[397667.2188, 394930.4375, 396616.6875],
+        [394930.4375, 392213.0938, 393886.9062],
+        [396616.6562, 393886.9062, 395570.0000]])
+------------------------------
+mix_comp_1
+tensor([[5.8144e+00, 6.3263e+03, 6.3753e+03],
+        [6.3264e+03, 7.1272e+06, 7.1825e+06],
+        [6.3753e+03, 7.1825e+06, 7.2382e+06]])
+------------------------------

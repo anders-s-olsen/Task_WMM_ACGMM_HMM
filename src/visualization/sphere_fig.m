@@ -49,19 +49,19 @@ plot(task);
 figure('units','normalized','outerposition',[0.6 0.6 .6 0.3]),
 x = table2array(readtable('data/synthetic/Watson_MM_posterior.csv'));
 plot([smooth(x(:,1)),smooth(x(:,2))]);
-ylim([-0.1 1.1])
+ylim([-0.1 1.1]),title('Watson MM')
 figure('units','normalized','outerposition',[0.6 0.3 .6 0.3]),
 x = table2array(readtable('data/synthetic/Watson_HMM_viterbi.csv'));
 plot(x);
-ylim([-0.1 1.1])
+ylim([-0.1 1.1]),title('Watson HMM')
 figure('units','normalized','outerposition',[0.6 0.0 .6 0.3]),
 x = table2array(readtable('data/synthetic/ACG_MM_posterior.csv'));
 plot([smooth(x(:,1)),smooth(x(:,2))]);
-ylim([-0.1 1.1])
+ylim([-0.1 1.1]),title('ACG MM')
 figure('units','normalized','outerposition',[0.6 -0.3 .6 0.3]),
 x = table2array(readtable('data/synthetic/ACG_HMM_viterbi.csv'));
 plot(x);
-ylim([-0.1 1.1])
+ylim([-0.1 1.1]),title('ACG HMM')
 
 
 
@@ -79,9 +79,9 @@ title('Watson mixture')
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG MM
-A1 = table2array(readtable('data/synthetic/ACG_MM_comp0.csv'));
-A2 = table2array(readtable('data/synthetic/ACG_MM_comp1.csv'));
-contourspherefig([],[],cat(3,A1,A2))
+L1 = table2array(readtable('data/synthetic/ACG_MM_comp0.csv'));
+L2 = table2array(readtable('data/synthetic/ACG_MM_comp1.csv'));
+contourspherefig([],[],cat(3,L1,L2))
 gcf,title('ACG mixture')
 view(-29,-13)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
@@ -97,9 +97,9 @@ view(-29,-13)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG HMM
-A1 = table2array(readtable('data/synthetic/ACG_HMM_comp0.csv'));
-A2 = table2array(readtable('data/synthetic/ACG_HMM_comp1.csv'));
-contourspherefig([],[],cat(3,A1,A2))
+L1 = table2array(readtable('data/synthetic/ACG_HMM_comp0.csv'));
+L2 = table2array(readtable('data/synthetic/ACG_HMM_comp1.csv'));
+contourspherefig([],[],cat(3,L1,L2))
 gcf,title('ACG HMM')
 view(-29,-13)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
@@ -187,7 +187,7 @@ end
 end
 
 %% Figure fit, Sphere, contour
-function contourspherefig(mu,kappa,A)
+function contourspherefig(mu,kappa,L)
 
 gridPoints = 1000;
 [XX,YY,ZZ] = sphere(gridPoints);
@@ -231,14 +231,11 @@ if ~isempty(mu)&&~isempty(kappa)
             end
         end
     end
-elseif ~isempty(A)
-    %     L_chol1 = chol(A(:,:,1),'lower');
-    %     L_chol2 = chol(A(:,:,2),'lower');
-    likelihood_threshold = -5;
-    Cp(1) = gammaln(1.5)-log(2)-1.5*log(pi)-0.5*log(det(A(:,:,1)));
-    Cp(2) = gammaln(1.5)-log(2)-1.5*log(pi)-0.5*log(det(A(:,:,2)));
-    A1_inv = inv(A(:,:,1));
-    A2_inv = inv(A(:,:,2));
+elseif ~isempty(L)
+    likelihood_threshold = 0;
+    Cp = gammaln(1.5)-log(2)-1.5*log(pi);
+    logdeta1 = -2*sum(log(abs(diag(L(:,:,1)))));
+    logdeta2 = -2*sum(log(abs(diag(L(:,:,2)))));
     
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
@@ -246,11 +243,13 @@ elseif ~isempty(A)
             %             ll1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
             %             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
             
+            B1 = tmp*L(:,:,1);B1 = sum(B1.*B1,2);
+            B2 = tmp*L(:,:,2);B2 = sum(B2.*B2,2);
             
-            if Cp(1)+(-1.5)*log(tmp*A1_inv*tmp')>likelihood_threshold
-                T1(i,j) = Cp(1)+(-1.5)*log(tmp*A1_inv*tmp');
-            elseif Cp(2)+(-1.5)*log(tmp*A2_inv*tmp')>likelihood_threshold
-                T2(i,j) = Cp(2)+(-1.5)*log(tmp*A2_inv*tmp');
+            if Cp-0.5*logdeta1+(-1.5)*log(B1)>likelihood_threshold
+                T1(i,j) = Cp-0.5*logdeta1+(-1.5)*log(B1);
+            elseif Cp-0.5*logdeta2+(-1.5)*log(B2)>likelihood_threshold
+                T2(i,j) = Cp-0.5*logdeta2+(-1.5)*log(B2);
             end
             
             

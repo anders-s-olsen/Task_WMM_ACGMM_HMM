@@ -36,16 +36,24 @@ V_filt_norm = normc(V_filt);
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_filt_norm(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,500,400])
+figure('Position',[50,50,500,350])
 tiledlayout(7,1)
 nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+0.05*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
 set(gca,'box','off')
-xlim([-.1 10.1])
+xticks([])
+xlim([-.1 4.1])
+title('fMRI time series')
 yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%title('fMRI time-series')
 nexttile(6,[2,1])
-plot(t_fMRI/60,target+[0,max(target(:))])
+plot(t_fMRI/60,target+[0,0.2+max(target(:))],'LineWidth',1.5)
+title('Right/left hand motor task')
 xlabel('Time [min]'),
+ylim([-.3,2.7])
+xlim([-.1 4.1])
+xticks(0:4)
+yticks([mean(target(:,1)),mean(target(:))+max(target(:))+0.2])
+yticklabels({'RH','LH'})
 exportgraphics(gca,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
 %% Simple time series plot, Hilbert fMRI, 5min
@@ -53,9 +61,13 @@ t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_phase(:,1:9);
 V_subs5(:,2:4) = nan;
 figure('Position',[50,50,500,300])
+tiledlayout(7,1)
+nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+2.2*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
 set(gca,'box','off')
-xlim([-.1 10.1])
+xlim([-.1 4.1])
+title('Hilbert transform')
+xticks(0:4)
 yticks(2.2*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),xlabel('Time [min]'),%title('fMRI time-series')
 exportgraphics(gca,[ff,'methods_Hilbert_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
@@ -127,7 +139,7 @@ for i = 1:numel(timeidx)
         set(cb,'position',[.16 .11 .03 .325])
     end
     axis square
-    
+    title('Phase coherence maps')
     exportgraphics(gca,[ff,'cohmat_fMRI_',num2str(i),'.png'],'Resolution',300)
 %     close
 end
@@ -160,7 +172,7 @@ for i = 1:numel(timeidx)
     % ylabel('Brain region')
     % yticks(20:20:100)
     box on
-    
+    title('Leading eigenvectors')
     exportgraphics(gca,[ff,'leadeig_fMRI_',num2str(i),'.png'],'Resolution',300,'BackgroundColor','none')
     close
 end
