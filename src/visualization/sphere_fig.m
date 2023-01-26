@@ -3,13 +3,14 @@ clear,close all
 ff = 'reports/methods/'; %figure folder
 %% specify sig
 %sig1 = diag([1,1e-3,1e-3]);
-sig2 = 1*(eye(3)+0.99*(ones(3)-eye(3)));
-sig3 = diag([1e-2,1,1])+0.9*[0,0,0;0,0,1;0,1,0];
+sig2 = 1*(eye(3)+0.8*(ones(3)-eye(3)));
+sig3 = diag([1e-2,1,1])+0.91*[0,0,0;0,0,1;0,1,0];
 SIGMAs = cat(3,sig2,sig3);
 % PI = [0.33,0.33,0.34];
 
 %% calculate PI and transition matrix
-task = resample(table2array(readtable('data/raw/motor_ref.txt')),2,1);
+task_raw = table2array(readtable('data/raw/motor_ref.txt'));
+task = resample(task_raw(1:97,:),12,1);
 PI = (task-min(task))./sum(task-min(task),2);
 [~,maxseq] = max(PI,[],2);
 
@@ -21,15 +22,14 @@ T(1,2) = mean(next1==2);
 T(2,1) = mean(next2==1);
 T(2,2) = mean(next2==2);
 
-% [X, cluster_id] = syntheticMixture3D(PI, SIGMAs, size(PI,1));
 rng default
-% [X,cluster_id] = syntheticHMM(PI,SIGMAs, T,size(PI,1),1);
 if ~exist('data/synthetic/HMMdata.h5')
-[X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1));
-h5create('data/synthetic/HMMdata.h5','/X',size(X))
-h5write('data/synthetic/HMMdata.h5','/X',X)
-h5create('data/synthetic/HMMdata.h5','/cluster_id',size(cluster_id))
-h5write('data/synthetic/HMMdata.h5','/cluster_id',cluster_id)
+    [X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1),0.01);
+% % % %     [X,cluster_id] = syntheticHMM(PI,SIGMAs, T,length(maxseq),1);
+    h5create('data/synthetic/HMMdata.h5','/X',size(X))
+    h5write('data/synthetic/HMMdata.h5','/X',X)
+    h5create('data/synthetic/HMMdata.h5','/cluster_id',size(cluster_id))
+    h5write('data/synthetic/HMMdata.h5','/cluster_id',cluster_id)
 else
     X = h5read('data/synthetic/HMMdata.h5','/X');
     cluster_id = h5read('data/synthetic/HMMdata.h5','/cluster_id');
@@ -44,7 +44,7 @@ pointsspherefig(X,cluster_id);
 %% emission probs
 
 figure('units','normalized','outerposition',[0 0.6 .6 0.3]),
-plot(table2array(readtable('data/raw/motor_ref.txt')));
+plot(task);
 
 figure('units','normalized','outerposition',[0.6 0.6 .6 0.3]),
 x = table2array(readtable('data/synthetic/Watson_MM_posterior.csv'));
@@ -107,20 +107,20 @@ view(-29,-13)
 
 
 %% function
-function [X,cluster_allocation] = syntheticMixture3D(PI,SIGMAs,num_points)
+function [X,cluster_allocation] = syntheticMixture3D(PI,SIGMAs,num_points,noise)
 
 num_clusters = size(SIGMAs,3);
 point_dim = size(SIGMAs,2);
-Lower_chol = zeros(point_dim,point_dim,num_clusters);
-for idx = 1:num_clusters
-    Lower_chol(:,:,idx) = chol(SIGMAs(:,:,idx),'lower');
-end
+% Lower_chol = zeros(point_dim,point_dim,num_clusters);
+% for idx = 1:num_clusters
+%     Lower_chol(:,:,idx) = chol(SIGMAs(:,:,idx),'lower');
+% end
 
 X = zeros(num_points,point_dim);
 cluster_allocation = zeros(num_points,1);
 for n = 1:num_points
     n_clust_id = randsample(num_clusters,1,true,PI(n,:));
-    nx = Lower_chol(:,:,n_clust_id) * randn(point_dim,1);
+    nx = SIGMAs(:,:,n_clust_id) * randn(point_dim,1)+noise*randn(point_dim,1);
     X(n,:) = normc(nx);
     cluster_allocation(n) = n_clust_id;
 end
@@ -145,7 +145,7 @@ for sub = 1:num_subject
         if t==1
             t_state_id = randsample(1:num_states,1,true,pi(t,:));
         else
-%             get transition probs from state at time t-1 to all states at time t
+            %             get transition probs from state at time t-1 to all states at time t
             t_z_probs = T_matrix(Z_state_seq(sub,t-1),:);
             % get state for time t by weighting the transition probs
             t_state_id = randsample(1:num_states,1,true,t_z_probs);
@@ -206,7 +206,7 @@ grid off
 view(-29,-13)
 
 addpath('/dtu-compute/HCP_dFC/2023/hcp_dfc/src/models/')
-% 
+%
 % mu1 = WMM_results.mu(:,1);mu2 = WMM_results.mu(:,2);
 % kappa = WMM_results.kappa;
 
@@ -220,7 +220,7 @@ T1 = nan(size(XX));T2 = nan(size(XX));
 varfactor = 0.4;
 
 if ~isempty(mu)&&~isempty(kappa)
-%     kappa = kappa*10;
+    %     kappa = kappa*10;
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
             tmp = [XX(i,j),YY(i,j),ZZ(i,j)];
@@ -232,19 +232,19 @@ if ~isempty(mu)&&~isempty(kappa)
         end
     end
 elseif ~isempty(A)
-%     L_chol1 = chol(A(:,:,1),'lower');
-%     L_chol2 = chol(A(:,:,2),'lower');
-likelihood_threshold = 0;
-Cp(1) = gammaln(1.5)-1.5*log(2*pi)-0.5*log(det(A(:,:,1)));
-Cp(2) = gammaln(1.5)-1.5*log(2*pi)-0.5*log(det(A(:,:,2)));
-A1_inv = inv(A(:,:,1));
-A2_inv = inv(A(:,:,2));
-
+    %     L_chol1 = chol(A(:,:,1),'lower');
+    %     L_chol2 = chol(A(:,:,2),'lower');
+    likelihood_threshold = -5;
+    Cp(1) = gammaln(1.5)-log(2)-1.5*log(pi)-0.5*log(det(A(:,:,1)));
+    Cp(2) = gammaln(1.5)-log(2)-1.5*log(pi)-0.5*log(det(A(:,:,2)));
+    A1_inv = inv(A(:,:,1));
+    A2_inv = inv(A(:,:,2));
+    
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
             tmp = [XX(i,j),YY(i,j),ZZ(i,j)];
-%             ll1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
-%             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
+            %             ll1(i,j) = Cp(1)+(-1.5)*log(tmp*A(:,:,1)*tmp');
+            %             ll2(i,j) = Cp(2)+(-1.5)*log(tmp*A(:,:,2)*tmp');
             
             
             if Cp(1)+(-1.5)*log(tmp*A1_inv*tmp')>likelihood_threshold
@@ -254,11 +254,11 @@ A2_inv = inv(A(:,:,2));
             end
             
             
-%             if norm(L_chol1*tmp').^2>1-varfactor
-%                 T1(i,j) = norm((L_chol1*tmp')).^2;
-%             elseif norm(L_chol2*tmp').^2>1-varfactor
-%                 T2(i,j) = norm((L_chol2*tmp')).^2;
-%             end
+            %             if norm(L_chol1*tmp').^2>1-varfactor
+            %                 T1(i,j) = norm((L_chol1*tmp')).^2;
+            %             elseif norm(L_chol2*tmp').^2>1-varfactor
+            %                 T2(i,j) = norm((L_chol2*tmp')).^2;
+            %             end
         end
     end
 end
@@ -305,7 +305,7 @@ col2 = [0.5,0,0];
 cmaps{1} = ([linspace(1,0,256)',linspace(1,0.5,256)',linspace(1,0,256)']);
 cmaps{2} = ([linspace(1,0.5,256)',linspace(1,0,256)',linspace(1,0,256)']);
 
-% 
+%
 colormap(ax2,cmaps{1})
 colormap(ax3,cmaps{2})
 
