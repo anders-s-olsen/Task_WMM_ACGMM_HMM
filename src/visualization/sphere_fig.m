@@ -36,32 +36,11 @@ else
 end
 %% Figure 1
 pointsspherefig(X,cluster_id);
-exportgraphics(gcf,[ff,'sphere_WMM_data.png'],'Resolution',300)
+% pause(2)
+% exportgraphics(gcf,[ff,'sphere_WMM_data.png'],'Resolution',300)
 
 
 % WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0)
-
-%% emission probs
-
-figure('units','normalized','outerposition',[0 0.6 .6 0.3]),
-plot(task);
-
-figure('units','normalized','outerposition',[0.6 0.6 .6 0.3]),
-x = table2array(readtable('data/synthetic/Watson_MM_posterior.csv'));
-plot([smooth(x(:,1)),smooth(x(:,2))]);
-ylim([-0.1 1.1]),title('Watson MM')
-figure('units','normalized','outerposition',[0.6 0.3 .6 0.3]),
-x = table2array(readtable('data/synthetic/Watson_HMM_viterbi.csv'));
-plot(x);
-ylim([-0.1 1.1]),title('Watson HMM')
-figure('units','normalized','outerposition',[0.6 0.0 .6 0.3]),
-x = table2array(readtable('data/synthetic/ACG_MM_posterior.csv'));
-plot([smooth(x(:,1)),smooth(x(:,2))]);
-ylim([-0.1 1.1]),title('ACG MM')
-figure('units','normalized','outerposition',[0.6 -0.3 .6 0.3]),
-x = table2array(readtable('data/synthetic/ACG_HMM_viterbi.csv'));
-plot(x);
-ylim([-0.1 1.1]),title('ACG HMM')
 
 
 
@@ -73,39 +52,90 @@ mu1 = table2array(readtable('data/synthetic/Watson_MM_comp0mu.csv'));
 kappa1 = table2array(readtable('data/synthetic/Watson_MM_comp0kappa.csv'));
 mu2 = table2array(readtable('data/synthetic/Watson_MM_comp1mu.csv'));
 kappa2 = table2array(readtable('data/synthetic/Watson_MM_comp1kappa.csv'));
-contourspherefig([mu1,mu2],[kappa2,kappa2],[])
-title('Watson mixture')
-
+orderwmm = contourspherefig([mu1,mu2],[kappa1,kappa2],[],SIGMAs);
+% title('Watson mixture')
+% pause(2)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG MM
 L1 = table2array(readtable('data/synthetic/ACG_MM_comp0.csv'));
 L2 = table2array(readtable('data/synthetic/ACG_MM_comp1.csv'));
-contourspherefig([],[],cat(3,L1,L2))
-gcf,title('ACG mixture')
-view(-29,-13)
-% exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
-return
+orderacgmm = contourspherefig([],[],cat(3,L1,L2),SIGMAs);
+% gcf,title('ACG mixture')
+% pause(2)
+% exportgraphics(gcf,[ff,'sphere_ACGMM_contour.png'],'Resolution',300)
+
 %%% Watson HMM
 mu1 = table2array(readtable('data/synthetic/Watson_HMM_comp0mu.csv'));
 kappa1 = table2array(readtable('data/synthetic/Watson_HMM_comp0kappa.csv'));
 mu2 = table2array(readtable('data/synthetic/Watson_HMM_comp1mu.csv'));
 kappa2 = table2array(readtable('data/synthetic/Watson_HMM_comp1kappa.csv'));
-contourspherefig([mu1,mu2],[kappa2,kappa2],[])
+orderwmmhmm = contourspherefig([mu1,mu2],[kappa1,kappa2],[],SIGMAs);
 title('Watson HMM')
-view(-29,-13)
+% pause(2)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG HMM
 L1 = table2array(readtable('data/synthetic/ACG_HMM_comp0.csv'));
 L2 = table2array(readtable('data/synthetic/ACG_HMM_comp1.csv'));
-contourspherefig([],[],cat(3,L1,L2))
-gcf,title('ACG HMM')
-view(-29,-13)
+orderacgmmhmm = contourspherefig([],[],cat(3,L1,L2),SIGMAs);
+% gcf,title('ACG HMM')
+% pause(2)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
+%% emission probs
+t_fMRI = linspace(0,4.1,size(X,1));
 
+figure('Position',[50,50,400,700])
+tiledlayout(10,1)
+cols{1} = [0,0.5,0.5];
+cols{2} = [0.5,0,0.5];
 
+nexttile(1,[2,1]),hold on
+x_wmm = table2array(readtable('data/synthetic/Watson_MM_posterior.csv'));
+plot(t_fMRI,x_wmm(:,orderwmm(1))+0.2,'color',cols{1});
+plot(t_fMRI,x_wmm(:,orderwmm(2))+1.4,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+ylabel('Watson')
+title('Mixture model posterior probabilities')
+% yticks([0.65,1.75])
+% yticklabels({'\beta_1','\beta_2'})
+nexttile(3,[2,1]),hold on
+x_acgmm = table2array(readtable('data/synthetic/ACG_MM_posterior.csv'));
+plot(t_fMRI,x_acgmm(:,orderacgmm(1))+0.2,'color',cols{1});
+plot(t_fMRI,x_acgmm(:,orderacgmm(2))+1.4,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+ylabel('ACG')
+
+nexttile(5,[2,1]),hold on
+x = table2array(readtable('data/synthetic/Watson_HMM_viterbi.csv'));
+x_wmmhmm = [x,x];x_wmmhmm(:,1)=x==0;x_wmmhmm(:,2)=x==1;
+plot(t_fMRI,x_wmmhmm(:,orderwmmhmm(1))+0.2,'color',cols{1});
+plot(t_fMRI,x_wmmhmm(:,orderwmmhmm(2))+1.4,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+ylabel('Watson')
+title('Hidden Markov model state sequence')
+% yticks([0.65,1.75])
+% yticklabels({'\beta_1','\beta_2'})
+nexttile(7,[2,1]),hold on
+x = table2array(readtable('data/synthetic/ACG_HMM_viterbi.csv'));
+x_acgmmhmm = [x,x];x_acgmmhmm(:,1)=x==0;x_acgmmhmm(:,2)=x==1;
+plot(t_fMRI,x_acgmmhmm(:,orderacgmmhmm(1))+0.2,'color',cols{1});
+plot(t_fMRI,x_acgmmhmm(:,orderacgmmhmm(2))+1.4,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+ylabel('ACG')
+
+nexttile(9,[2,1])
+plot(t_fMRI,task(:,1),'LineWidth',1.5,'color',[0,0.5,0]),hold on
+plot(t_fMRI,task(:,2)+0.2+max(task(:)),'LineWidth',1.5,'color',[0.5,0,0])
+title('Right/left hand motor task')
+xlabel('Time [min]'),
+ylim([-.3,2.7])
+xlim([-.1 4.1])
+xticks(0:4)
+yticks([mean(task(:,1)),mean(task(:))+max(task(:))+0.2])
+yticklabels({'RH','LH'})
+exportgraphics(gcf,[ff,'emission_viterbi.png'],'Resolution',300)
 %% function
 function [X,cluster_allocation] = syntheticMixture3D(PI,SIGMAs,num_points,noise)
 
@@ -187,7 +217,7 @@ end
 end
 
 %% Figure fit, Sphere, contour
-function contourspherefig(mu,kappa,L)
+function order = contourspherefig(mu,kappa,L,target)
 
 gridPoints = 1000;
 [XX,YY,ZZ] = sphere(gridPoints);
@@ -217,22 +247,31 @@ addpath('/dtu-compute/HCP_dFC/2023/hcp_dfc/src/models/')
 
 T1 = nan(size(XX));T2 = nan(size(XX));
 
-varfactor = 0.4;
+varfactor = 0.5;
+likelihood_threshold = [0,-1];
+
 
 if ~isempty(mu)&&~isempty(kappa)
+    M2 = kummer_log(0.5,1.5,kappa,50000);
+    Cp = gammaln(1.5)-log(2)-1.5*log(pi)-M2';
     %     kappa = kappa*10;
     for i = 1:size(XX,1)
         for j = 1:size(XX,2)
             tmp = [XX(i,j),YY(i,j),ZZ(i,j)];
-            if (tmp*mu(:,1)).^2>1-varfactor./kappa(1)
-                T1(i,j) = (tmp*mu(:,1)).^2;
-            elseif (tmp*mu(:,2)).^2>1-varfactor./kappa(2)
-                T2(i,j) = (tmp*mu(:,2)).^2;
+            logpdf = Cp + kappa'.*((mu'*tmp').^2);
+%             if (tmp*mu(:,1)).^2>1-varfactor./kappa(1)
+%                 T1(i,j) = (tmp*mu(:,1)).^2;
+%             elseif (tmp*mu(:,2)).^2>1-varfactor./kappa(2)
+%                 T2(i,j) = (tmp*mu(:,2)).^2;
+%             end
+            if logpdf(1)>likelihood_threshold(1)
+                T1(i,j) = logpdf(1);
+            elseif logpdf(2)>likelihood_threshold(1)
+                T2(i,j) = logpdf(2);
             end
         end
     end
 elseif ~isempty(L)
-    likelihood_threshold = 0;
     Cp = gammaln(1.5)-log(2)-1.5*log(pi);
     logdeta1 = -2*sum(log(abs(diag(L(:,:,1)))));
     logdeta2 = -2*sum(log(abs(diag(L(:,:,2)))));
@@ -246,9 +285,9 @@ elseif ~isempty(L)
             B1 = tmp*L(:,:,1);B1 = sum(B1.*B1,2);
             B2 = tmp*L(:,:,2);B2 = sum(B2.*B2,2);
             
-            if Cp-0.5*logdeta1+(-1.5)*log(B1)>likelihood_threshold
+            if Cp-0.5*logdeta1+(-1.5)*log(B1)>likelihood_threshold(2)
                 T1(i,j) = Cp-0.5*logdeta1+(-1.5)*log(B1);
-            elseif Cp-0.5*logdeta2+(-1.5)*log(B2)>likelihood_threshold
+            elseif Cp-0.5*logdeta2+(-1.5)*log(B2)>likelihood_threshold(2)
                 T2(i,j) = Cp-0.5*logdeta2+(-1.5)*log(B2);
             end
             
@@ -301,15 +340,46 @@ col1 = [0,0.4,0];
 col2 = [0.5,0,0];
 % col3 = [0.5,0,0.5];
 
-cmaps{1} = ([linspace(1,0,256)',linspace(1,0.5,256)',linspace(1,0,256)']);
-cmaps{2} = ([linspace(1,0.5,256)',linspace(1,0,256)',linspace(1,0,256)']);
+% cmaps{1} = ([linspace(1,0,256)',linspace(1,0.5,256)',linspace(1,0,256)']);
+% cmaps{2} = ([linspace(1,0.5,256)',linspace(1,0,256)',linspace(1,0,256)']);
+
+cmaps{1} = ([linspace(1,0,256)',linspace(1,0.5,256)',linspace(1,0.5,256)']);
+cmaps{2} = ([linspace(1,0.5,256)',linspace(1,0,256)',linspace(1,0.5,256)']);
 
 %
-colormap(ax2,cmaps{1})
-colormap(ax3,cmaps{2})
+
+if ~isempty(mu)&&~isempty(kappa)
+    if ((target(:,:,1)*ones(3,1))'*mu(:,1)).^2<((target(:,:,1)*ones(3,1))'*mu(:,2)).^2
+        colormap(ax2,cmaps{2})
+        colormap(ax3,cmaps{1})
+        order = [2,1];
+    else
+        colormap(ax2,cmaps{1})
+        colormap(ax3,cmaps{2})
+        order = [1,2];
+    end
+elseif ~isempty(L)
+    if norm(inv(L(:,:,1)*L(:,:,1)')./norm(inv(L(:,:,1)*L(:,:,1)'))-target(:,:,1)./norm(target(:,:,1)))>norm(inv(L(:,:,2)*L(:,:,2)')./norm(inv(L(:,:,2)*L(:,:,2)'))-target(:,:,1)./norm(target(:,:,1)))
+        colormap(ax2,cmaps{1})
+        colormap(ax3,cmaps{2})
+        order = [2,1];
+    else
+        colormap(ax2,cmaps{2})
+        colormap(ax3,cmaps{1})
+        order = [1,2];
+    end
+end
+
+
 
 
 end
+
+
+
+
+
+
 
 
 
