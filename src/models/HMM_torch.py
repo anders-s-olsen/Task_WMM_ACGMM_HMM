@@ -205,7 +205,8 @@ if __name__ == '__main__':
     HMM = HiddenMarkovModel(num_states=3, observation_dim=dim, emission_dist=ACG)
     X = torch.randint(1, 8, (2, 8, dim), dtype=torch.float)  # num_subject, seq_max, observation_dim
 
-    seq, probs = HMM.viterbi2(X)
+    out = HMM(X)
+    #seq, probs = HMM.viterbi2(X)
     print(X)
     print(seq)
     print(probs)
