@@ -1,7 +1,7 @@
 #!/bin/sh
 #BSUB -J syntheticfitjob
 #BSUB -q hpc
-#BSUB -R "rusage[mem=8GB]"
+#BSUB -R "rusage[mem=1000MB]"
 #BSUB -B
 #BSUB -N
 #BSUB -o syntheticfitjob_out_%J.txt

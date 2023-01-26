@@ -54,7 +54,7 @@ xlim([-.1 4.1])
 xticks(0:4)
 yticks([mean(target(:,1)),mean(target(:))+max(target(:))+0.2])
 yticklabels({'RH','LH'})
-exportgraphics(gca,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
+exportgraphics(gcf,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
 %% Simple time series plot, Hilbert fMRI, 5min
 t_fMRI = TR:TR:TR*size(V_atlas,1);
@@ -75,7 +75,7 @@ yticks(2.2*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),xlabel('Time [min]
 % title('Right/left hand motor task')
 % xlabel('Time [min]'),
 
-exportgraphics(gca,[ff,'methods_Hilbert_fMRI.png'],'Resolution',300,'BackgroundColor','none')
+exportgraphics(gcf,[ff,'methods_Hilbert_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
 %% corrplot
 
@@ -96,7 +96,7 @@ for i = 1:numel(timeidx)
     end
     axis square
 %     title('Phase coherence maps')
-    exportgraphics(gca,[ff,'cohmat_fMRI_',num2str(i),'.png'],'Resolution',300)
+    exportgraphics(gcf,[ff,'cohmat_fMRI_',num2str(i),'.png'],'Resolution',300)
     close
 end
 %% many leading eigenvectors
@@ -129,7 +129,7 @@ for i = 1:numel(timeidx)
     % yticks(20:20:100)
     box on
     
-    exportgraphics(gca,[ff,'leadeig_fMRI_',num2str(i),'.png'],'Resolution',300,'BackgroundColor','none')
+    exportgraphics(gcf,[ff,'leadeig_fMRI_',num2str(i),'.png'],'Resolution',300,'BackgroundColor','none')
     close
 end
 % figure('Position',[50,50,500,300])
