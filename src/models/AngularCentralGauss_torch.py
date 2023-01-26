@@ -17,11 +17,18 @@ class AngularCentralGaussian(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
+        self.num_params = int(self.p*(self.p-1)/2+self.p)
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
-        self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
+
+        # Anders addition here: 
+        #self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
+        self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
+        #self.L_tri_inv = torch.tril(torch.ones(self.p,self.p))
+        #self.L_tri_inv[self.L_tri_inv>0] = self.L_vec
+        
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 
@@ -37,14 +44,18 @@ class AngularCentralGaussian(nn.Module):
         """ Cholesky Component -> A """
         #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
         #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
-        log_det_A = -2 * torch.sum(torch.log(torch.abs(torch.diag(self.L_tri_inv))))  # - det(A)
+        
+        L_tri_inv = torch.tril(torch.ones(self.p,self.p))
+        L_tri_inv[L_tri_inv>0] = self.L_vec
+        
+        log_det_A = -2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
         
 
         if read_A_param:
             #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
             return self.L_tri_inv
 
-        return log_det_A, self.L_tri_inv
+        return log_det_A, L_tri_inv
 
     # Probability Density function
     def log_pdf(self, X):
