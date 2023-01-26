@@ -87,13 +87,13 @@ for m in range(4):
             best_like = ll[idx,-1]
             best_idx = idx
     if m==0:
-        best_ACG_MM = model
+        best_ACG_MM = best_model
     elif m==1:
-        best_ACG_HMM = model
+        best_ACG_HMM = best_model
     elif m==2:
-        best_Watson_MM = model
+        best_Watson_MM = best_model
     elif m==3:
-        best_Watson_HMM = model
+        best_Watson_HMM = best_model
 
 # ## extract parameters from the best model (should be pi around 0.5)
 

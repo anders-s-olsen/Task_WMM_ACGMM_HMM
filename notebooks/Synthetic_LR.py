@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[4]:
+# In[1]:
 
 
 ## Imports and get_param
@@ -13,7 +13,7 @@ import h5py
 import torch
 from torch import optim
 import numpy as np
-from tqdm import tqdm
+from tqdm.notebook import trange, tqdm
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join('..')))
@@ -38,116 +38,101 @@ def get_param(model, show=True):
 
 # ## Load data and get correct shape and dtype
 
-# In[5]:
+# In[2]:
 
 
 synth_dataset = '../data/synthetic/HMMdata.h5'
 dataf = h5py.File(synth_dataset, mode='r')
 data = torch.tensor(np.array(dataf['X']))
 data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
-print(data.shape) #needs to be subjects, time, dims
-print(data.dtype)
-print(torch.norm(data,dim=2))
+#print(data.shape) #needs to be subjects, time, dims
+#print(data.dtype)
+#print(torch.norm(data,dim=2))
 
 
-# ## mixtures with learned LRs
+# ## ACG mixture
 # train model with diff learning rates, get best model 
 
-# In[6]:
+# In[7]:
 
-
-eval_LR = np.arange(0.1, 1, 0.1)
 int_epoch = 100
-acg_mm_LR_results = np.zeros((len(eval_LR),int_epoch))
-acg_hmm_LR_results = np.zeros((len(eval_LR),int_epoch))
-watson_mm_LR_results = np.zeros((len(eval_LR),int_epoch))
-watson_hmm_LR_results = np.zeros((len(eval_LR),int_epoch))
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+data = data.to(device)
 
-for idx, LR in enumerate(tqdm(eval_LR)):
-    #
-    #ACG_MM = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
-    #ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
-    Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
-    Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
-    
-    #ACG_MM_optimizer = optim.Adam(ACG_MM.parameters(), lr=LR)
-    #ACG_MM_ll = train_hmm(ACG_MM, data=torch.squeeze(data), optimizer=ACG_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
-    #acg_mm_LR_results[idx] = ACG_MM_ll
-    
-    #ACG_HMM_optimizer = optim.Adam(ACG_HMM.parameters(), lr=LR)
-    #ACG_HMM_ll = train_hmm(ACG_HMM, data=data, optimizer=ACG_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
-    #acg_hmm_LR_results[idx] = ACG_HMM_ll
-    
-    Watson_MM_optimizer = optim.Adam(Watson_MM.parameters(), lr=LR)
-    Watson_MM_ll = train_hmm(Watson_MM, data=torch.squeeze(data), optimizer=Watson_MM_optimizer, num_epoch=int_epoch, keep_bar=False)
-    watson_mm_LR_results[idx] = Watson_MM_ll
-    
-    Watson_HMM_optimizer = optim.Adam(Watson_HMM.parameters(), lr=LR)
-    Watson_HMM_ll = train_hmm(Watson_HMM, data=data, optimizer=Watson_HMM_optimizer, num_epoch=int_epoch, keep_bar=False)
-    watson_hmm_LR_results[idx] = Watson_HMM_ll
-    
+eval_LR = np.logspace(0.001,1,8)
+for LR in eval_LR:
+    for m in range(4):
+        
+        if m==0:
+            model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+        elif m==1:
+            #continue
+            model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+        elif m==2:
+            model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+        elif m==3:
+            #continue
+            model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
-
-# ## plot of learning rates
-
-# In[ ]:
-
-
-plt.close()
-#get_ipython().run_line_magic('matplotlib', 'inline')
-fig, axs = plt.subplots(2, 2,figsize=(15, 15))
-
-#for ax in 1:len(axs):
-#    axs[ax].xlabel('Epochs')
-#    axs[ax].ylabel('Log-Likelihood')
-#    axs[ax].legend(np.round(eval_LR, 3), ncol=1, bbox_to_anchor=(1.01, 1.05), loc='upper left', borderaxespad=0.)
-#    axs[ax].grid()
+        optimizer = optim.Adam(model.parameters(), lr=LR)
+        if m==0 or m==2:
+            like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
+        elif m==1 or m==3:
+            like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
+        
+        if m==0:
+            best_ACG_MM = model
+            like_ACG_MM = like
+        elif m==1:
+            best_ACG_HMM = model
+            like_ACG_HMM = like
+        elif m==2:
+            best_Watson_MM = model
+            like_Watson_MM = like
+        elif m==3:
+            best_Watson_HMM = model
+            like_Watson_HMM = like
 
 
-axs[0].plot(acg_mm_LR_results.T)
-axs[0].title('Learning rate - ACG - Synthetic3D - mixture model')
 
-axs[1].plot(acg_hmm_LR_results.T)
-axs[1].title('Learning rate - ACG - Synthetic3D - Hidden Markov Model')
+    acgmm_param = get_param(best_ACG_MM)
+    ACG_MM_post = best_ACG_MM.posterior(torch.squeeze(data))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_MM_prior.csv',torch.nn.functional.softmax(acgmm_param['un_norm_pi'],dim=0).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_MM_posterior.csv',np.transpose(ACG_MM_post.detach()))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_MM_likelihood.csv',like_ACG_MM.detach())
 
-axs[2].plot(watson_mm_LR_results.T)
-axs[2].title('Learning rate - Watson - Synthetic3D - mixture model')
+    watsonmm_param = get_param(best_Watson_MM)
+    Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_MM_likelihood.csv',like_Watson_MM.detach())
 
-axs[3].plot(watson_hmm_LR_results.T)
-axs[3].title('Learning rate - Watson - Synthetic3D - Hidden Markov Model')
-
-plt.savefig('../reports/synthetic_methods/synthetic_LRs.png')
-
-
-# ## get best models
-
-# In[ ]:
-
-
-#acg_mm_idx = np.argmax(acg_mm_LR_results)
-#acg_hmm_idx = np.argmax(acg_hmm_LR_results)
-#watson_mm_idx = np.argmax(watson_mm_LR_results)
-#watson_hmm_idx = np.argmax(watson_hmm_LR_results)
-
-
-# ## get emission probs and viterbi
-
-# In[ ]:
-
-
-#best_paths, paths_probs, emission_probs = best_model.viterbi2(data)
-#np.savetxt('../data/synthetic/emissionprobs_ACG.csv', emission_probs, delimiter=',')
-#np.savetxt('../data/synthetic/best_path_ACG.csv', best_paths, delimiter=',')
+    acghmm_param = get_param(best_ACG_HMM)
+    ACG_HMM_best_paths, ACG_HMM_paths_probs, ACG_HMM_emission_probs = best_ACG_HMM.viterbi2(data)
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_T.csv',torch.nn.functional.softmax(acghmm_param['un_norm_Transition_matrix'],dim=1).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_comp0.csv',acghmm_param['emission_model_0'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_comp1.csv',acghmm_param['emission_model_1'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'ACG_HMM_likelihood.csv',like_ACG_HMM.detach())
 
 
-# ## extract parameters from the best model (should be pi=0.5)
-
-# In[ ]:
-
-
-#acgbest_param = get_param(best_model)
-#learned_sigma = torch.stack([acgbest_param[f'emission_model_{idx}'] for idx in range(best_model.N)])
-#learned_pi = acgbest_param['un_norm_priors']
-#learned_pi = torch.nn.functional.softmax(learned_pi,dim=0)
-#print(learned_pi)
+    watsonhmm_param = get_param(best_Watson_HMM)
+    Watson_HMM_best_paths, Watson_HMM_paths_probs, Watson_HMM_emission_probs = best_Watson_HMM.viterbi2(data)
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_prior.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_priors'],dim=0).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_T.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_Transition_matrix'],dim=1).detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_comp0mu.csv',watsonhmm_param['emission_model_0']['mu'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_comp0kappa.csv',watsonhmm_param['emission_model_0']['kappa'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_comp1mu.csv',watsonhmm_param['emission_model_1']['mu'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_comp1kappa.csv',watsonhmm_param['emission_model_1']['kappa'].detach())
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_viterbi.csv',np.transpose(Watson_HMM_best_paths))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_emissionprobs.csv',np.squeeze(Watson_HMM_emission_probs))
+    np.savetxt('../data/syntheticLR/LR_',np.array2string(LR),'Watson_HMM_likelihood.csv',like_Watson_HMM.detach())
 
