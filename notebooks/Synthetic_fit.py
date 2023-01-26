@@ -102,7 +102,7 @@ np.savetxt('../data/synthetic/ACG_MM_prior.csv',torch.nn.functional.softmax(acgm
 np.savetxt('../data/synthetic/ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach())
 np.savetxt('../data/synthetic/ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
 np.savetxt('../data/synthetic/ACG_MM_posterior.csv',np.transpose(ACG_MM_post.detach()))
-exit()
+
 acghmm_param = get_param(best_ACG_HMM)
 ACG_HMM_best_paths, ACG_HMM_paths_probs, ACG_HMM_emission_probs = best_ACG_HMM.viterbi2(data)
 np.savetxt('../data/synthetic/ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
