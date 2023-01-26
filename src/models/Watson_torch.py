@@ -32,6 +32,7 @@ class Watson(nn.Module):
 
     def log_kummer_anders(self,a,b,kappa):
         # Not implemented here in vector space
+        kappa = kappa.to('cpu')
         max_iter = 5000
         tol = 10**(-10)
         foo = torch.zeros(1)
