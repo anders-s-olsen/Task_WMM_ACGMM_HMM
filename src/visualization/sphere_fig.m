@@ -36,7 +36,7 @@ else
 end
 %% Figure 1
 pointsspherefig(X,cluster_id);
-% exportgraphics(gcf,[ff,'sphere_WMM_data.png'],'Resolution',300)
+exportgraphics(gcf,[ff,'sphere_WMM_data.png'],'Resolution',300)
 
 
 % WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0)
