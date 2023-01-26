@@ -66,11 +66,11 @@ for m in range(4):
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
         elif m==1:
-            ACG_HMM = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+            model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
         elif m==2:
-            Watson_MM = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+            model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
         elif m==3:
-            Watson_HMM = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+            model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
         optimizer = optim.Adam(model.parameters(), lr=best_LR)
         if m==0 or m==2:
