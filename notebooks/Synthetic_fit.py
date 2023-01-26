@@ -55,9 +55,9 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
 # In[7]:
 
-num_reps = 1
+num_reps = 5
 best_LR = 0.01
-int_epoch = 100
+int_epoch = 1000
 
 for m in range(4):
     ll = np.zeros((num_reps,int_epoch))
@@ -66,10 +66,12 @@ for m in range(4):
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
         elif m==1:
+            continue
             model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
         elif m==2:
             model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
         elif m==3:
+            continue
             model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
         optimizer = optim.Adam(model.parameters(), lr=best_LR)
