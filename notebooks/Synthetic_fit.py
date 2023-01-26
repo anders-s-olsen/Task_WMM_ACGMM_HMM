@@ -105,6 +105,15 @@ np.savetxt('../data/synthetic/ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach
 np.savetxt('../data/synthetic/ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
 np.savetxt('../data/synthetic/ACG_MM_posterior.csv',np.transpose(ACG_MM_post.detach()))
 
+watsonmm_param = get_param(best_Watson_MM)
+Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
+np.savetxt('../data/synthetic/Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
+np.savetxt('../data/synthetic/Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
+np.savetxt('../data/synthetic/Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
+np.savetxt('../data/synthetic/Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
+np.savetxt('../data/synthetic/Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
+np.savetxt('../data/synthetic/Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
+
 acghmm_param = get_param(best_ACG_HMM)
 ACG_HMM_best_paths, ACG_HMM_paths_probs, ACG_HMM_emission_probs = best_ACG_HMM.viterbi2(data)
 np.savetxt('../data/synthetic/ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
@@ -114,14 +123,6 @@ np.savetxt('../data/synthetic/ACG_HMM_comp1.csv',acghmm_param['emission_model_1'
 np.savetxt('../data/synthetic/ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
 np.savetxt('../data/synthetic/ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
 
-watsonmm_param = get_param(best_Watson_MM)
-Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
-np.savetxt('../data/synthetic/Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
 
 watsonhmm_param = get_param(best_Watson_HMM)
 Watson_HMM_best_paths, Watson_HMM_paths_probs, Watson_HMM_emission_probs = best_Watson_HMM.viterbi2(data)
