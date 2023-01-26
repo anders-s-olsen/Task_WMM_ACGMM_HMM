@@ -43,7 +43,7 @@ plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+0.05*[-5,0,0,0,4:3:18],'k-','LineWidth
 set(gca,'box','off')
 xticks([])
 xlim([-.1 4.1])
-title('fMRI time series')
+% title('fMRI time series')
 yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%title('fMRI time-series')
 nexttile(6,[2,1])
 plot(t_fMRI/60,target+[0,0.2+max(target(:))],'LineWidth',1.5)
@@ -60,67 +60,23 @@ exportgraphics(gca,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor'
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_phase(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,500,300])
+figure('Position',[50,50,500,350])
 tiledlayout(7,1)
 nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+2.2*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
 set(gca,'box','off')
 xlim([-.1 4.1])
-title('Hilbert transform')
+% title('Hilbert transform')
 xticks(0:4)
 yticks(2.2*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),xlabel('Time [min]'),%title('fMRI time-series')
+
+% nexttile(6,[2,1])
+% plot(t_fMRI/60,target+[0,0.2+max(target(:))],'LineWidth',1.5)
+% title('Right/left hand motor task')
+% xlabel('Time [min]'),
+
 exportgraphics(gca,[ff,'methods_Hilbert_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
-% %% Hilbert figure, fMRI
-% t_fMRI = TR:TR:TR*size(V_atlas,1);
-% voxidx = 1000;
-% 
-% figure('Position',[50,50,500,275])
-% plot(t_fMRI/60,1.5+normc(real(V_hil(1:numel(t_fMRI),voxidx))),'k-','LineWidth',1.5),hold on
-% plot(t_fMRI/60,1.2+normc(imag(V_hil(1:numel(t_fMRI),voxidx))),'k-','LineWidth',1.5)
-% plot(t_fMRI/60,0.6+3*normc(V_abs(1:numel(t_fMRI),voxidx)),'k--','LineWidth',1.5)
-% plot(t_fMRI/60,0.5+normc(V_phase(1:numel(t_fMRI),voxidx)),'k-.','LineWidth',1.5)
-% 
-% set(gca,'box','off')
-% xlim([-.1 5.1])
-% ylim([0.3,1.7])
-% yticks([0.5,0.75,1.2,1.5]),yticklabels({'\theta(t)','a(t)','s_h(t)','s(t)'})
-% %title('Hilbert transform'),
-% xlabel('Time [min]')
-% % xlabel('Time [s]')
-% % yticks([0,5,15]),yticklabels({'Hilbert \theta(t)','Hilbert a(t)','BOLD s(t)'})
-% exportgraphics(gca,[ff,'methods_hilbertts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
-
-% %% circle with hilbert
-% 
-% voxidx = 1000;
-% timeidx = 1:7:50;
-% figure('Position',[50,50,500,500]),hold on
-% phases = -pi:0.0001:pi;
-% plot(cos(phases),sin(phases),'-','color',[0.5,0.5,0.5],'LineWidth',2),
-% plot(0,0,'k.')
-% fac = 15;
-% 
-% for i = 1:numel(timeidx)
-%     tmp = V_hil(timeidx(i),voxidx);
-%     if 15*abs(tmp)>1
-%         h = quiver(0,0,fac*real(tmp),fac*imag(tmp),0,'-','color',[0.5,0.5,0.5],'LineWidth',1.5,'MaxHeadSize',.5)
-%         tmp2 = tmp./abs(tmp);
-%         h = quiver(0,0,real(tmp2),imag(tmp2),0,'-','color',[0,0,0],'LineWidth',1.5,'MaxHeadSize',.5)
-%     elseif 15*abs(tmp)<1
-%         h = quiver(0,0,fac*real(tmp),fac*imag(tmp),0,'-','color',[0.5,0.5,0.5],'LineWidth',1.5,'MaxHeadSize',.5)
-%         tmp2 = tmp./abs(tmp);
-%         h = quiver(real(tmp),imag(tmp),real(tmp2)-real(tmp),imag(tmp2)-imag(tmp),0,'-','color',[0,0,0],'LineWidth',1.5,'MaxHeadSize',.5)
-%     end
-% end
-% 
-% line([-1.2,1.2],[0,0],'LineWidth',2,'Color','black')
-% line([0,0],[-1.2,1.2],'LineWidth',2,'Color','black')
-% axis([-1.2,1.2,-1.2,1.2]),axis square
-% xticks([]),yticks([]),box off
-% set(gca,'Visible','off')
-% exportgraphics(gca,[ff,'methods_hilbertcircle.png'],'Resolution',300,'BackgroundColor','none')
-% close
 %% corrplot
 
 timeidx = [12:14];
@@ -139,9 +95,9 @@ for i = 1:numel(timeidx)
         set(cb,'position',[.16 .11 .03 .325])
     end
     axis square
-    title('Phase coherence maps')
+%     title('Phase coherence maps')
     exportgraphics(gca,[ff,'cohmat_fMRI_',num2str(i),'.png'],'Resolution',300)
-%     close
+    close
 end
 %% many leading eigenvectors
 
@@ -172,11 +128,17 @@ for i = 1:numel(timeidx)
     % ylabel('Brain region')
     % yticks(20:20:100)
     box on
-    title('Leading eigenvectors')
+    
     exportgraphics(gca,[ff,'leadeig_fMRI_',num2str(i),'.png'],'Resolution',300,'BackgroundColor','none')
     close
 end
-
+% figure('Position',[50,50,500,300])
+% tiledlayout(7,1)
+% nexttile(1,[5,1])
+% plot(randn(3))
+% title('Leading eigenvectors')
+% exportgraphics(gca,[ff,'title_leadeig_fMRI_',num2str(i),'.png'],'Resolution',300,'BackgroundColor','none')
+% close
 % %% Sphere, points with directions
 % 
 % col1 = [0,0.4,0];
