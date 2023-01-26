@@ -55,9 +55,9 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
 # In[7]:
 
-num_reps = 2
-best_LR = 0.01
-int_epoch = 100
+num_reps = 5
+best_LR = 0.001
+int_epoch = 1000
 
 for m in range(4):
     ll = np.zeros((num_reps,int_epoch))
