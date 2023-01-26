@@ -36,7 +36,7 @@ V_filt_norm = normc(V_filt);
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_filt_norm(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,500,350])
+figure('Position',[50,50,400,350])
 tiledlayout(7,1)
 nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+0.05*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
@@ -60,7 +60,7 @@ exportgraphics(gcf,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor'
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_phase(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,500,350])
+figure('Position',[50,50,400,350])
 tiledlayout(7,1)
 nexttile(1,[5,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+2.2*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
