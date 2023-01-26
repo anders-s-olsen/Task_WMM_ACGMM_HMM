@@ -26,8 +26,6 @@ class AngularCentralGaussian(nn.Module):
         # Anders addition here: 
         #self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
         self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
-        self.L_tri_inv = torch.tril(torch.ones(self.p,self.p))
-        self.L_tri_inv[self.L_tri_inv>0] = self.L_vec
         
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
@@ -53,7 +51,7 @@ class AngularCentralGaussian(nn.Module):
 
         if read_A_param:
             #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
-            return self.L_tri_inv
+            return L_tri_inv
 
         return log_det_A, L_tri_inv
 
