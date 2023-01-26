@@ -46,7 +46,8 @@ xlim([-.1 4.1])
 % title('fMRI time series')
 yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%title('fMRI time-series')
 nexttile(6,[2,1])
-plot(t_fMRI/60,target+[0,0.2+max(target(:))],'LineWidth',1.5)
+plot(t_fMRI/60,target(:,1),'LineWidth',1.5,'color',[0,0.5,0]),hold on
+plot(t_fMRI/60,target(:,2)+0.2+max(target(:)),'LineWidth',1.5,'color',[0.5,0,0])
 title('Right/left hand motor task')
 xlabel('Time [min]'),
 ylim([-.3,2.7])
