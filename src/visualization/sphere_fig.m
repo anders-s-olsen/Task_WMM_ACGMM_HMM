@@ -1,16 +1,6 @@
 clear,close all
 % cd(fileparts(which(mfilename)));
 ff = 'reports/methods/'; %figure folder
-%% specify sig
-% sig2 = diag([1,1e-3,1e-3]);
-sig2 = eye(3)+0.5*(ones(3)-eye(3)); %noise is off diagonal element
-sig3 = diag([1e-2,1,1])+0.7*[0,0,0;0,0,1;0,1,0];
-SIGMAs = cat(3,sig2,sig3);
-
-
-
-
-
 
 %% calculate PI and transition matrix
 task_raw = table2array(readtable('data/raw/motor_ref.txt'));
@@ -77,35 +67,35 @@ exportgraphics(gcf,[ff,'sphere_ACGMMHMM_contour.png'],'Resolution',300)
 
 %% emission probs
 t_fMRI = linspace(0,4.1,size(X,1));
-idx = 1:2:numel(t_fMRI);
+idx = 1:1:numel(t_fMRI);
 t_fMRI2 = t_fMRI(idx);
-figure('Position',[50,50,400,700])
+figure('Position',[50,50,400,800])
 tiledlayout(10,1)
 cols{1} = [0,0.5,0.5];
 cols{2} = [0.5,0,0.5];
 
 nexttile(1,[2,1]),hold on
 x_wmm = table2array(readtable('data/synthetic_methods/Watson_MM_posterior.csv'));
-plot(t_fMRI2,x_wmm(idx,orderwmm(1))+0.2,'color',cols{1});
-plot(t_fMRI2,x_wmm(idx,orderwmm(2))+1.4,'color',cols{2});
-xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+plot(t_fMRI2,x_wmm(idx,orderwmm(1))+0.5,'color',cols{1});
+plot(t_fMRI2,x_wmm(idx,orderwmm(2))+2,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,3.5])
 ylabel('Watson')
 title('Mixture model posterior probabilities')
 % yticks([0.65,1.75])
 % yticklabels({'\beta_1','\beta_2'})
 nexttile(3,[2,1]),hold on
 x_acgmm = table2array(readtable('data/synthetic_methods/ACG_MM_posterior.csv'));
-plot(t_fMRI2,x_acgmm(idx,orderacgmm(1))+0.2,'color',cols{1});
-plot(t_fMRI2,x_acgmm(idx,orderacgmm(2))+1.4,'color',cols{2});
-xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+plot(t_fMRI2,x_acgmm(idx,orderacgmm(1))+0.5,'color',cols{1});
+plot(t_fMRI2,x_acgmm(idx,orderacgmm(2))+2,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,3.5])
 ylabel('ACG')
 
 nexttile(5,[2,1]),hold on
 x = table2array(readtable('data/synthetic_methods/Watson_HMM_viterbi.csv'));
 x_wmmhmm = [x,x];x_wmmhmm(:,1)=x==0;x_wmmhmm(:,2)=x==1;
-plot(t_fMRI2,x_wmmhmm(idx,orderwmmhmm(1))+0.2,'color',cols{1});
-plot(t_fMRI2,x_wmmhmm(idx,orderwmmhmm(2))+1.4,'color',cols{2});
-xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+plot(t_fMRI2,x_wmmhmm(idx,orderwmmhmm(1))+0.5,'color',cols{1});
+plot(t_fMRI2,x_wmmhmm(idx,orderwmmhmm(2))+2,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,3.5])
 ylabel('Watson')
 title('Hidden Markov model state sequence')
 % yticks([0.65,1.75])
@@ -113,9 +103,9 @@ title('Hidden Markov model state sequence')
 nexttile(7,[2,1]),hold on
 x = table2array(readtable('data/synthetic_methods/ACG_HMM_viterbi.csv'));
 x_acgmmhmm = [x,x];x_acgmmhmm(:,1)=x==0;x_acgmmhmm(:,2)=x==1;
-plot(t_fMRI2,x_acgmmhmm(idx,orderacgmmhmm(1))+0.2,'color',cols{1});
-plot(t_fMRI2,x_acgmmhmm(idx,orderacgmmhmm(2))+1.4,'color',cols{2});
-xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,2.6])
+plot(t_fMRI2,x_acgmmhmm(idx,orderacgmmhmm(1))+0.5,'color',cols{1});
+plot(t_fMRI2,x_acgmmhmm(idx,orderacgmmhmm(2))+2,'color',cols{2});
+xticks([]),yticks([]),xlim([-0.1,4.1]),ylim([0,3.5])
 ylabel('ACG')
 
 nexttile(9,[2,1])
