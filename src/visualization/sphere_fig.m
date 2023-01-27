@@ -2,23 +2,12 @@ clear,close all
 % cd(fileparts(which(mfilename)));
 ff = 'reports/methods/'; %figure folder
 
-%% calculate PI and transition matrix
-task_raw = table2array(readtable('data/raw/motor_ref.txt'));
-task = resample(task_raw(1:97,:),12,1);
-PI = (task-min(task))./sum(task-min(task),2);
-[~,maxseq] = max(PI,[],2);
-
 sig2 = eye(3)+0.99*(ones(3)-eye(3)); %noise is one minus the off diagonal element, log space
 sig3 = diag([1e-02,1,1])+0.9*[0,0,0;0,0,1;0,1,0]; %noise is the first diagonal element, log space
 SIGMAs = cat(3,sig2,sig3);
 
-% for all maxseq=1, which is the second one?
-next1=maxseq((find(maxseq(1:end-1)==1)+1));
-next2=maxseq((find(maxseq(1:end-1)==2)+1));
-T(1,1) = mean(next1==1);
-T(1,2) = mean(next1==2);
-T(2,1) = mean(next2==1);
-T(2,2) = mean(next2==2);
+task_raw = table2array(readtable('data/raw/motor_ref.txt'));
+task = resample(task_raw(1:97,:),6,1);
 
 rng default
 X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
