@@ -55,7 +55,7 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
 # In[7]:
 
-num_reps = 5
+num_reps = 2
 best_LR = 0.01
 int_epoch = 1000
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
