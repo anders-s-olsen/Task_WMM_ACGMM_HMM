@@ -50,7 +50,7 @@ class HiddenMarkovModel(nn.Module):
         log_alpha = torch.zeros(num_subjects, seq_max, self.N).to(self.device)
 
 
-        emissions = torch.reshape(self.emission_models_forward(torch.concatenate([X[:,t,:] for t in range(seq_max)]))(self.N,seq_max,num_subjects))
+        emissions = torch.reshape(self.emission_models_forward(torch.concatenate([X[:,t,:] for t in range(seq_max)])),(self.N,seq_max,num_subjects))
         
         # time t=0
         # log_pi: (n states priors)
