@@ -41,7 +41,7 @@ def get_param(model, show=True):
 # In[2]:
 
 
-synth_dataset = '../data/synthetic/HMMdata.h5'
+synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
 dataf = h5py.File(synth_dataset, mode='r')
 data = torch.tensor(np.array(dataf['X']))
 data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
