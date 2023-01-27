@@ -61,10 +61,10 @@ int_epoch = 1000
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 data = data.to(device)
 
-for m in range(4):
+for m in tqdm(range(4)):
     ll = np.zeros((num_reps,int_epoch))
     best_like = 10000000
-    for idx in range(num_reps):
+    for idx in tqdm(range(num_reps)):
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
         elif m==1:
@@ -102,38 +102,38 @@ for m in range(4):
 
 acgmm_param = get_param(best_ACG_MM)
 ACG_MM_post = best_ACG_MM.posterior(torch.squeeze(data))
-np.savetxt('../data/synthetic/ACG_MM_prior.csv',torch.nn.functional.softmax(acgmm_param['un_norm_pi'],dim=0).detach())
-np.savetxt('../data/synthetic/ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach())
-np.savetxt('../data/synthetic/ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
-np.savetxt('../data/synthetic/ACG_MM_posterior.csv',np.transpose(ACG_MM_post.detach()))
+np.savetxt('../data/synthetic_methods/ACG_MM_prior.csv',torch.nn.functional.softmax(acgmm_param['un_norm_pi'],dim=0).detach())
+np.savetxt('../data/synthetic_methods/ACG_MM_comp0.csv',acgmm_param['mix_comp_0'].detach())
+np.savetxt('../data/synthetic_methods/ACG_MM_comp1.csv',acgmm_param['mix_comp_1'].detach())
+np.savetxt('../data/synthetic_methods/ACG_MM_posterior.csv',np.transpose(ACG_MM_post.detach()))
 
 watsonmm_param = get_param(best_Watson_MM)
 Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
-np.savetxt('../data/synthetic/Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
+np.savetxt('../data/synthetic_methods/Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
+np.savetxt('../data/synthetic_methods/Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
+np.savetxt('../data/synthetic_methods/Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
+np.savetxt('../data/synthetic_methods/Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
+np.savetxt('../data/synthetic_methods/Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
+np.savetxt('../data/synthetic_methods/Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
 
 acghmm_param = get_param(best_ACG_HMM)
 ACG_HMM_best_paths, ACG_HMM_paths_probs, ACG_HMM_emission_probs = best_ACG_HMM.viterbi2(data)
-np.savetxt('../data/synthetic/ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
-np.savetxt('../data/synthetic/ACG_HMM_T.csv',torch.nn.functional.softmax(acghmm_param['un_norm_Transition_matrix'],dim=1).detach())
-np.savetxt('../data/synthetic/ACG_HMM_comp0.csv',acghmm_param['emission_model_0'].detach())
-np.savetxt('../data/synthetic/ACG_HMM_comp1.csv',acghmm_param['emission_model_1'].detach())
-np.savetxt('../data/synthetic/ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
-np.savetxt('../data/synthetic/ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
+np.savetxt('../data/synthetic_methods/ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
+np.savetxt('../data/synthetic_methods/ACG_HMM_T.csv',torch.nn.functional.softmax(acghmm_param['un_norm_Transition_matrix'],dim=1).detach())
+np.savetxt('../data/synthetic_methods/ACG_HMM_comp0.csv',acghmm_param['emission_model_0'].detach())
+np.savetxt('../data/synthetic_methods/ACG_HMM_comp1.csv',acghmm_param['emission_model_1'].detach())
+np.savetxt('../data/synthetic_methods/ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
+np.savetxt('../data/synthetic_methods/ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
 
 
 watsonhmm_param = get_param(best_Watson_HMM)
 Watson_HMM_best_paths, Watson_HMM_paths_probs, Watson_HMM_emission_probs = best_Watson_HMM.viterbi2(data)
-np.savetxt('../data/synthetic/Watson_HMM_prior.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_priors'],dim=0).detach())
-np.savetxt('../data/synthetic/Watson_HMM_T.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_Transition_matrix'],dim=1).detach())
-np.savetxt('../data/synthetic/Watson_HMM_comp0mu.csv',watsonhmm_param['emission_model_0']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_HMM_comp0kappa.csv',watsonhmm_param['emission_model_0']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_HMM_comp1mu.csv',watsonhmm_param['emission_model_1']['mu'].detach())
-np.savetxt('../data/synthetic/Watson_HMM_comp1kappa.csv',watsonhmm_param['emission_model_1']['kappa'].detach())
-np.savetxt('../data/synthetic/Watson_HMM_viterbi.csv',np.transpose(Watson_HMM_best_paths))
-np.savetxt('../data/synthetic/Watson_HMM_emissionprobs.csv',np.squeeze(Watson_HMM_emission_probs))
+np.savetxt('../data/synthetic_methods/Watson_HMM_prior.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_priors'],dim=0).detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_T.csv',torch.nn.functional.softmax(watsonhmm_param['un_norm_Transition_matrix'],dim=1).detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_comp0mu.csv',watsonhmm_param['emission_model_0']['mu'].detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_comp0kappa.csv',watsonhmm_param['emission_model_0']['kappa'].detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_comp1mu.csv',watsonhmm_param['emission_model_1']['mu'].detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_comp1kappa.csv',watsonhmm_param['emission_model_1']['kappa'].detach())
+np.savetxt('../data/synthetic_methods/Watson_HMM_viterbi.csv',np.transpose(Watson_HMM_best_paths))
+np.savetxt('../data/synthetic_methods/Watson_HMM_emissionprobs.csv',np.squeeze(Watson_HMM_emission_probs))
 
