@@ -36,16 +36,29 @@ V_filt_norm = normc(V_filt);
 t_fMRI = TR:TR:TR*size(V_atlas,1);
 V_subs5 = V_filt_norm(:,1:9);
 V_subs5(:,2:4) = nan;
-figure('Position',[50,50,400,350])
-tiledlayout(7,1)
-nexttile(1,[5,1])
+figure('Position',[50,50,350,500])
+tiledlayout(10,1)
+nexttile(1,[4,1])
 plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+0.05*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
 set(gca,'box','off')
 xticks([])
 xlim([-.1 4.1])
 % title('fMRI time series')
 yticks(0.05*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%title('fMRI time-series')
-nexttile(6,[2,1])
+
+
+%%%% Simple time series plot, Hilbert fMRI, 5min
+t_fMRI = TR:TR:TR*size(V_atlas,1);
+V_subs5 = V_phase(:,1:9);
+V_subs5(:,2:4) = nan;
+nexttile(5,[4,1])
+plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+2.2*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
+set(gca,'box','off')
+xlim([-.1 4.1])
+% title('Hilbert transform')
+xticks([])
+yticks(2.2*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),%xlabel('Time [min]'),%title('fMRI time-series')
+nexttile(9,[2,1])
 plot(t_fMRI/60,target(:,1),'LineWidth',1.5,'color',[0,0.5,0]),hold on
 plot(t_fMRI/60,target(:,2)+0.2+max(target(:)),'LineWidth',1.5,'color',[0.5,0,0])
 title('Right/left hand motor task')
@@ -56,27 +69,6 @@ xticks(0:4)
 yticks([mean(target(:,1)),mean(target(:))+max(target(:))+0.2])
 yticklabels({'RH','LH'})
 exportgraphics(gcf,[ff,'methods_ts_fMRI.png'],'Resolution',300,'BackgroundColor','none')
-
-%% Simple time series plot, Hilbert fMRI, 5min
-t_fMRI = TR:TR:TR*size(V_atlas,1);
-V_subs5 = V_phase(:,1:9);
-V_subs5(:,2:4) = nan;
-figure('Position',[50,50,400,350])
-tiledlayout(7,1)
-nexttile(1,[5,1])
-plot(t_fMRI/60,V_subs5(1:numel(t_fMRI),:)+2.2*[-5,0,0,0,4:3:18],'k-','LineWidth',1.5)
-set(gca,'box','off')
-xlim([-.1 4.1])
-% title('Hilbert transform')
-xticks(0:4)
-yticks(2.2*[-5,16.5]),yticklabels({'P','1'}),ylabel('Region'),xlabel('Time [min]'),%title('fMRI time-series')
-
-% nexttile(6,[2,1])
-% plot(t_fMRI/60,target+[0,0.2+max(target(:))],'LineWidth',1.5)
-% title('Right/left hand motor task')
-% xlabel('Time [min]'),
-
-exportgraphics(gcf,[ff,'methods_Hilbert_fMRI.png'],'Resolution',300,'BackgroundColor','none')
 
 %% corrplot
 
