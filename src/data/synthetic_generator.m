@@ -1,7 +1,7 @@
 close all
 %% calculate PI and transition matrix
 task_raw = table2array(readtable('data/raw/motor_ref.txt'));
-task = resample(task_raw(1:97,:),4,1);
+task = resample(task_raw(1:97,:),6,1);
 PI = (task-min(task))./sum(task-min(task),2);
 [~,maxseq] = max(PI,[],2);
 
