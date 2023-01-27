@@ -49,16 +49,21 @@ class HiddenMarkovModel(nn.Module):
         seq_max = X.shape[1]
         log_alpha = torch.zeros(num_subjects, seq_max, self.N).to(self.device)
 
+
+        emissions = torch.reshape(self.emission_models_forward(torch.concatenate([X[:,t,:] for t in range(seq_max)]))(self.N,seq_max,num_subjects))
+        
         # time t=0
         # log_pi: (n states priors)
         # emission forward return: -> transpose -> (subject, [state1_prop(x)...stateN_prop(x)])
-        log_alpha[:, 0, :] = log_pi + self.emission_models_forward(X[:, 0, :]).T
+        #log_alpha[:, 0, :] = log_pi + self.emission_models_forward(X[:, 0, :]).T
+        log_alpha[:, 0, :] = log_pi + emissions[:,0,:].T
 
         # Induction 2)
         # for time:  t = 1 -> seq_max
+        # precompute emissions
 
         for t in range(1, seq_max):
-            log_alpha[:, t, :] = self.emission_models_forward(X[:, t, :]).T \
+            log_alpha[:, t, :] = emissions[:, t, :].T \
                                  + torch.logsumexp(log_alpha[:, t - 1, :, None] + log_A, dim=1)
 
         # Termination 3)
@@ -71,68 +76,6 @@ class HiddenMarkovModel(nn.Module):
         # faster on GPU than just indexing...according to stackoverflow
 
         return log_props.sum(dim=0)  # return sum of log_prop for all subjects
-
-    # torch.no_grad()   # Disables backprop since this is a inferencng method
-    def viterbi(self, X, external_eval=False):
-        """
-            (Rabiner, 1989)
-            :param X: (num_subject/batch_size, observation_sequence, sample_x(dim=obs_dim))
-            :return: State sequence
-            Structure inspired by https://github.com/lorenlugosch/pytorch_HMM
-        """
-        raise NotImplementedError
-        # init 1)
-        log_A = self.logsoftmax_transition(self.transition_matrix)
-        log_pi = self.logsoftmax_prior(self.state_priors)  # log_pi: (n states priors)
-
-        if external_eval:
-            print('Using external param setting')
-            log_A = torch.log(self.transition_matrix)
-            log_pi = torch.log(self.state_priors)
-
-        num_subjects = X.shape[0]
-        seq_max = X.shape[1]
-
-        log_delta = torch.zeros(num_subjects, seq_max, self.N)
-        psi = torch.zeros(num_subjects, seq_max, self.N, dtype=torch.int32)  # intergers - state seqeunces
-
-        # time t=0
-        # emission forward return: -> transpose -> (subject, [state1_prop(x)...stateN_prop(x)])
-        log_delta[:, 0, :] = log_pi + self.emission_models_forward(X[:, 0, :]).T
-
-        # Recursion 2)
-        # for time:  t = 1 -> seq_max
-        for t in range(1, seq_max):
-            log_delta_A_E = (log_delta[:, t - 1, :, None] + log_A) + self.emission_models_forward(X[:, t, :]).T[:, :,None]
-            max_value, max_state_indice = torch.max(log_delta_A_E, dim=2)
-            print(max_value)
-            log_delta[:, t, :] = max_value
-            psi[:, t, :] = max_state_indice
-
-        # Termination 3) & Path backtracking 4)
-        # max value and argmax at each time t, per subject.
-        # print(max_terminal_path)
-        max_terminal_path_probs = torch.max(log_delta, dim=2)[0][:, -1]
-
-        subjects_state_paths = []
-
-        for subject in range(num_subjects):
-            _, subject_argmax_T = log_delta[subject, -1].max(dim=0)
-            subject_path = [subject_argmax_T.item()]
-
-            for t in range(seq_max - 1, 0, -1):
-                # print(subject_path)
-                # print(t)
-                previous_state = psi[subject, t, subject_path[0]].item()
-
-                subject_path.insert(0, previous_state)
-
-            subjects_state_paths.append(subject_path)
-
-        # Log probs!!
-        subjects_state_paths_ = np.array(subjects_state_paths)
-        subjects_path_probs_ = np.array(max_terminal_path_probs.detach().cpu())
-        return subjects_state_paths_, subjects_path_probs_
 
     def viterbi2(self, X, external_eval=False):
         # init 1)
