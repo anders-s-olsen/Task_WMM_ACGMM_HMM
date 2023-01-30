@@ -41,7 +41,8 @@ def get_param(model, show=True):
 # In[2]:
 
 
-synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
+#synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
+synth_dataset = '../data/synthetic_noise/HMMdata_noise_-80.h5'
 dataf = h5py.File(synth_dataset, mode='r')
 data = torch.tensor(np.array(dataf['X']))
 data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
@@ -56,8 +57,8 @@ data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 # In[7]:
 
 num_reps = 2
-best_LR = 0.01
-int_epoch = 1000
+best_LR = 0.1
+int_epoch = 500
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 data = data.to(device)
 

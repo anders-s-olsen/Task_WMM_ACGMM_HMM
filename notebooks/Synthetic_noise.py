@@ -56,6 +56,7 @@ for noise in noise_levels:
     for m in range(4):
         for r in range(num_reps):
             if m==0:
+                continue
                 model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
             elif m==1:
                 model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)

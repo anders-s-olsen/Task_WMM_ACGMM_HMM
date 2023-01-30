@@ -38,7 +38,7 @@ def get_param(model, show=True):
 
 num_reps = 5
 int_epoch = 500
-num_comp = np.array(range(10))
+num_comp = np.arange(1,11)
 
 for K in num_comp:
     synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
@@ -69,17 +69,17 @@ for K in num_comp:
             like_best = np.loadtxt('../data/interim/likelihood.txt')
             if m==0:
                 post = model.posterior(torch.squeeze(data))
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
+                np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
             elif m==1:
                 best_path,xx,xxx = model.viterbi2(data)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
+                np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
             elif m==2:
                 post = model.posterior(torch.squeeze(data))
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
+                np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
             elif m==3:
                 best_path,xx,xxx = model.viterbi2(data)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
+                np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
