@@ -60,7 +60,7 @@ int_epoch = 200
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 data = data.to(device)
 
-eval_LR = np.logspace(-3,0,7)
+eval_LR = np.logspace((0.001,0.01,0.1))
 for LR in eval_LR:
     for m in range(4):
         for r in range(num_reps):
