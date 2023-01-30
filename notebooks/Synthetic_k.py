@@ -36,21 +36,13 @@ def get_param(model, show=True):
     return para
 
 
-# ## Load data and get correct shape and dtype
-
-# In[2]:
-
-noise_levels = np.arange(-80,1,10)
 num_reps = 5
 int_epoch = 500
+num_comp = np.array(range(10))
 
-for noise in noise_levels:
-    try:
-        synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'.h5'
-        dataf = h5py.File(synth_dataset, mode='r')
-    except:
-        synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'h5'
-        dataf = h5py.File(synth_dataset, mode='r')
+for K in num_comp:
+    synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
+    dataf = h5py.File(synth_dataset, mode='r')
     data = torch.tensor(np.array(dataf['X']))
     data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
 
