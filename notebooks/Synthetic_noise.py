@@ -67,9 +67,9 @@ for noise in noise_levels:
 
             optimizer = optim.Adam(model.parameters(), lr=0.1)
             if m==0 or m==2:
-                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
+                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
             elif m==1 or m==3:
-                like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
+                like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
             
             # load best model and calculate posterior or viterbi
             model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))

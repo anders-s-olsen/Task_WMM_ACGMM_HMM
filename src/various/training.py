@@ -54,7 +54,7 @@ def train_mixture_batches(MixtureModel, data, optimizer, num_epoch=100, keep_bar
 
 
 
-def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True):
+def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=False):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = HMM.to(device).train()
 
@@ -71,14 +71,15 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True):
         optimizer.step()
 
         epoch_likelihood_collector[epoch] = NegativeLogLikelihood
-        if epoch==0:
-            torch.save(model.state_dict(),'../data/interim/model_checkpoint.pt')
-            best_like = epoch_likelihood_collector[epoch]
-        elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/5+1))):
-            if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
+        if early_stopping:
+            if epoch==0:
                 torch.save(model.state_dict(),'../data/interim/model_checkpoint.pt')
-                np.savetxt('../data/interim/likelihood.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
                 best_like = epoch_likelihood_collector[epoch]
+            elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/5+1))):
+                if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
+                    torch.save(model.state_dict(),'../data/interim/model_checkpoint.pt')
+                    np.savetxt('../data/interim/likelihood.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
+                    best_like = epoch_likelihood_collector[epoch]
 
     return epoch_likelihood_collector
 
