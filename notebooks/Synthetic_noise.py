@@ -43,6 +43,7 @@ def get_param(model, show=True):
 noise_levels = np.arange(-80,1,10)
 num_reps = 5
 int_epoch = 500
+LR = 0.1
 
 for noise in noise_levels:
     try:
@@ -58,22 +59,28 @@ for noise in noise_levels:
             if m==0:
                 continue
                 model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+                optimizer = optim.Adam(model.parameters(), lr=LR)
+                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
             elif m==1:
+                model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+                optimizer = optim.Adam(model.parameters(), lr=LR)
+                like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
             elif m==2:
                 model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+                optimizer = optim.Adam(model.parameters(), lr=LR)
+                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
             elif m==3:
                 model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
-
-            optimizer = optim.Adam(model.parameters(), lr=0.1)
-            if m==0 or m==2:
-                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-            elif m==1 or m==3:
+                optimizer = optim.Adam(model.parameters(), lr=LR)
                 like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+
             
             # load best model and calculate posterior or viterbi
             model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
-            model.eval()
             like_best = np.loadtxt('../data/interim/likelihood.txt')
             if m==0:
                 post = model.posterior(torch.squeeze(data))
