@@ -7,7 +7,7 @@ sig3 = diag([1e-02,1,1])+0.9*[0,0,0;0,0,1;0,1,0]; %noise is the first diagonal e
 SIGMAs = cat(3,sig2,sig3);
 
 task_raw = table2array(readtable('data/raw/motor_ref.txt'));
-task = resample(task_raw(1:97,:),6,1);
+task = resample(task_raw(1:97,:),12,1);
 
 rng default
 X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
