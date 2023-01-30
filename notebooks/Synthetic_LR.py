@@ -94,18 +94,6 @@ for LR in eval_LR:
             elif m==1:
                 best_ACG_HMM = model
                 like_ACG_HMM = like
-                watsonmm_param = get_param(best_Watson_MM)
-                Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
-                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_likelihood.csv',like_Watson_MM)
-            elif m==2:
-                best_Watson_MM = model
-                like_Watson_MM = like
                 acghmm_param = get_param(best_ACG_HMM)
                 ACG_HMM_best_paths, ACG_HMM_paths_probs, ACG_HMM_emission_probs = best_ACG_HMM.viterbi2(data)
                 np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'ACG_HMM_prior.csv',torch.nn.functional.softmax(acghmm_param['un_norm_priors'],dim=0).detach())
@@ -115,6 +103,20 @@ for LR in eval_LR:
                 np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
                 np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
                 np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'ACG_HMM_likelihood.csv',like_ACG_HMM)
+            elif m==2:
+                best_Watson_MM = model
+                like_Watson_MM = like
+                watsonmm_param = get_param(best_Watson_MM)
+                Watson_MM_post = best_Watson_MM.posterior(torch.squeeze(data))
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_prior.csv',torch.nn.functional.softmax(watsonmm_param['un_norm_pi'],dim=0).detach())
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp0mu.csv',watsonmm_param['mix_comp_0']['mu'].detach())
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp0kappa.csv',watsonmm_param['mix_comp_0']['kappa'].detach())
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp1mu.csv',watsonmm_param['mix_comp_1']['mu'].detach())
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_comp1kappa.csv',watsonmm_param['mix_comp_1']['kappa'].detach())
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_posterior.csv',np.transpose(Watson_MM_post.detach()))
+                np.savetxt('../data/syntheticLR/LR_'+np.array2string(LR)+'_rep_'+str(r)+'Watson_MM_likelihood.csv',like_Watson_MM)
+                
+                
             elif m==3:
                 best_Watson_HMM = model
                 like_Watson_HMM = like
