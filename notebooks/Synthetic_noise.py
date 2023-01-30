@@ -82,7 +82,7 @@ for noise in noise_levels:
             elif m==1:
                 best_path,xx,xxx = model.viterbi2(data)
                 np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path.detach()))
+                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
             elif m==2:
                 post = model.posterior(torch.squeeze(data))
                 np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
@@ -90,4 +90,4 @@ for noise in noise_levels:
             elif m==3:
                 best_path = model.viterbi2(data)
                 np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path.detach()))
+                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
