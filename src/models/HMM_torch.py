@@ -150,6 +150,6 @@ if __name__ == '__main__':
 
     out = HMM(X)
     #seq, probs = HMM.viterbi2(X)
-    print(X)
-    print(seq)
-    print(probs)
+    #print(X)
+    #print(seq)
+    #print(probs)
