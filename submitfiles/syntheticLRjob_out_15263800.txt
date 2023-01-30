@@ -1,0 +1,74 @@
+Requirement already satisfied: tqdm in /zhome/61/4/109113/.local/lib/python3.10/site-packages (4.64.1)
+Requirement already satisfied: torch in /zhome/61/4/109113/.local/lib/python3.10/site-packages (1.13.1)
+Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (8.5.0.96)
+Requirement already satisfied: typing-extensions in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (4.4.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.7.99)
+Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /zhome/61/4/109113/.local/lib/python3.10/site-packages (from torch) (11.10.3.66)
+Requirement already satisfied: setuptools in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.3.0)
+Requirement already satisfied: wheel in /appl/python/3.10.7/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
+un_norm_pi
+tensor([0.2814, 0.4202])
+------------------------------
+mix_comp_0
+tensor([[-0.7362,  0.0000,  0.0000],
+        [ 1.0850, -0.4150,  0.0000],
+        [ 0.5575,  0.6514,  0.3700]])
+------------------------------
+mix_comp_1
+tensor([[ 0.8102,  0.0000,  0.0000],
+        [-1.5859, -0.3806,  0.0000],
+        [-0.0162, -0.2290, -0.6010]])
+------------------------------
+un_norm_pi
+tensor([ 0.9763, -0.0203])
+------------------------------
+mix_comp_0
+tensor([[ 0.8638,  0.0000,  0.0000],
+        [ 0.7624,  0.5183,  0.0000],
+        [ 0.8613, -0.3903,  1.6346]])
+------------------------------
+mix_comp_1
+tensor([[-0.8296,  0.0000,  0.0000],
+        [ 0.5371, -0.6411,  0.0000],
+        [ 1.0506, -1.5428,  0.4852]])
+------------------------------
+un_norm_pi
+tensor([0.1747, 0.9792])
+------------------------------
+mix_comp_0
+tensor([[-0.1425,  0.0000,  0.0000],
+        [ 0.6399,  1.5662,  0.0000],
+        [ 1.3558,  0.3229,  1.0504]])
+------------------------------
+mix_comp_1
+tensor([[ 0.3020,  0.0000,  0.0000],
+        [ 0.5499,  0.1595,  0.0000],
+        [ 0.0123, -0.0927, -0.4982]])
+------------------------------
+un_norm_pi
+tensor([0.3409, 0.1607])
+------------------------------
+mix_comp_0
+tensor([[-0.9183,  0.0000,  0.0000],
+        [ 0.7608, -0.4808,  0.0000],
+        [-0.1084,  0.1727,  0.4065]])
+------------------------------
+mix_comp_1
+tensor([[-0.8473,  0.0000,  0.0000],
+        [-2.1325,  0.5226,  0.0000],
+        [ 1.0942,  0.7604, -1.5345]])
+------------------------------
+un_norm_pi
+tensor([0.5266, 0.5983])
+------------------------------
+mix_comp_0
+tensor([[ 0.9640,  0.0000,  0.0000],
+        [ 1.7806,  0.4841,  0.0000],
+        [-0.3867,  0.9404,  1.0124]])
+------------------------------
+mix_comp_1
+tensor([[ 0.5507,  0.0000,  0.0000],
+        [ 0.6355,  0.7311,  0.0000],
+        [-0.0406, -0.8027, -1.4515]])
+------------------------------
