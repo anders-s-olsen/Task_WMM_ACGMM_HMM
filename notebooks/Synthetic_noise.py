@@ -53,7 +53,6 @@ for noise in noise_levels:
         dataf = h5py.File(synth_dataset, mode='r')
     data = torch.tensor(np.array(dataf['X']))
     data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
-
     for m in range(4):
         for r in range(num_reps):
             if m==0:
