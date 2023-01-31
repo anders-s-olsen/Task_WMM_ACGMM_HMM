@@ -10,9 +10,10 @@ task_raw = table2array(readtable('data/raw/motor_ref.txt'));
 task = resample(task_raw(1:97,:),12,1);
 
 rng default
-X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
-cluster_id = h5read('data/synthetic_methods/HMMdata_orig.h5','/cluster_id');
-
+% X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
+% cluster_id = h5read('data/synthetic_methods/HMMdata_orig.h5','/cluster_id');
+X = h5read('data/synthetic_noise/HMMdata_noise_-80.h5','/X');
+cluster_id = h5read('data/synthetic_noise/HMMdata_noise_-80.h5','/cluster_id');
 %% Figure 1
 pointsspherefig(X,cluster_id);
 % pause(2)
@@ -25,39 +26,43 @@ pointsspherefig(X,cluster_id);
 
 
 %% Figure 2
+
+foldertotakefrom = 'synthetic_methods';
+% foldertotakefrom = 'test';
+
 %%% Watson MM
 % WMM_results = WMM_EM_BigMem2(X,2,200,1,'++',0);mu1 = WMM_results.mu(:,1);mu2 = WMM_results.mu(:,2);
-mu1 = table2array(readtable('data/synthetic_methods/Watson_MM_comp0mu.csv'));
-kappa1 = table2array(readtable('data/synthetic_methods/Watson_MM_comp0kappa.csv'));
-mu2 = table2array(readtable('data/synthetic_methods/Watson_MM_comp1mu.csv'));
-kappa2 = table2array(readtable('data/synthetic_methods/Watson_MM_comp1kappa.csv'));
+mu1 = table2array(readtable(['data/',foldertotakefrom,'/Watson_MM_comp0mu.csv']));
+kappa1 = table2array(readtable(['data/',foldertotakefrom,'/Watson_MM_comp0kappa.csv']));
+mu2 = table2array(readtable(['data/',foldertotakefrom,'/Watson_MM_comp1mu.csv']));
+kappa2 = table2array(readtable(['data/',foldertotakefrom,'/Watson_MM_comp1kappa.csv']));
 orderwmm = contourspherefig([mu1,mu2],[kappa1,kappa2],[],SIGMAs);
 % pause(2)
 % exportgraphics(gcf,[ff,'sphere_WMM_contour.png'],'Resolution',300)
 
 %%% ACG MM
-L1 = table2array(readtable('data/synthetic_methods/ACG_MM_comp0.csv'));
-L2 = table2array(readtable('data/synthetic_methods/ACG_MM_comp1.csv'));
+L1 = table2array(readtable(['data/',foldertotakefrom,'/ACG_MM_comp0.csv']));
+L2 = table2array(readtable(['data/',foldertotakefrom,'/ACG_MM_comp1.csv']));
 orderacgmm = contourspherefig([],[],cat(3,L1,L2),SIGMAs);
 % pause(2)
 % exportgraphics(gcf,[ff,'sphere_ACGMM_contour.png'],'Resolution',300)
 
 %%% Watson HMM
-mu1 = table2array(readtable('data/synthetic_methods/Watson_HMM_comp0mu.csv'));
-kappa1 = table2array(readtable('data/synthetic_methods/Watson_HMM_comp0kappa.csv'));
-mu2 = table2array(readtable('data/synthetic_methods/Watson_HMM_comp1mu.csv'));
-kappa2 = table2array(readtable('data/synthetic_methods/Watson_HMM_comp1kappa.csv'));
+mu1 = table2array(readtable(['data/',foldertotakefrom,'/Watson_HMM_comp0mu.csv']));
+kappa1 = table2array(readtable(['data/',foldertotakefrom,'/Watson_HMM_comp0kappa.csv']));
+mu2 = table2array(readtable(['data/',foldertotakefrom,'/Watson_HMM_comp1mu.csv']));
+kappa2 = table2array(readtable(['data/',foldertotakefrom,'/Watson_HMM_comp1kappa.csv']));
 orderwmmhmm = contourspherefig([mu1,mu2],[kappa1,kappa2],[],SIGMAs);
 % pause(2)
 % exportgraphics(gcf,[ff,'sphere_WMMHMM_contour.png'],'Resolution',300)
 
 %%% ACG HMM
-L1 = table2array(readtable('data/synthetic_methods/ACG_HMM_comp0.csv'));
-L2 = table2array(readtable('data/synthetic_methods/ACG_HMM_comp1.csv'));
+L1 = table2array(readtable(['data/',foldertotakefrom,'/ACG_HMM_comp0.csv']));
+L2 = table2array(readtable(['data/',foldertotakefrom,'/ACG_HMM_comp1.csv']));
 orderacgmmhmm = contourspherefig([],[],cat(3,L1,L2),SIGMAs);
 % pause(2)
 % exportgraphics(gcf,[ff,'sphere_ACGMMHMM_contour.png'],'Resolution',300)
-
+return
 %% emission probs
 t_fMRI = linspace(0,4.1,size(X,1));
 idx = 1:1:numel(t_fMRI);
