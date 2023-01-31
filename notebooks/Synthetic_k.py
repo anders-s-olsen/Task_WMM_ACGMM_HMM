@@ -49,13 +49,13 @@ for K in num_comp:
     for m in range(4):
         for r in range(num_reps):
             if m==0:
-                model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+                model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=3)
             elif m==1:
-                model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+                model = HMM(num_states=K, observation_dim=3, emission_dist=ACG)
             elif m==2:
-                model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+                model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=3)
             elif m==3:
-                model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+                model = HMM(num_states=K, observation_dim=3, emission_dist=Watson)
 
             optimizer = optim.Adam(model.parameters(), lr=0.1)
             if m==0 or m==2:
