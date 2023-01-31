@@ -42,7 +42,7 @@ def get_param(model, show=True):
 
 noise_levels = np.arange(-80,1,10)
 num_reps = 5
-int_epoch = 500
+int_epoch = 200
 LR = 0.1
 
 for noise in noise_levels:
@@ -56,47 +56,48 @@ for noise in noise_levels:
     data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
     for m in range(4):
         for r in range(num_reps):
-            if m==0:
-                model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
-                optimizer = optim.Adam(model.parameters(), lr=LR)
-                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
-            elif m==1:
-                continue
-                model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
-                optimizer = optim.Adam(model.parameters(), lr=LR)
-                like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
-            elif m==2:
-                continue
-                model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
-                optimizer = optim.Adam(model.parameters(), lr=LR)
-                like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
-            elif m==3:
-                continue
-                model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
-                optimizer = optim.Adam(model.parameters(), lr=LR)
-                like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+            thres_like = 10000000
+            for r2 in range(num_reps):
+                if m==0:
+                    model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+                    optimizer = optim.Adam(model.parameters(), lr=LR)
+                    like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+                elif m==1:
+                    model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+                    optimizer = optim.Adam(model.parameters(), lr=LR)
+                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+                elif m==2:
+                    model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+                    optimizer = optim.Adam(model.parameters(), lr=LR)
+                    like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+                elif m==3:
+                    model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+                    optimizer = optim.Adam(model.parameters(), lr=LR)
+                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
-            
-            # load best model and calculate posterior or viterbi
-            model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
-            like_best = np.loadtxt('../data/interim/likelihood.txt')
-            if m==0:
-                post = model.posterior(torch.squeeze(data))
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
-            elif m==1:
-                best_path,xx,xxx = model.viterbi2(data)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
-            elif m==2:
-                post = model.posterior(torch.squeeze(data))
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
-            elif m==3:
-                best_path,xx,xxx = model.viterbi2(data)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
-                np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                # load best model and calculate posterior or viterbi
+                model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
+                like_best = np.loadtxt('../data/interim/likelihood.txt')
+
+                if like_best[1]<thres_like:
+                    thres_like = like_best[1]
+                    if m==0:
+                        post = model.posterior(torch.squeeze(data))
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                    elif m==1:
+                        best_path,xx,xxx = model.viterbi2(data)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                    elif m==2:
+                        post = model.posterior(torch.squeeze(data))
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                    elif m==3:
+                        best_path,xx,xxx = model.viterbi2(data)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
+                        np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
