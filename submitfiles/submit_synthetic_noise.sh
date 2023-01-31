@@ -8,7 +8,8 @@
 #BSUB -e syntheticnoisejob_err_%J.txt
 #BSUB -W 10:00 
 #BSUB -n 1
-#BSUB -R "span[hosts=1]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+# #BSUB -R "span[hosts=1]"
 
 # -- commands you want to execute -- 
 module load python3/3.10.7
