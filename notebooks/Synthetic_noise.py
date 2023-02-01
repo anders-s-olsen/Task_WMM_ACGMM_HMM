@@ -59,16 +59,19 @@ for noise in noise_levels:
             thres_like = 10000000
             for r2 in range(num_reps):
                 if m==0:
+                    continue
                     model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
                     like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                     model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
                 elif m==1:
+                    continue
                     model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                     model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
                 elif m==2:
+                    continue
                     model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
                     like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
@@ -90,7 +93,7 @@ for noise in noise_levels:
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                     elif m==1:
-                        best_path,xx,xxx = model.viterbi2(data)
+                        best_path,xx,xxx = model.viterbi2(data,external_eval=False)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
                     elif m==2:
@@ -98,6 +101,7 @@ for noise in noise_levels:
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                     elif m==3:
-                        best_path,xx,xxx = model.viterbi2(data)
+                        param = get_param(model)
+                        best_path,xx,xxx = model.viterbi2(data,external_eval=False)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))

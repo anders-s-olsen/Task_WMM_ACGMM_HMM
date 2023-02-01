@@ -112,7 +112,7 @@ class HiddenMarkovModel(nn.Module):
                 for t in range(1, seq_len):
                     subject_emissions[subject,t,:] = self.emission_models_forward(X_sub[t].unsqueeze(dim=0)).squeeze()
                     expression = (log_delta[t - 1, :, None] + log_A) + subject_emissions[subject,t,:]
-
+                    
                     max_value, arg_max = torch.max(expression, dim=1)
 
                     log_delta[t, :] = max_value

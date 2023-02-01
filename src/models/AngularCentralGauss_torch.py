@@ -90,10 +90,14 @@ class AngularCentralGaussian(nn.Module):
 if __name__ == "__main__":
     import matplotlib as mpl
     import matplotlib.pyplot as plt
+    import scipy
 
     mpl.use('Qt5Agg')
     dim = 3
     ACG = AngularCentralGaussian(p=dim)
+    
+    ACG_pdf = lambda phi: float(torch.exp(ACG(torch.tensor([[np.cos(phi), np.sin(phi)]], dtype=torch.float))))
+    acg_result = scipy.integrate.quad(ACG_pdf, 0., 2*np.pi)
 
     X = torch.randn(6, dim)
 

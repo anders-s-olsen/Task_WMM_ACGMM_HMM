@@ -18,6 +18,7 @@ class Watson(nn.Module):
         self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(self.device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
         self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
+        self.logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)) -self.c* torch.log(torch.tensor(np.pi))
         assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
@@ -65,7 +66,7 @@ class Watson(nn.Module):
         return logSA
 
     def log_norm_constant(self, kappa_pos):
-        logC = self.log_sphere_surface() - self.log_kummer(self.const_a, self.c, kappa_pos)
+        logC = self.logSA - self.log_kummer(self.const_a, self.c, kappa_pos)
         return logC
 
     def log_pdf(self, X):
@@ -79,8 +80,7 @@ class Watson(nn.Module):
             print('Code reached here') # if kappa is zeros
             kappa_positive += 1e-15
 
-        with torch.no_grad():
-            norm_constant = self.log_norm_constant(kappa_positive).to(self.device)
+        norm_constant = self.log_norm_constant(kappa_positive).to(self.device)
         logpdf = norm_constant + kappa_positive * ((mu_unit @ X.T) ** 2)
 
         if torch.isnan(logpdf.sum()):
@@ -100,12 +100,16 @@ class Watson(nn.Module):
 if __name__ == "__main__":
     import matplotlib as mpl
     import matplotlib.pyplot as plt
-
+    import scipy
     mpl.use('Qt5Agg')
 
     W = Watson(p=2)
-    print(W.log_kummer_anders(torch.tensor(0.5),torch.tensor(45),torch.tensor(2)))
-    print(W.deprecated_log_kummer(torch.tensor(0.5),torch.tensor(45),torch.tensor(2)))
+    print(W.log_kummer(torch.tensor(0.5),torch.tensor(100),torch.tensor(2)))
+    print(W.log_kummer(torch.tensor(0.5),torch.tensor(100),torch.tensor(200)))
+    print(W.log_kummer(torch.tensor(0.5),torch.tensor(100),torch.tensor(2000)))
+
+    W_pdf = lambda phi: float(torch.exp(W(torch.tensor([np.cos(phi), np.sin(phi)], dtype=torch.float))))
+    w_result = scipy.integrate.quad(W_pdf, 0., 2*np.pi)
 
     # phi = linspace(0, 2 * pi, 320);
     # x = [cos(phi);sin(phi)];
