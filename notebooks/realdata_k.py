@@ -37,39 +37,37 @@ def get_param(model, show=True):
     return para
 
 
-num_reps = 5
+num_repsouter = 3
+num_repsinner = 5
 int_epoch = 500
 num_comp = np.arange(1,11)
 data = torch.zeros((29,240,200))
 sub=0
-for file in list(glob.glob('../data/processed/*.h5')):
-    data_subject = h5py.File(file, mode='r')
-    data_tmp = torch.tensor(np.array(data_subject['data']))
-    data[sub] = torch.transpose(data_tmp,dim0=0,dim1=1).float()
-    sub+=1
+
+datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'r')
+print(len(datah5.keys()))
+for idx,subject in enumerate(list(datah5.keys())):
+    data[idx] = torch.tensor(datah5[subject])
+        
+data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
 
 for K in num_comp:
-    synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
-    dataf = h5py.File(synth_dataset, mode='r')
-    data = torch.tensor(np.array(dataf['X']))
-    data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
-
     for m in range(4):
-        for r in range(num_reps):
+        for r in range(num_repsouter):
             thres_like = 10000000
-            for r2 in range(num_reps):
+            for r2 in range(num_repsinner):
                 if m==0:
-                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=3)
+                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
                 elif m==1:
-                    model = HMM(num_states=K, observation_dim=3, emission_dist=ACG)
+                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG)
                 elif m==2:
-                    model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=3)
+                    model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
                 elif m==3:
-                    model = HMM(num_states=K, observation_dim=3, emission_dist=Watson)
+                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
 
                 optimizer = optim.Adam(model.parameters(), lr=0.1)
                 if m==0 or m==2:
-                    like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1 or m==3:
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 
@@ -78,19 +76,36 @@ for K in num_comp:
                 like_best = np.loadtxt('../data/interim/likelihood.txt')
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
+                    param = get_param(model)
                     if m==0:
-                        post = model.posterior(torch.squeeze(data))
+                        post = model.posterior(data_concat)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
+                        for kk in range(K):
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_MM_comp0'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
                     elif m==1:
                         best_path,xx,xxx = model.viterbi2(data)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
+                        for kk in range(K):
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'ACG_HMM_comp0'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
                     elif m==2:
-                        post = model.posterior(torch.squeeze(data))
+                        post = model.posterior(data_concat)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
+                        for kk in range(K):
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_comp0mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_MM_comp0kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
                     elif m==3:
                         best_path,xx,xxx = model.viterbi2(data)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
+                        np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
+                        for kk in range(K):
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_comp0mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
+                            np.savetxt('../data/synthetic_K/K'+str(K)+'Watson_HMM_comp0kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
