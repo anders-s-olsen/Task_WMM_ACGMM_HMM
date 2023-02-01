@@ -38,7 +38,7 @@ def get_param(model, show=True):
 
 num_reps = 5
 int_epoch = 500
-num_comp = np.arange(1,11)
+num_comp = np.arange(7,11)
 
 for K in num_comp:
     synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
