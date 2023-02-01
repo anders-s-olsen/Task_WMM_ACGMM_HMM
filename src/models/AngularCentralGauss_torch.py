@@ -20,6 +20,7 @@ class AngularCentralGaussian(nn.Module):
         self.num_params = int(self.p*(self.p-1)/2+self.p)
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
+        self.logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
 
@@ -34,7 +35,8 @@ class AngularCentralGaussian(nn.Module):
         return self.Alter_compose_A(read_A_param=True)
 
     def log_sphere_surface(self):
-        logSA = torch.lgamma(self.half_p) - torch.log(2 * np.pi ** self.half_p)
+        #logSA = torch.lgamma(self.half_p) - torch.log(2 * np.pi ** self.half_p)
+        logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
         return logSA
 
     def Alter_compose_A(self, read_A_param=False):
@@ -71,9 +73,10 @@ class AngularCentralGaussian(nn.Module):
             print(self.L_diag)
             raise ValueError('NaN was produced!')
 
-        log_acg_pdf = self.log_sphere_surface() \
-                      - 0.5 * log_det_A \
-                      - self.half_p * torch.log(matmul2)
+        #log_acg_pdf = self.log_sphere_surface() \
+        #              - 0.5 * log_det_A \
+        #              - self.half_p * torch.log(matmul2)
+        log_acg_pdf = self.logSA - 0.5 * log_det_A - self.half_p * torch.log(matmul2)
 
         return log_acg_pdf
 
