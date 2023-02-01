@@ -37,7 +37,7 @@ def get_param(model, show=True):
     return para
 
 
-num_repsouter = 3
+num_repsouter = 5
 num_repsinner = 5
 int_epoch = 500
 num_comp = np.arange(1,11)
