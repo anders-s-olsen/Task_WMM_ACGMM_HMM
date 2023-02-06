@@ -1,11 +1,11 @@
 #!/bin/sh
-#BSUB -J syntheticLRjob
+#BSUB -J realLRjob
 #BSUB -q hpc
 #BSUB -R "rusage[mem=1GB]"
 #BSUB -B
 #BSUB -N
-#BSUB -o syntheticLRjob_out_%J.txt
-#BSUB -e syntheticLRjob_err_%J.txt
+#BSUB -o realLRjob_out_%J.txt
+#BSUB -e realLRjob_err_%J.txt
 #BSUB -W 24:00 
 #BSUB -n 16
 #BSUB -R "span[hosts=1]"

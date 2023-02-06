@@ -39,7 +39,7 @@ def get_param(model, show=True):
 
 num_repsouter = 5
 num_repsinner = 10
-int_epoch = 500000
+int_epoch = np.array((50000,500000))
 LRs = np.array((0.01,0.1,1,10,100))
 data = torch.zeros((29,240,200))
 sub=0
@@ -66,18 +66,21 @@ for m in range(4):
         
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2])
+            optimizer = optim.Adam(model.parameters(), lr=LR)
+            like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=False)
         elif m==1:
             model = HMM(num_states=3, observation_dim=data.shape[2], emission_dist=ACG)
+            optimizer = optim.Adam(model.parameters(), lr=LR)
+            like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=False)
         elif m==2:
             model = TorchMixtureModel(distribution_object=Watson,K=3, dist_dim=data.shape[2])
+            optimizer = optim.Adam(model.parameters(), lr=LR)
+            like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=False)
         elif m==3:
             model = HMM(num_states=3, observation_dim=data.shape[2], emission_dist=Watson)
+            optimizer = optim.Adam(model.parameters(), lr=LR)
+            like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=False)
 
-        optimizer = optim.Adam(model.parameters(), lr=LR)
-        if m==0 or m==2:
-            like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
-        elif m==1 or m==3:
-            like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
 
         if m==0:
             np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_ACG_MM_likelihood.csv',like)
