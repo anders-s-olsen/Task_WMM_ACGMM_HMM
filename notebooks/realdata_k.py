@@ -38,9 +38,9 @@ def get_param(model, show=True):
 
 
 num_repsouter = 5
-num_repsinner = 5
-int_epoch = 500
-num_comp = np.arange(1,11)
+num_repsinner = 10
+int_epoch = np.array((50000,500000))
+num_comp = np.arange(4,11)
 data = torch.zeros((29,240,200))
 sub=0
 
@@ -58,25 +58,33 @@ for K in num_comp:
             for r2 in range(num_repsinner):
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
+                    optimizer = optim.Adam(model.parameters(), lr=10)
+                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=True)
                 elif m==1:
+                    continue
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG)
+                    optimizer = optim.Adam(model.parameters(), lr=1)
+                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=True)
                 elif m==2:
                     model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
+                    optimizer = optim.Adam(model.parameters(), lr=5)
+                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=True)
                 elif m==3:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
+                    optimizer = optim.Adam(model.parameters(), lr=5)
+                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=True)
 
-                optimizer = optim.Adam(model.parameters(), lr=0.1)
-                if m==0 or m==2:
-                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                elif m==1 or m==3:
-                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                
                 # load best model and calculate posterior or viterbi
                 model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
                 like_best = np.loadtxt('../data/interim/likelihood.txt')
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
                     param = get_param(model)
+                    o=8
+
+                    #plt.figure(),plt.imshow(np.linalg.inv(param['mix_comp_0']@param['mix_comp_0'].T))
+
+
                     if m==0:
                         post = model.posterior(data_concat)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)

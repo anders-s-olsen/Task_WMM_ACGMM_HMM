@@ -19,7 +19,6 @@ from src.preprocessing.hilbert_phase import hilbert_phase_extract
 from src.preprocessing.coherence_LEiDA import coherenceMap, leadingEigenVec
 
 subject = 0
-#with h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'w') as hf:
 hf = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'w')
 for file in list(glob.glob('../data/processed/*.h5')):
     data_subject = h5py.File(file, mode='r')
