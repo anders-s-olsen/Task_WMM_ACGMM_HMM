@@ -53,15 +53,6 @@ data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
 
 
 for m in range(4):
-    if m==0:
-        plt.figure(),plt.title("ACG MM")
-    elif m==1:
-        plt.figure(),plt.title("ACG HMM")
-    elif m==2:
-        plt.figure(),plt.title("Watson MM")
-    elif m==3:
-        plt.figure(),plt.title("Watson HMM")
-    
     for LR in LRs:  
         
         if m==0:
