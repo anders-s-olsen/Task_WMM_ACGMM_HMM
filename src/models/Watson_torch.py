@@ -49,9 +49,9 @@ class Watson(nn.Module):
     #    return logkum
 
 
-    def log_kummer(self, a, b, kappa):
+    def log_kummer(self, a, b, kappa,num_eval=10000):
 
-        n = torch.arange(1000).to(self.device)
+        n = torch.arange(num_eval).to(self.device)
     
         inner = torch.lgamma(a + n) + torch.lgamma(b) - torch.lgamma(a) - torch.lgamma(b + n) \
                 + n * torch.log(kappa) - torch.lgamma(n + torch.tensor(1.).to(self.device))
