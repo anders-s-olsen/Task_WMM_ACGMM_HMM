@@ -39,7 +39,7 @@ def get_param(model, show=True):
 
 num_repsouter = 5
 num_repsinner = 10
-int_epoch = np.array((50000,500000))
+int_epoch = 50000
 num_comp = np.arange(4,11)
 data = torch.zeros((29,240,200))
 sub=0
@@ -58,20 +58,19 @@ for K in num_comp:
             for r2 in range(num_repsinner):
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
-                    optimizer = optim.Adam(model.parameters(), lr=10)
+                    optimizer = optim.Adam(model.parameters(), lr=0.01)
                     like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=True)
                 elif m==1:
-                    continue
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG)
-                    optimizer = optim.Adam(model.parameters(), lr=1)
+                    optimizer = optim.Adam(model.parameters(), lr=0.01)
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[0], keep_bar=False,early_stopping=True)
                 elif m==2:
                     model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
-                    optimizer = optim.Adam(model.parameters(), lr=5)
+                    optimizer = optim.Adam(model.parameters(), lr=10)
                     like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=True)
                 elif m==3:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
-                    optimizer = optim.Adam(model.parameters(), lr=5)
+                    optimizer = optim.Adam(model.parameters(), lr=10)
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch[1], keep_bar=False,early_stopping=True)
 
                 # load best model and calculate posterior or viterbi
