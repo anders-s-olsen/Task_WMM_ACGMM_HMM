@@ -5,8 +5,8 @@
 #BSUB -B
 #BSUB -N
 #BSUB -o realKjob_out_%J.txt
-#BSUB -e realjob_err_%J.txt
-#BSUB -W 10:00 
+#BSUB -e realKjob_err_%J.txt
+#BSUB -W 72:00 
 #BSUB -n 16
 #BSUB -R "span[hosts=1]"
 

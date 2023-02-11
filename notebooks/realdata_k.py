@@ -36,21 +36,22 @@ def get_param(model, show=True):
     
     return para
 
+def run_experiment(m):
+    print(m)
+    num_repsouter = 5
+    num_repsinner = 1
+    int_epoch = 20000
+    num_comp = np.arange(1,11)
+    data = torch.zeros((29,240,200))
+    sub=0
 
-num_repsouter = 5
-num_repsinner = 1
-int_epoch = 50000
-num_comp = np.arange(1,11)
-data = torch.zeros((29,240,200))
-sub=0
-
-datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'r')
-print(len(datah5.keys()))
-for idx,subject in enumerate(list(datah5.keys())):
-    data[idx] = torch.tensor(datah5[subject])
-        
-data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
-for m in range(4):
+    datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'r')
+    #print(len(datah5.keys()))
+    for idx,subject in enumerate(list(datah5.keys())):
+        data[idx] = torch.tensor(datah5[subject])
+            
+    data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
+    #for m in range(4):
     for K in num_comp:
         for r in range(num_repsouter):
             thres_like = 10000000
@@ -65,11 +66,11 @@ for m in range(4):
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==2:
                     model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
-                    optimizer = optim.Adam(model.parameters(), lr=10)
+                    optimizer = optim.Adam(model.parameters(), lr=1)
                     like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==3:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
-                    optimizer = optim.Adam(model.parameters(), lr=10)
+                    optimizer = optim.Adam(model.parameters(), lr=1)
                     like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
 
                 # load best model and calculate posterior or viterbi
@@ -85,7 +86,7 @@ for m in range(4):
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp0'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
                     elif m==1:
                         best_path,xx,xxx = model.viterbi2(data)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
@@ -93,15 +94,15 @@ for m in range(4):
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp0'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
                     elif m==2:
                         post = model.posterior(data_concat)
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp0mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
-                            np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp0kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
                     elif m==3:
                         best_path,xx,xxx = model.viterbi2(data)
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
@@ -109,5 +110,8 @@ for m in range(4):
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp0mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
-                            np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp0kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
+                            np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
+if __name__=="__main__":
+    run_experiment(m=int(sys.argv[1]))
+    #run_experiment(m=0)
