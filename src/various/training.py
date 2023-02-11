@@ -73,15 +73,17 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
         epoch_likelihood_collector[epoch] = NegativeLogLikelihood
         if early_stopping:
             if epoch==0:
-                torch.save(model.state_dict(),'../data/interim/model_checkpoint.pt')
+                ident = torch.randint(0,10000000)
+                torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
                 best_like = epoch_likelihood_collector[epoch]
             elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/5+1))):
                 if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
-                    torch.save(model.state_dict(),'../data/interim/model_checkpoint.pt')
-                    np.savetxt('../data/interim/likelihood.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
+                    torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
+                    np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
                     best_like = epoch_likelihood_collector[epoch]
-
-    return epoch_likelihood_collector
+                    like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
+    model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
+    return epoch_likelihood_collector,model,like_best
 
 
 def train_hmm_subjects(HMM, data, optimizer, num_epoch=100, print_progress=False):

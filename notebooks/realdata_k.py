@@ -59,23 +59,23 @@ def run_experiment(m):
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
-                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG)
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
-                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==2:
                     model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
                     optimizer = optim.Adam(model.parameters(), lr=1)
-                    like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==3:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
                     optimizer = optim.Adam(model.parameters(), lr=1)
-                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
 
                 # load best model and calculate posterior or viterbi
-                model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
-                like_best = np.loadtxt('../data/interim/likelihood.txt')
+                #model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
+                #like_best = np.loadtxt('../data/interim/likelihood.txt')
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
                     param = get_param(model)
@@ -113,5 +113,5 @@ def run_experiment(m):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    run_experiment(m=int(sys.argv[1]))
-    #run_experiment(m=0)
+    #run_experiment(m=int(sys.argv[1]))
+    run_experiment(m=2)
