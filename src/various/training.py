@@ -73,7 +73,7 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
         epoch_likelihood_collector[epoch] = NegativeLogLikelihood
         if early_stopping:
             if epoch==0:
-                ident = torch.randint(0,10000000)
+                ident = torch.randint(0,10000000,1)
                 torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
                 best_like = epoch_likelihood_collector[epoch]
             elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/5+1))):
