@@ -68,10 +68,6 @@ for model = 1:numel(models)
             assignment = table2array(readtable([d2(rep).folder,'/',d2(rep).name]));
             if ismember(model, [2,4])
                 Z2 = nan(2,length(assignment));Z2(1,:) = assignment==0;Z2(2,:) = assignment==1;
-                if model==4
-                    figure,plot(Z2')
-                    h=7
-                end
                 
                 NMIs(rep) = calcNMI(Z(:,2:end),Z2(:,1:end-1));
             else

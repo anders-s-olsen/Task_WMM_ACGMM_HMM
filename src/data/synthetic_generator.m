@@ -1,4 +1,4 @@
-close all
+clear,close all
 %% calculate PI and transition matrix
 task_raw = table2array(readtable('data/raw/motor_ref.txt'));
 task = resample(task_raw(1:97,:),12,1);

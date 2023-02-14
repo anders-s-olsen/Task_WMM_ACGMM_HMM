@@ -80,6 +80,12 @@ target/
 
 # Exclude model checkpoints
 /data/interim/
+/data/synthetic_K/
+/data/syntheticLR/
+/data/real_K/
+/data/realLR/
+/data/synthetic_noise/
+/submitfiles/*.txt
 
 # Mac OS-specific storage files
 .DS_Store
