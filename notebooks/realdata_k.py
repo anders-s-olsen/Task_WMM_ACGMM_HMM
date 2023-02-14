@@ -40,7 +40,7 @@ def run_experiment(m):
     print(m)
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 20000
+    int_epoch = 100000
     num_comp = np.arange(1,11)
     data = torch.zeros((29,240,200))
     sub=0
@@ -65,10 +65,12 @@ def run_experiment(m):
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
                     like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==2:
+                    continue
                     model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
                     optimizer = optim.Adam(model.parameters(), lr=1)
                     like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==3:
+                    continue
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
                     optimizer = optim.Adam(model.parameters(), lr=1)
                     like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
