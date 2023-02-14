@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 ## Imports and get_param
 
 import os
@@ -38,11 +35,8 @@ def get_param(model, show=True):
 
 # ## Load data and get correct shape and dtype
 
-# In[2]:
-
-
-#synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
-synth_dataset = '../data/synthetic_noise/HMMdata_noise_-80.h5'
+synth_dataset = '../data/synthetic_methods/HMMdata_orig.h5'
+#synth_dataset = '../data/synthetic_noise/HMMdata_noise_-80.h5'
 dataf = h5py.File(synth_dataset, mode='r')
 data = torch.tensor(np.array(dataf['X']))
 data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
@@ -69,23 +63,21 @@ for m in tqdm(range(4)):
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
         elif m==1:
-            #continue
             model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
         elif m==2:
             model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
         elif m==3:
-            #continue
             model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
 
         optimizer = optim.Adam(model.parameters(), lr=best_LR)
         if m==0 or m==2:
-            like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
+            like,model,like_best = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
         elif m==1 or m==3:
-            like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False)
-        ll[idx] = like
-        if ll[idx,-1] < best_like:
+            like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+        
+        if like_best[-1] < best_like:
             best_model = model
-            best_like = ll[idx,-1]
+            best_like = like_best[-1]
             best_idx = idx
     if m==0:
         best_ACG_MM = best_model
@@ -125,7 +117,6 @@ np.savetxt('../data/synthetic_methods/ACG_HMM_comp0.csv',acghmm_param['emission_
 np.savetxt('../data/synthetic_methods/ACG_HMM_comp1.csv',acghmm_param['emission_model_1'].detach())
 np.savetxt('../data/synthetic_methods/ACG_HMM_viterbi.csv',np.transpose(ACG_HMM_best_paths))
 np.savetxt('../data/synthetic_methods/ACG_HMM_emissionprobs.csv',np.squeeze(ACG_HMM_emission_probs))
-
 
 watsonhmm_param = get_param(best_Watson_HMM)
 Watson_HMM_best_paths, Watson_HMM_paths_probs, Watson_HMM_emission_probs = best_Watson_HMM.viterbi2(data)
