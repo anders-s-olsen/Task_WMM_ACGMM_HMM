@@ -82,7 +82,8 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
                     np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
                     best_like = epoch_likelihood_collector[epoch]
                     like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
-    model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
+    if early_stopping:
+        model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
     return epoch_likelihood_collector,model,like_best
 
 
