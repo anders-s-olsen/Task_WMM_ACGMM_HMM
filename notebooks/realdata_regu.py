@@ -59,13 +59,13 @@ def run_experiment(m):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
-                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
+                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2],regu=lambd)
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
-                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,regu=lambd)
+                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1:
-                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG)
+                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG,regu=lambd)
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
-                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,regu=lambd)
+                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 
                 # load best model and calculate posterior or viterbi
                 #model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
@@ -77,23 +77,23 @@ def run_experiment(m):
                     if m==0:
                         np.savetxt('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'like',like)
                         plt.figure(),plt.plot(like)
-                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'like')
+                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'like.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_0']@param['mix_comp_0'].T))
-                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp0')
+                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp0.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_1']@param['mix_comp_1'].T))
-                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp1')
+                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp1.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_2']@param['mix_comp_2'].T))
-                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp2')
+                        plt.savefig('../data/real_regu/ACG_MM_lambda_'+str(lambd)+'comp2.png')
                     elif m==1:
                         np.savetxt('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'like',like)
                         plt.figure(),plt.plot(like),plt.show()
-                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'like')
+                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'like.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_0']@param['mix_comp_0'].T)),plt.show()
-                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp0')
+                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp0.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_1']@param['mix_comp_1'].T)),plt.show()
-                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp1')
+                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp1.png')
                         plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_2']@param['mix_comp_2'].T)),plt.show()
-                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp2')
+                        plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp2.png')
 
 if __name__=="__main__":
     run_experiment(m=int(sys.argv[1]))

@@ -12,11 +12,12 @@ class AngularCentralGaussian(nn.Module):
     "Tyler 1987 - Statistical analysis for the angular central Gaussian distribution on the sphere"
     """
 
-    def __init__(self, p):
+    def __init__(self, p,regu=0):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
+        self.regu = regu
         self.num_params = int(self.p*(self.p-1)/2+self.p)
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
@@ -57,7 +58,7 @@ class AngularCentralGaussian(nn.Module):
 
         # addition with regularization
         lambd = 100
-        L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+lambd*torch.eye(L_tri_inv.shape[0]))
+        L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+self.regu*torch.eye(L_tri_inv.shape[0]))
 
         log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
         

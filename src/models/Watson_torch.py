@@ -8,7 +8,7 @@ class Watson(nn.Module):
     Logarithmic Multivariate Watson distribution class
     """
 
-    def __init__(self, p):
+    def __init__(self, p,regu):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

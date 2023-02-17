@@ -7,15 +7,16 @@ class HiddenMarkovModel(nn.Module):
     Hidden Markov model w. Continues observation density
     """
 
-    def __init__(self, num_states, emission_dist, observation_dim: int = 90):
+    def __init__(self, num_states, emission_dist, observation_dim: int = 90,regu=0):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.N = num_states
+        self.regu = regu
         self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N).to(self.device))
         self.emission_density = emission_dist
         self.obs_dim = observation_dim
         self.state_priors = nn.Parameter(torch.rand(self.N).to(self.device))
-        self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim) for _ in range(self.N)])
+        self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim,self.regu) for _ in range(self.N)])
         self.softplus = nn.Softplus()
         self.logsoftmax_transition = nn.LogSoftmax(dim=1)
         self.logsoftmax_prior = nn.LogSoftmax(dim=0)
