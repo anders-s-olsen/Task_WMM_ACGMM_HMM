@@ -96,5 +96,5 @@ def run_experiment(m):
                         plt.savefig('../data/real_regu/ACG_HMM_lambda_'+str(lambd)+'comp2.png')
 
 if __name__=="__main__":
-    run_experiment(m=int(sys.argv[1]))
-    #run_experiment(m=0)
+    #run_experiment(m=int(sys.argv[1]))
+    run_experiment(m=0)

@@ -58,7 +58,8 @@ class AngularCentralGaussian(nn.Module):
 
         # addition with regularization
         lambd = 100
-        L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+self.regu*torch.eye(L_tri_inv.shape[0]))
+        if self.regu>0:
+            L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+self.regu*torch.eye(L_tri_inv.shape[0]))
 
         log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
         
