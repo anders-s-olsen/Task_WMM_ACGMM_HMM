@@ -28,6 +28,13 @@ class AngularCentralGaussian(nn.Module):
         #self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
         self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
         
+        self.tril_indices = torch.tril_indices(self.p,self.p)
+
+        self.diag_indices = torch.zeros(self.p).type(torch.LongTensor)
+        for i in range(1,self.p+1):   
+            self.diag_indices[i-1] = ((i**2+i)/2)-1
+
+
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
 
@@ -45,21 +52,25 @@ class AngularCentralGaussian(nn.Module):
         #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
         #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
         
-        L_tri_inv = torch.tril(torch.ones(self.p,self.p)).to(self.device)
-        L_tri_inv[L_tri_inv>0] = self.L_vec
-        
-        log_det_A = -2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
-        
+        L_tri_inv = torch.zeros(self.p,self.p).to(self.device)
+        L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
 
+        # addition with regularization
+        lambd = 100
+        L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+lambd*torch.eye(L_tri_inv.shape[0]))
+
+        log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
+        
+        
         if read_A_param:
             #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
             return L_tri_inv
 
-        return log_det_A, L_tri_inv
+        return log_det_A_inv, L_tri_inv
 
     # Probability Density function
     def log_pdf(self, X):
-        log_det_A, L_tri_inv = self.Alter_compose_A()
+        log_det_A_inv, L_tri_inv = self.Alter_compose_A()
 
 
         #matmul1 = torch.diag(X @ L_inv @ X.T)
@@ -72,11 +83,8 @@ class AngularCentralGaussian(nn.Module):
             print(L_tri_inv)
             print(self.L_diag)
             raise ValueError('NaN was produced!')
-
-        #log_acg_pdf = self.log_sphere_surface() \
-        #              - 0.5 * log_det_A \
-        #              - self.half_p * torch.log(matmul2)
-        log_acg_pdf = self.logSA - 0.5 * log_det_A - self.half_p * torch.log(matmul2)
+        
+        log_acg_pdf = self.logSA + 0.5 * log_det_A_inv - self.half_p * torch.log(matmul2)
 
         return log_acg_pdf
 
@@ -96,8 +104,8 @@ if __name__ == "__main__":
     dim = 3
     ACG = AngularCentralGaussian(p=dim)
     
-    ACG_pdf = lambda phi: float(torch.exp(ACG(torch.tensor([[np.cos(phi), np.sin(phi)]], dtype=torch.float))))
-    acg_result = scipy.integrate.quad(ACG_pdf, 0., 2*np.pi)
+    #ACG_pdf = lambda phi: float(torch.exp(ACG(torch.tensor([[np.cos(phi), np.sin(phi)]], dtype=torch.float))))
+    #acg_result = scipy.integrate.quad(ACG_pdf, 0., 2*np.pi)
 
     X = torch.randn(6, dim)
 

@@ -40,8 +40,8 @@ def run_experiment(m):
     print(m)
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 100000
-    num_comp = np.arange(1,11)
+    int_epoch = 1000
+    num_comp = np.arange(3,11)
     data = torch.zeros((29,240,200))
     sub=0
 
@@ -54,7 +54,7 @@ def run_experiment(m):
     #for m in range(4):
     for K in num_comp:
         for r in range(num_repsouter):
-            thres_like = 10000000
+            thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2])
@@ -81,6 +81,11 @@ def run_experiment(m):
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
                     param = get_param(model)
+
+                    plt.figure(),plt.plot(like),plt.show()
+                    plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_0']@param['mix_comp_0'].T)),plt.show()
+                    plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_1']@param['mix_comp_1'].T)),plt.show()
+                    plt.figure(),plt.imshow(torch.linalg.inv(param['mix_comp_2']@param['mix_comp_2'].T)),plt.show()
 
                     if m==0:
                         post = model.posterior(data_concat)
@@ -115,5 +120,5 @@ def run_experiment(m):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    run_experiment(m=int(sys.argv[1]))
-    #run_experiment(m=2)
+    #run_experiment(m=int(sys.argv[1]))
+    run_experiment(m=0)
