@@ -10,10 +10,8 @@ task_raw = table2array(readtable('data/raw/motor_ref.txt'));
 task = resample(task_raw(1:97,:),12,1);
 
 rng default
-% X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
-% cluster_id = h5read('data/synthetic_methods/HMMdata_orig.h5','/cluster_id');
-X = h5read('data/synthetic_noise/HMMdata_noise_-80.h5','/X');
-cluster_id = h5read('data/synthetic_noise/HMMdata_noise_-80.h5','/cluster_id');
+X = h5read('data/synthetic_methods/HMMdata_orig.h5','/X');
+cluster_id = h5read('data/synthetic_methods/HMMdata_orig.h5','/cluster_id');
 %% Figure 1
 pointsspherefig(X,cluster_id);
 % pause(2)
@@ -177,8 +175,7 @@ addpath('/dtu-compute/HCP_dFC/2023/hcp_dfc/src/models/')
 T1 = nan(size(XX));T2 = nan(size(XX));
 
 varfactor = 0.5;
-likelihood_threshold = [0,-1];
-
+likelihood_threshold = [-0.7,-0.7];
 
 if ~isempty(mu)&&~isempty(kappa)
     M2 = kummer_log(0.5,1.5,kappa,50000);
