@@ -40,12 +40,12 @@ def run_experiment(m):
     print(m)
     num_repsouter = 1
     num_repsinner = 1
-    int_epoch = 25000
+    int_epoch = 20000
     K=3
     data = torch.zeros((29,240,200))
     sub=0
 
-    lambdas = [0.0001,0.001,0.01,0.1,1,10,100]
+    lambdas = [0,0.0001,0.001,0.01,0.1,1,10,100]
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'r')
     #print(len(datah5.keys()))
