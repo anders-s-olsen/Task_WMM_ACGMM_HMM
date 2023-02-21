@@ -42,10 +42,10 @@ class AngularCentralGaussian(nn.Module):
     def get_params(self):
         return self.Alter_compose_A(read_A_param=True)
 
-    def log_sphere_surface(self):
-        #logSA = torch.lgamma(self.half_p) - torch.log(2 * np.pi ** self.half_p)
-        logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
-        return logSA
+    #def log_sphere_surface(self):
+    #    #logSA = torch.lgamma(self.half_p) - torch.log(2 * np.pi ** self.half_p)
+    #    logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
+    #    return logSA
 
     def Alter_compose_A(self, read_A_param=False):
 
@@ -57,11 +57,20 @@ class AngularCentralGaussian(nn.Module):
         L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
 
         # addition with regularization
-        lambd = 100
         if self.regu>0:
-            L_tri_inv = torch.linalg.cholesky(L_tri_inv@L_tri_inv.T+self.regu*torch.eye(L_tri_inv.shape[0]))
+            
+            A_inv = L_tri_inv@L_tri_inv.T
+            fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
+            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regu*torch.eye(self.p))
 
-        log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
+            #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
+            #L_tri_inv = torch.linalg.cholesky(torch.exp(-torch.trace(A_inv)/self.p)*torch.matrix_exp(A_inv)+self.regu*torch.eye(self.p))
+
+            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
+            
+            #print(log_det_A_inv)
+        else:
+            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
         
         
         if read_A_param:

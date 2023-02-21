@@ -83,6 +83,7 @@ target/
 /data/synthetic_K/
 /data/syntheticLR/
 /data/real_K/
+/data/real_regu/
 /data/realLR/
 /data/synthetic_noise/
 /submitfiles/*.txt
