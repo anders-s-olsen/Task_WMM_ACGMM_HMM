@@ -82,5 +82,5 @@ def run_experiment(LR):
         elif m==3:
             np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_Watson_HMM_likelihood.csv',like)
 if __name__=="__main__":
-    run_experiment(LR=int(sys.argv[1]))
+    run_experiment(LR=sys.argv[1])
     #run_experiment(m=0)
