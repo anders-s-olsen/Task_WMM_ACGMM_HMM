@@ -40,8 +40,8 @@ def run_experiment(m):
     print(m)
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 3000
-    num_comp = np.arange(5,11)
+    int_epoch = 10000
+    num_comp = np.arange(3,11)
     num_regions = 100
     data = torch.zeros((29,240,num_regions))
     sub=0
@@ -82,25 +82,14 @@ def run_experiment(m):
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
                     param = get_param(model)
-
-                    R0 = param['mix_comp_0']@param['mix_comp_0'].T
-                    R1 = param['mix_comp_1']@param['mix_comp_1'].T
-                    R2 = param['mix_comp_2']@param['mix_comp_2'].T
-                    R3 = param['mix_comp_3']@param['mix_comp_3'].T
-                    R4 = param['mix_comp_4']@param['mix_comp_4'].T
-
-                    A0 = torch.linalg.pinv(R0)
-                    A1 = torch.linalg.pinv(R1)
-                    A2 = torch.linalg.pinv(R2)
-                    A3 = torch.linalg.pinv(R3)
-                    A4 = torch.linalg.pinv(R4)
-
                     plt.figure(),plt.plot(like),plt.show()
-                    plt.figure(),plt.imshow(A0),plt.colorbar(),plt.show()
-                    plt.figure(),plt.imshow(A1),plt.colorbar(),plt.show()
-                    plt.figure(),plt.imshow(A2),plt.colorbar(),plt.show()
-                    plt.figure(),plt.imshow(A3),plt.colorbar(),plt.show()
-                    plt.figure(),plt.imshow(A4),plt.colorbar(),plt.show()
+                    R = torch.zeros((K,data.shape[2],data.shape[2]))
+                    A = torch.zeros((K,data.shape[2],data.shape[2]))
+                    for kk in range(K):
+                        R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
+                        A[kk] = torch.linalg.pinv(R[kk])
+                        plt.figure(),plt.imshow(A[kk]),plt.colorbar(),plt.show()
+                        np.savetxt('../data/nodes_edges/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
 
                     if m==0:
                         post = model.posterior(data_concat)
