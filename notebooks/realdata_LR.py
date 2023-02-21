@@ -41,7 +41,7 @@ num_repsouter = 5
 num_repsinner = 10
 LRs = np.array((0.001,0.01,0.1,1,10,100))
 int_epoch = 100000
-data = torch.zeros((29,240,200))
+data = torch.zeros((29,240,100))
 sub=0
 
 datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
