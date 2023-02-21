@@ -51,10 +51,8 @@ for idx,subject in enumerate(list(datah5.keys())):
         
 data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
 
-
-for m in range(4):
-    for LR in LRs:  
-        
+def run_experiment(LR):
+    for m in range(4):
         if m==0:
             model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2],regu=1e-5)
             optimizer = optim.Adam(model.parameters(), lr=LR)
@@ -83,4 +81,6 @@ for m in range(4):
             np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_Watson_MM_likelihood.csv',like)
         elif m==3:
             np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_Watson_HMM_likelihood.csv',like)
-        
+if __name__=="__main__":
+    run_experiment(LR=int(sys.argv[1]))
+    #run_experiment(m=0)
