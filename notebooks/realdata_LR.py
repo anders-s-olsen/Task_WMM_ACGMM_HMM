@@ -39,12 +39,12 @@ def get_param(model, show=True):
 
 num_repsouter = 5
 num_repsinner = 10
-LRs = np.array((0.01,0.1,1,10,100))
-int_epoch = 50000
+LRs = np.array((0.001,0.01,0.1,1,10,100))
+int_epoch = 100000
 data = torch.zeros((29,240,200))
 sub=0
 
-datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA.hdf5', 'r')
+datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
 print(len(datah5.keys()))
 for idx,subject in enumerate(list(datah5.keys())):
     data[idx] = torch.tensor(datah5[subject])
@@ -56,8 +56,7 @@ for m in range(4):
     for LR in LRs:  
         
         if m==0:
-            continue
-            model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2])
+            model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2],regu=1e-5)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==1:
@@ -66,10 +65,11 @@ for m in range(4):
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==2:
-            model = TorchMixtureModel(distribution_object=Watson,K=3, dist_dim=data.shape[2])
+            model = TorchMixtureModel(distribution_object=Watson,K=3, dist_dim=data.shape[2],regu=1e-5)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==3:
+            continue
             model = HMM(num_states=3, observation_dim=data.shape[2], emission_dist=Watson)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)

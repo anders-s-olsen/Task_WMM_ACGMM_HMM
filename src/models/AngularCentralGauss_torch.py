@@ -61,6 +61,7 @@ class AngularCentralGaussian(nn.Module):
             
             A_inv = L_tri_inv@L_tri_inv.T
             fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
+
             L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regu*torch.eye(self.p))
 
             #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
