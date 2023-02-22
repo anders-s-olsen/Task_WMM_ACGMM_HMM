@@ -61,6 +61,7 @@ def run_experiment(K):
 
         if os.path.isfile('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv'):
             continue
+        print(regu)
 
         model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=regu)
         optimizer = optim.Adam(model.parameters(), lr=0.01)
