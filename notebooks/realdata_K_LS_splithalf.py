@@ -40,7 +40,7 @@ num_repsouter = 5
 num_repsinner = 1
 int_epoch = 10000
 num_comp = np.arange(1,11)
-regus = np.array((0,1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02))
+regus = np.array((1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02))
 num_regions = 100
 
 sub=0
