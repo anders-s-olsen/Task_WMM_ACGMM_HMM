@@ -72,8 +72,8 @@ def run_experiment(K):
 
         
 
-        #np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
+        np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
 
 if __name__=="__main__":
-    #run_experiment(K=int(sys.argv[1]))
-    run_experiment(K=2)
+    run_experiment(K=int(sys.argv[1]))
+    #run_experiment(K=2)
