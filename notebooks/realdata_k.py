@@ -59,7 +59,7 @@ def run_experiment(m):
             for r2 in range(num_repsinner):
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2],regu=1e-5)
-                    optimizer = optim.Adam(model.parameters(), lr=0.01)
+                    optimizer = optim.Adam(model.parameters(), lr=0.1)
                     like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1:
                     model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG,regu=1e-12)
@@ -82,13 +82,13 @@ def run_experiment(m):
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
                     param = get_param(model)
-                    plt.figure(),plt.plot(like),plt.show()
+                    plt.figure(),plt.plot(like)
                     R = torch.zeros((K,data.shape[2],data.shape[2]))
                     A = torch.zeros((K,data.shape[2],data.shape[2]))
                     for kk in range(K):
                         R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
                         A[kk] = torch.linalg.pinv(R[kk])
-                        plt.figure(),plt.imshow(A[kk]),plt.colorbar(),plt.show()
+                        plt.figure(),plt.imshow(A[kk]),plt.colorbar()
                         np.savetxt('../data/nodes_edges/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
 
                     if m==0:
