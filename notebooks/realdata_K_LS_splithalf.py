@@ -58,7 +58,7 @@ data_test_concat = torch.concatenate([data_test[sub] for sub in range(data_test.
 #for m in range(4):
 def run_experiment(K):
     for regu in regus:
-
+        regustr = str(regu).replace('.','')
         if os.path.isfile('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv'):
             continue
         print(regu)
@@ -69,7 +69,7 @@ def run_experiment(K):
 
         test_like = -model.log_likelihood_mixture(data_test_concat)
 
-        regustr = str(regu).replace('.','')
+        
 
         np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
 
