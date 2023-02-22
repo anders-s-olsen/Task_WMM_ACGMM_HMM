@@ -40,8 +40,7 @@ num_repsouter = 5
 num_repsinner = 1
 int_epoch = 25000
 num_comp = np.arange(1,11)
-#regus = np.flip(np.array((1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02,1e-01,1e-00)))
-regus = np.flip(np.array((0.00215,0.00464,0.0215,0.0464)))
+regus = np.flip(np.array((1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,0.00215,0.00464,1e-02,0.0215,0.04641e-01,1e-00)))
 num_regions = 100
 
 sub=0
@@ -59,6 +58,10 @@ data_test_concat = torch.concatenate([data_test[sub] for sub in range(data_test.
 #for m in range(4):
 def run_experiment(K):
     for regu in regus:
+
+        if os.path.isfile('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv'):
+            continue
+
         model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=regu)
         optimizer = optim.Adam(model.parameters(), lr=0.01)
         like,model,like_best = train_hmm(model, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
