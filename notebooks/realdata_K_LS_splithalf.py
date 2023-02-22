@@ -40,8 +40,9 @@ num_repsouter = 5
 num_repsinner = 1
 int_epoch = 25000
 num_comp = np.arange(1,11)
-regus = np.flip(np.array((1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,0.00215,0.00464,1e-02,0.0215,0.04641e-01,1e-00)))
+regus = np.flip(np.array((1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,0.00215,0.00464,1e-02,0.0215,0.0464,1e-01,1e-00)))
 num_regions = 100
+torch.set_num_threads(16)
 
 sub=0
 
@@ -71,7 +72,8 @@ def run_experiment(K):
 
         
 
-        np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
+        #np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
 
 if __name__=="__main__":
-    run_experiment(K=int(sys.argv[1]))
+    #run_experiment(K=int(sys.argv[1]))
+    run_experiment(K=2)
