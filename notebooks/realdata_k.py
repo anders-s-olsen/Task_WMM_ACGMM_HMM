@@ -88,9 +88,9 @@ def run_experiment(m):
                     for kk in range(K):
                         R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
                         A[kk] = torch.linalg.pinv(R[kk])
-                        plt.figure(),plt.imshow(A[kk]),plt.colorbar()
                         np.savetxt('../data/nodes_edges/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
-
+                    for kk in range(K):
+                        plt.figure(),plt.imshow(A[kk]),plt.colorbar()
                     if m==0:
                         post = model.posterior(data_concat)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)

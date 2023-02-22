@@ -102,7 +102,7 @@ class AngularCentralGaussian(nn.Module):
 
     def forward(self, X):
         return self.log_pdf(X)
-
+    
     def __repr__(self):
         return 'ACG'
 
