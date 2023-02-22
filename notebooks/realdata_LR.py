@@ -74,13 +74,13 @@ def run_experiment(LR):
 
 
         if m==0:
-            np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_ACG_MM_likelihood.csv',like)
+            np.savetxt('../data/realLR/LR_'+np.array2string(np.array(LR))+'_ACG_MM_likelihood.csv',like)
         elif m==1:
-            np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_ACG_HMM_likelihood.csv',like)
+            np.savetxt('../data/realLR/LR_'+np.array2string(np.array(LR))+'_ACG_HMM_likelihood.csv',like)
         elif m==2:
-            np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_Watson_MM_likelihood.csv',like)
+            np.savetxt('../data/realLR/LR_'+np.array2string(np.array(LR))+'_Watson_MM_likelihood.csv',like)
         elif m==3:
-            np.savetxt('../data/realLR/LR_'+np.array2string(LR)+'_Watson_HMM_likelihood.csv',like)
+            np.savetxt('../data/realLR/LR_'+np.array2string(np.array(LR))+'_Watson_HMM_likelihood.csv',like)
 if __name__=="__main__":
     run_experiment(LR=float(sys.argv[1]))
     #run_experiment(m=0)
