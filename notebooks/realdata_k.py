@@ -58,7 +58,7 @@ def run_experiment(m):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
-                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2],regu=1e-2)
+                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2],regu=1e-0)
                     optimizer = optim.Adam(model.parameters(), lr=0.1)
                     like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1:
