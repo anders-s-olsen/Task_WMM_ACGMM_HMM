@@ -35,12 +35,12 @@ def get_param(model, show=True):
             print(10*'---')
     
     return para
-
+torch.set_num_threads(16)
 
 num_repsouter = 5
 num_repsinner = 10
 LRs = np.array((0.001,0.01,0.1,1,10,100))
-int_epoch = 100000
+int_epoch = 50000
 data = torch.zeros((29,240,100))
 sub=0
 
@@ -54,20 +54,18 @@ data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
 def run_experiment(LR):
     for m in range(4):
         if m==0:
-            model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2],regu=1e-5)
+            model = TorchMixtureModel(distribution_object=ACG,K=3, dist_dim=data.shape[2],regu=1e-2)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==1:
-            continue
             model = HMM(num_states=3, observation_dim=data.shape[2], emission_dist=ACG)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==2:
-            model = TorchMixtureModel(distribution_object=Watson,K=3, dist_dim=data.shape[2],regu=1e-5)
+            model = TorchMixtureModel(distribution_object=Watson,K=3, dist_dim=data.shape[2],regu=1e-2)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
         elif m==3:
-            continue
             model = HMM(num_states=3, observation_dim=data.shape[2], emission_dist=Watson)
             optimizer = optim.Adam(model.parameters(), lr=LR)
             like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)

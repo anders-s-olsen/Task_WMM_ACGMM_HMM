@@ -1,6 +1,6 @@
 #!/bin/sh
 #BSUB -J realLRjob
-#BSUB -q computebigbigmem
+#BSUB -q hpc
 #BSUB -R "rusage[mem=1GB]"
 #BSUB -B
 #BSUB -N

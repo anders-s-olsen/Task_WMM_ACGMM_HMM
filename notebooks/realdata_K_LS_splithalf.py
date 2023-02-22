@@ -70,8 +70,6 @@ def run_experiment(K):
 
         test_like = -model.log_likelihood_mixture(data_test_concat)
 
-        
-
         np.savetxt('../data/real_K_LR/K'+str(K)+'regu'+regustr+'.csv',np.array((test_like.detach(),K,regu)))
 
 if __name__=="__main__":
