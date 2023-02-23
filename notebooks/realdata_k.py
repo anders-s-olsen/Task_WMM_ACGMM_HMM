@@ -25,6 +25,8 @@ from src.models.MixtureModel_torch import TorchMixtureModel
 from src.models.HMM_torch import HiddenMarkovModel as HMM
 from src.various.training import train_hmm
 
+torch.set_num_threads(16)
+
 def get_param(model, show=True):
     para = model.get_model_param()
     
@@ -36,45 +38,73 @@ def get_param(model, show=True):
     
     return para
 
-def run_experiment(m):
-    print(m)
+def run_experiment(K):
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 10000
+    int_epoch = 50000
     num_comp = np.arange(3,11)
     num_regions = 100
-    data = torch.zeros((29,240,num_regions))
     sub=0
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
     #print(len(datah5.keys()))
+    data_train = torch.zeros((29,120,num_regions))
+    data_test = torch.zeros((29,120,num_regions))
     for idx,subject in enumerate(list(datah5.keys())):
-        data[idx] = torch.tensor(datah5[subject])
+        data_train[idx] = torch.tensor(datah5[subject][0:120])
+        data_test[idx] = torch.tensor(datah5[subject][120:])
             
-    data_concat = torch.concatenate([data[sub] for sub in range(data.shape[0])])
+    data_train_concat = torch.concatenate([data_train[sub] for sub in range(data_train.shape[0])])
+    data_test_concat = torch.concatenate([data_test[sub] for sub in range(data_test.shape[0])])
     #for m in range(4):
-    for K in num_comp:
+    for m in range(4):
         for r in range(num_repsouter):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
-                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data.shape[2],regu=1e-0)
-                    optimizer = optim.Adam(model.parameters(), lr=0.1)
-                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                elif m==1:
-                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=ACG,regu=1e-12)
+                    model = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=1e-2)
                     optimizer = optim.Adam(model.parameters(), lr=0.01)
-                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm(model, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    test_like = -model.log_likelihood_mixture(data_test_concat)
+
+                    param = get_param(model)
+                    A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
+                    for kk in range(K):
+                        A[kk] = torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T)
+                        np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like_best)
+                elif m==1:
+                    model = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=ACG,regu=1e-2)
+                    optimizer = optim.Adam(model.parameters(), lr=0.1)
+                    like,model,like_best = train_hmm(model, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    test_like = -model.forward(data_test)
+                    param = get_param(model)
+                    A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
+                    for kk in range(K):
+                        A[kk] = torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T)
+                        np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
                 elif m==2:
-                    continue
-                    model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data.shape[2])
-                    optimizer = optim.Adam(model.parameters(), lr=1)
-                    like,model,like_best = train_hmm(model, data=data_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
+                    optimizer = optim.Adam(model.parameters(), lr=0.01)
+                    like,model,like_best = train_hmm(model, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    test_like = -model.log_likelihood_mixture(data_test_concat)
+                    np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)
+                    for kk in range(K):
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
                 elif m==3:
-                    continue
-                    model = HMM(num_states=K, observation_dim=data.shape[2], emission_dist=Watson)
-                    optimizer = optim.Adam(model.parameters(), lr=1)
-                    like,model,like_best = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    model = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=Watson)
+                    optimizer = optim.Adam(model.parameters(), lr=0.01)
+                    like,model,like_best = train_hmm(model, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    test_like = -model.forward(data_test)
+                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
+                    for kk in range(K):
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
+                
+                continue
+
 
                 # load best model and calculate posterior or viterbi
                 #model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
@@ -83,8 +113,8 @@ def run_experiment(m):
                     thres_like = like_best[1]
                     param = get_param(model)
                     plt.figure(),plt.plot(like)
-                    R = torch.zeros((K,data.shape[2],data.shape[2]))
-                    A = torch.zeros((K,data.shape[2],data.shape[2]))
+                    R = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
+                    A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
                     for kk in range(K):
                         R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
                         A[kk] = torch.linalg.pinv(R[kk])
@@ -99,7 +129,7 @@ def run_experiment(m):
                         for kk in range(K):
                             np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
                     elif m==1:
-                        best_path,xx,xxx = model.viterbi2(data)
+                        best_path,xx,xxx = model.viterbi2(data_train)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
@@ -124,5 +154,5 @@ def run_experiment(m):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    #run_experiment(m=int(sys.argv[1]))
-    run_experiment(m=0)
+    run_experiment(K=int(sys.argv[1]))
+    #run_experiment(m=3)
