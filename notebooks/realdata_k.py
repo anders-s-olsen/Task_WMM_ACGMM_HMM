@@ -41,7 +41,7 @@ def get_param(model, show=True):
 def run_experiment(K):
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 50000
+    int_epoch = 100
     num_comp = np.arange(3,11)
     num_regions = 100
     sub=0
