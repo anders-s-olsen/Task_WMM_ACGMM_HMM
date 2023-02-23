@@ -81,7 +81,7 @@ def run_experiment(K):
                     param = get_param(model)
                     A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
                     for kk in range(K):
-                        A[kk] = torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T)
+                        A[kk] = torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
                     np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
                 elif m==2:
@@ -100,8 +100,8 @@ def run_experiment(K):
                     test_like = -model.forward(data_test)
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
                     for kk in range(K):
-                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
-                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
+                        np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
                 
                 continue
 
