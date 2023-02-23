@@ -72,7 +72,7 @@ def run_experiment(K):
                     for kk in range(K):
                         A[kk] = torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',test_like.detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                 elif m==1:
                     model1 = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=ACG,regu=1e-2)
                     optimizer = optim.Adam(model1.parameters(), lr=0.1)
@@ -83,13 +83,13 @@ def run_experiment(K):
                     for kk in range(K):
                         A[kk] = torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T)
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',test_like.detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                 elif m==2:
                     model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                     optimizer = optim.Adam(model2.parameters(), lr=0.01)
                     like,model2,like_best = train_hmm(model2, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                     test_like = -model2.log_likelihood_mixture(data_test_concat)
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',test_like.detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                     param = get_param(model2)
                     for kk in range(K):
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
@@ -99,7 +99,7 @@ def run_experiment(K):
                     optimizer = optim.Adam(model3.parameters(), lr=0.01)
                     like,model3,like_best = train_hmm(model3, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                     test_like = -model3.forward(data_test)
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',test_like.detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                     param = get_param(model3)
                     for kk in range(K):
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
