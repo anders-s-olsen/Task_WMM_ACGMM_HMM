@@ -8,7 +8,7 @@ class TorchMixtureModel(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.regu = regu
         self.distribution, self.K, self.p = distribution_object, K, dist_dim
-        self.pi = nn.Parameter(torch.rand(self.K).to(self.device))
+        self.pi = nn.Parameter(torch.rand(self.K,device=self.device))
         self.mix_components = nn.ModuleList([self.distribution(self.p,self.regu) for _ in range(self.K)])
         self.LogSoftMax = nn.LogSoftmax(dim=0)
         self.softplus = nn.Softplus()

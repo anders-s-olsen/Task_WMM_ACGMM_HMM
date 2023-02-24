@@ -12,13 +12,13 @@ class Watson(nn.Module):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        self.p = p
-        self.c = torch.tensor(self.p/2)
+        self.p = p.to(self.device)
+        self.c = torch.tensor(self.p/2).to(self.device)
         self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0).to(self.device))
         self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(self.device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
-        self.const_a = torch.tensor(0.5)  # a = 1/2,  !constant
-        self.logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2)) -self.c* torch.log(torch.tensor(np.pi))
+        self.const_a = torch.tensor(0.5,device=self.device)  # a = 1/2,  !constant
+        self.logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2,device=self.device)) -self.c* torch.log(torch.tensor(np.pi,device=self.device))
         assert self.p != 1, 'Not properly implemented'
 
     def get_params(self):
@@ -51,12 +51,12 @@ class Watson(nn.Module):
 
     def log_kummer(self, a, b, kappa,num_eval=10000):
 
-        n = torch.arange(num_eval).to(self.device)
+        n = torch.arange(num_eval,device=self.device)
     
         inner = torch.lgamma(a + n) + torch.lgamma(b) - torch.lgamma(a) - torch.lgamma(b + n) \
-                + n * torch.log(kappa) - torch.lgamma(n + torch.tensor(1.).to(self.device))
+                + n * torch.log(kappa) - torch.lgamma(n + torch.tensor(1.,device=self.device))
     
-        logkum = torch.logsumexp(inner, dim=0).to(self.device)
+        logkum = torch.logsumexp(inner, dim=0)
     
         return logkum
 
@@ -80,7 +80,7 @@ class Watson(nn.Module):
             print('Code reached here') # if kappa is zeros
             kappa_positive += 1e-15
 
-        norm_constant = self.log_norm_constant(kappa_positive).to(self.device)
+        norm_constant = self.log_norm_constant(kappa_positive)
         logpdf = norm_constant + kappa_positive * ((mu_unit @ X.T) ** 2)
 
         if torch.isnan(logpdf.sum()):
