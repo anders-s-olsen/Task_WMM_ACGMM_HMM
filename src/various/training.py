@@ -56,6 +56,8 @@ def train_mixture_batches(MixtureModel, data, optimizer, num_epoch=100, keep_bar
 
 def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=False):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Currently using device: ')
+    print(device)
     model = HMM.to(device).train()
 
     epoch_likelihood_collector = np.zeros(num_epoch)
