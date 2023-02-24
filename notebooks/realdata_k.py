@@ -55,8 +55,8 @@ def run_experiment(K):
     data_train_concat = torch.concatenate([data_train[sub] for sub in range(data_train.shape[0])])
     data_test_concat = torch.concatenate([data_test[sub] for sub in range(data_test.shape[0])])
     #for m in range(4):
-    for m in range(4):
-        for r in range(num_repsouter):
+    for r in range(num_repsouter):
+        for m in range(4):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
