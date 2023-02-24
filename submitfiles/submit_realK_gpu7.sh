@@ -18,4 +18,4 @@ module load h5py/3.7.0-python-3.10.7
 python3 -m pip install --user tqdm torch
 cd ..
 cd notebooks
-python3 realdata_k.py 2
+python3 realdata_k.py 7
