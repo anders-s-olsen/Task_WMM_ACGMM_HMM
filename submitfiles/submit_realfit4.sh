@@ -1,7 +1,7 @@
 #!/bin/sh
 #BSUB -J realfitjob
 #BSUB -q hpc
-#BSUB -R "rusage[mem=1GB]"
+#BSUB -R "rusage[mem=512MB]"
 #BSUB -B
 #BSUB -N
 #BSUB -o realfitjob_out_%J.txt

@@ -1,7 +1,7 @@
 #!/bin/sh
 #BSUB -J realfitjob
 #BSUB -q gpuv100
-#BSUB -R "rusage[mem=32MB]"
+#BSUB -R "rusage[mem=512MB]"
 #BSUB -B
 #BSUB -N
 #BSUB -o realfitjob_out_%J.txt
