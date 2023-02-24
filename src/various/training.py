@@ -2,7 +2,6 @@ import torch
 import numpy as np
 
 from tqdm import tqdm
-from torch.profiler import profile, record_function, ProfilerActivity
 
 # Train Mixture model
 def train_mixture(MixtureModel, data, optimizer, num_epoch=100, keep_bar=True):
@@ -63,39 +62,29 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
 
     epoch_likelihood_collector = np.zeros(num_epoch)
 
-    with torch.profiler.profile(
-            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], 
-            record_shapes=True,
-            schedule=torch.profiler.schedule(
-            wait=1,
-            warmup=1,
-            active=2)) as prof:
-        for epoch in tqdm(range(num_epoch), leave=keep_bar):
+    for epoch in tqdm(range(num_epoch), leave=keep_bar):
 
-            subject_leida_vectors = data.to(device)
+        subject_leida_vectors = data.to(device)
 
-            NegativeLogLikelihood = -model(subject_leida_vectors)  # OBS! Negative
+        NegativeLogLikelihood = -model(subject_leida_vectors)  # OBS! Negative
 
-            optimizer.zero_grad(set_to_none=True)
-            NegativeLogLikelihood.backward()
-            optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+        NegativeLogLikelihood.backward()
+        optimizer.step()
 
-            epoch_likelihood_collector[epoch] = NegativeLogLikelihood
-            if early_stopping:
-                if epoch==0:
-                    ident = torch.randint(0,10000000,(1,1)).detach()
+        epoch_likelihood_collector[epoch] = NegativeLogLikelihood
+        if early_stopping:
+            if epoch==0:
+                ident = torch.randint(0,10000000,(1,1)).detach()
+                torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
+                best_like = epoch_likelihood_collector[epoch]
+            elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/100+1))):
+                if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
                     torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
+                    np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
                     best_like = epoch_likelihood_collector[epoch]
-                elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/100+1))):
-                    if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
-                        torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
-                        np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
-                        best_like = epoch_likelihood_collector[epoch]
-                        like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
+                    like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
 
-            prof.step()
-    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
-    print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
 
     if early_stopping:
         model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
