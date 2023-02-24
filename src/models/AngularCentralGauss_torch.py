@@ -35,7 +35,7 @@ class AngularCentralGaussian(nn.Module):
         self.diag_indices = torch.zeros(self.p).type(torch.LongTensor)
         for i in range(1,self.p+1):   
             self.diag_indices[i-1] = ((i**2+i)/2)-1
-        self.L_tri_inv = torch.zeros(self.p,self.p,device=self.device)
+        
 
         self.SoftPlus = nn.Softplus()
         assert self.p != 1, 'Not matmul not stable for this dimension'
@@ -54,21 +54,21 @@ class AngularCentralGaussian(nn.Module):
         #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
         #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
         
-        
-        self.L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
+        L_tri_inv = torch.zeros(self.p,self.p,device=self.device)
+        L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
 
         # addition with regularization
         if self.regu>0:
             
-            A_inv = self.L_tri_inv@self.L_tri_inv.T
+            A_inv = L_tri_inv@L_tri_inv.T
             fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
 
-            self.L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
+            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
 
             #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
             #L_tri_inv = torch.linalg.cholesky(torch.exp(-torch.trace(A_inv)/self.p)*torch.matrix_exp(A_inv)+self.regu*torch.eye(self.p))
 
-            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(self.L_tri_inv))))  # - det(A)
+            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
             
             #print(log_det_A_inv)
         else:
@@ -77,18 +77,18 @@ class AngularCentralGaussian(nn.Module):
         
         if read_A_param:
             #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
-            return self.L_tri_inv
+            return L_tri_inv
 
-        return log_det_A_inv
+        return log_det_A_inv,L_tri_inv
 
     # Probability Density function
     def log_pdf(self, X):
-        log_det_A_inv = self.Alter_compose_A()
+        log_det_A_inv,L_tri_inv = self.Alter_compose_A()
 
 
         #matmul1 = torch.diag(X @ L_inv @ X.T)
 
-        B = X @ self.L_tri_inv
+        B = X @ L_tri_inv
         matmul2 = torch.sum(B * B, dim=1)
 
         if torch.isnan(matmul2.sum()):
