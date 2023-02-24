@@ -41,7 +41,7 @@ def get_param(model, show=True):
 def run_experiment(K):
     num_repsouter = 1
     num_repsinner = 1
-    int_epoch = 10000
+    int_epoch = 100
     num_regions = 100
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
