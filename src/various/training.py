@@ -64,7 +64,7 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
     epoch_likelihood_collector = np.zeros(num_epoch)
 
     with torch.profiler.profile(
-            [ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
+            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
         for epoch in tqdm(range(num_epoch), leave=keep_bar):
 
             subject_leida_vectors = data.to(device)
