@@ -64,7 +64,12 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
     epoch_likelihood_collector = np.zeros(num_epoch)
 
     with torch.profiler.profile(
-            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
+            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], 
+            record_shapes=True,
+            schedule=torch.profiler.schedule(
+            wait=1,
+            warmup=1,
+            active=2)) as prof:
         for epoch in tqdm(range(num_epoch), leave=keep_bar):
 
             subject_leida_vectors = data.to(device)
@@ -90,6 +95,7 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
 
             prof.step()
     print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+    print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
 
     if early_stopping:
         model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
