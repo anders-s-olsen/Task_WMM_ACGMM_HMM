@@ -22,6 +22,7 @@ class AngularCentralGaussian(nn.Module):
         # assert self.p % 2 == 0, 'P must be an even positive integer'
         self.half_p = torch.tensor(p / 2)
         self.logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
+        self.regumat = (self.regu*torch.eye(self.p)).to(self.device)
         #self.L_diag = nn.Parameter(torch.rand(self.p))
         #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
 
@@ -62,7 +63,7 @@ class AngularCentralGaussian(nn.Module):
             A_inv = L_tri_inv@L_tri_inv.T
             fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
 
-            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regu*torch.eye(self.p))
+            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
 
             #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
             #L_tri_inv = torch.linalg.cholesky(torch.exp(-torch.trace(A_inv)/self.p)*torch.matrix_exp(A_inv)+self.regu*torch.eye(self.p))
