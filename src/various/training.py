@@ -2,6 +2,7 @@ import torch
 import numpy as np
 
 from tqdm import tqdm
+from torch.profiler import profile, record_function, ProfilerActivity
 
 # Train Mixture model
 def train_mixture(MixtureModel, data, optimizer, num_epoch=100, keep_bar=True):
@@ -63,10 +64,7 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
     epoch_likelihood_collector = np.zeros(num_epoch)
 
     with torch.profiler.profile(
-            schedule=torch.profiler.schedule(wait=1, warmup=1, active=5),
-            on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/resnet18'),
-            record_shapes=True
-    ) as prof:
+            [ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
         for epoch in tqdm(range(num_epoch), leave=keep_bar):
 
             subject_leida_vectors = data.to(device)
@@ -91,6 +89,8 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
                         like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
 
             prof.step()
+    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+
     if early_stopping:
         model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
         return epoch_likelihood_collector,model,like_best
