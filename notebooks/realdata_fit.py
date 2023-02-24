@@ -41,7 +41,7 @@ def get_param(model, show=True):
 def run_experiment(K):
     num_repsouter = 5
     num_repsinner = 5
-    int_epoch = 100
+    int_epoch = 100000
     num_regions = 100
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
@@ -84,12 +84,11 @@ def run_experiment(K):
                     thres_like = like_best[1]
                     param = get_param(model)
                     #plt.figure(),plt.plot(like)
-                    R = torch.zeros((K,num_regions))
-                    A = torch.zeros((K,num_regions))
-                    for kk in range(K):
-                        R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
-                        A[kk] = torch.linalg.pinv(R[kk])
-                        np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
+                    #R = torch.zeros((K,num_regions,num_regions))
+                    #A = torch.zeros((K,num_regions,num_regions))
+                    #for kk in range(K):
+                    #    R[kk] = param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T
+                    #    A[kk] = torch.linalg.pinv(R[kk])
                     #for kk in range(K):
                     #    plt.figure(),plt.imshow(A[kk]),plt.colorbar()
                     if m==0:
@@ -98,7 +97,7 @@ def run_experiment(K):
                         np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                         np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
+                            np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T).detach())
                     elif m==1:
                         best_path,xx,xxx = model.viterbi2(data_train)
                         np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like_best)
@@ -106,7 +105,7 @@ def run_experiment(K):
                         np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
                         np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
                         for kk in range(K):
-                            np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
+                            np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T).detach())
                     elif m==2:
                         post = model.posterior(data_train_concat)
                         np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like_best)

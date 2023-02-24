@@ -1,11 +1,11 @@
 #!/bin/sh
-#BSUB -J realKjob
+#BSUB -J realfitjob
 #BSUB -q hpc
 #BSUB -R "rusage[mem=1GB]"
 #BSUB -B
 #BSUB -N
-#BSUB -o realKjob_out_%J.txt
-#BSUB -e realKjob_err_%J.txt
+#BSUB -o realfitjob_out_%J.txt
+#BSUB -e realfitjob_err_%J.txt
 #BSUB -W 72:00 
 #BSUB -n 16
 #BSUB -R "span[hosts=1]"
