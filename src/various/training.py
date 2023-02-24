@@ -68,7 +68,7 @@ def train_hmm(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=
 
         NegativeLogLikelihood = -model(subject_leida_vectors)  # OBS! Negative
 
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
         NegativeLogLikelihood.backward()
         optimizer.step()
 

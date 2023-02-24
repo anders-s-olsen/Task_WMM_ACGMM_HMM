@@ -54,7 +54,7 @@ class AngularCentralGaussian(nn.Module):
         #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
         #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
         
-        L_tri_inv = torch.zeros(self.p,self.p).to(self.device)
+        L_tri_inv = torch.zeros(self.p,self.p,device=self.device)
         L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
 
         # addition with regularization

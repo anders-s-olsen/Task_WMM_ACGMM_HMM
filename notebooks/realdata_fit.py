@@ -41,7 +41,7 @@ def get_param(model, show=True):
 def run_experiment(K):
     num_repsouter = 1
     num_repsinner = 1
-    int_epoch = 1000000
+    int_epoch = 10000
     num_regions = 100
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
@@ -57,10 +57,19 @@ def run_experiment(K):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
-                    model0 = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=num_regions,regu=1e-2)
-                    optimizer = optim.Adam(model0.parameters(), lr=0.01)
-                    like,model0,like_best = train_hmm(model0, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    model = model0
+                    with torch.profiler.profile(
+                        activities=[
+                            torch.profiler.ProfilerActivity.CPU,
+                            torch.profiler.ProfilerActivity.CUDA,
+                        ]
+                    ) as p:
+                        model0 = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=num_regions,regu=1e-2)
+                        optimizer = optim.Adam(model0.parameters(), lr=0.01)
+                        like,model0,like_best = train_hmm(model0, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                        model = model0
+                    print(p.key_averages().table(
+                        sort_by="self_cuda_time_total", row_limit=-1))
+                    return
                 elif m==1:
                     model1 = HMM(num_states=K, observation_dim=num_regions, emission_dist=ACG,regu=1e-2)
                     optimizer = optim.Adam(model1.parameters(), lr=0.1)
