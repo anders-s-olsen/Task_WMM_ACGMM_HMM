@@ -60,15 +60,15 @@ class AngularCentralGaussian(nn.Module):
         # addition with regularization
         if self.regu>0:
             
-            A_inv = L_tri_inv@L_tri_inv.T
+            A_inv = self.L_tri_inv@self.L_tri_inv.T
             fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
 
-            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
+            self.L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
 
             #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
             #L_tri_inv = torch.linalg.cholesky(torch.exp(-torch.trace(A_inv)/self.p)*torch.matrix_exp(A_inv)+self.regu*torch.eye(self.p))
 
-            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
+            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(self.L_tri_inv))))  # - det(A)
             
             #print(log_det_A_inv)
         else:
@@ -77,18 +77,18 @@ class AngularCentralGaussian(nn.Module):
         
         if read_A_param:
             #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
-            return L_tri_inv
+            return self.L_tri_inv
 
-        return log_det_A_inv, L_tri_inv
+        return log_det_A_inv
 
     # Probability Density function
     def log_pdf(self, X):
-        log_det_A_inv, L_tri_inv = self.Alter_compose_A()
+        log_det_A_inv = self.Alter_compose_A()
 
 
         #matmul1 = torch.diag(X @ L_inv @ X.T)
 
-        B = X @ L_tri_inv
+        B = X @ self.L_tri_inv
         matmul2 = torch.sum(B * B, dim=1)
 
         if torch.isnan(matmul2.sum()):
