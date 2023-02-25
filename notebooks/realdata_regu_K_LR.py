@@ -40,6 +40,12 @@ def get_param(model, show=True):
 
 
 def run_experiment(K,regu,LR):
+    print('Num components:')
+    print(K)
+    print('Regularization factor:')
+    print(regu)
+    print('Learning rate:')
+    print(LR)
     num_repsouter = 5
     num_repsinner = 1
     int_epoch = 10000
