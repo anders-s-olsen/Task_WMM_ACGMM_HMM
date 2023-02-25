@@ -173,5 +173,5 @@ def run_experiment(K):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    run_experiment(K=int(sys.argv[1]))
-    #run_experiment(K=4)
+    #run_experiment(K=int(sys.argv[1]))
+    run_experiment(K=4)
