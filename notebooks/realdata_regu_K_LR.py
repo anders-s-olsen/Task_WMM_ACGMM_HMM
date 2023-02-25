@@ -39,7 +39,7 @@ def get_param(model, show=True):
     return para
 
 
-def run_experiment(K):
+def run_experiment(K,regu,LR):
     num_repsouter = 5
     num_repsinner = 1
     int_epoch = 10000
@@ -57,32 +57,30 @@ def run_experiment(K):
     data_test_concat = torch.concatenate([data_test[sub] for sub in range(data_test.shape[0])])
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     #for m in range(4):
+    regustr = str(regu).replace('.','')
+    LRstr = str(LR).replace('.','')
     for r in range(num_repsouter):
         for m in range(4):
             thres_like = 1000000000000000
             for r2 in range(num_repsinner):
                 if m==0:
-                    model0 = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=1e-2)
-                    optimizer = optim.Adam(model0.parameters(), lr=1)
-                    like = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
-                    #like,model0,like_best = train_hmm(model0, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    #like = train_hmm_lbfgs(model0, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
-                    #like,model0,like_best = train_hmm_subject(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=0)
-                    model0.eval()
+                    model0 = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=regu)
+                    optimizer = optim.Adam(model0.parameters(), lr=LR)
+                    like,model0,like_best = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
                     test_like = -model0.log_likelihood_mixture(data_test_concat.to(device))
-                    return
-                    plt.figure(),plt.plot(like)
+                    #plt.figure(),plt.plot(like)
                     param = get_param(model0)
                     A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
                     for kk in range(K):
                         A[kk] = torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T)
-                        plt.figure(),plt.imshow(A[kk]),plt.colorbar()
-                        np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_testlikelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like)
+                        #plt.figure(),plt.imshow(A[kk]),plt.colorbar()
+                        np.savetxt('../data/real_K_regu_LR/K'+str(K)+'regu'+regustr+'LR'+LRstr+'ACG_MM_comp'+str(kk)+'_rep'+str(r)+'.csv',A[kk].detach())
+                    np.savetxt('../data/real_K_regu_LR/K'+str(K)+'regu'+regustr+'LR'+LRstr+'ACG_MM_testlikelihood_rep'+str(r)+'.csv',np.array((test_like.detach(),K)))
+                    np.savetxt('../data/real_K_regu_LR/K'+str(K)+'regu'+regustr+'LR'+LRstr+'ACG_MM_likelihood_rep'+str(r)+'.csv',like)
                     post = model0.posterior(data_test_concat.to(device))
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                    np.savetxt('../data/real_K_regu_LR/K'+str(K)+'regu'+regustr+'LR'+LRstr+'ACG_MM_assignment_rep'+str(r)+'.csv',np.transpose(post.detach()))
                 elif m==1:
+                    continue
                     model1 = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=ACG,regu=1e-2)
                     optimizer = optim.Adam(model1.parameters(), lr=0.1)
                     like,model1,like_best = train_hmm_batch(model1, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=1)
@@ -97,6 +95,7 @@ def run_experiment(K):
                     post = model1.viterbi2(data_test.to(device))
                     np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                 elif m==2:
+                    continue
                     model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                     optimizer = optim.Adam(model2.parameters(), lr=0.01)
                     like,model2,like_best = train_hmm_batch(model2, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=0)
@@ -110,6 +109,7 @@ def run_experiment(K):
                     post = model2.posterior(data_test_concat.to(device))
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
                 elif m==3:
+                    continue
                     model3 = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=Watson)
                     optimizer = optim.Adam(model3.parameters(), lr=0.01)
                     like,model3,like_best = train_hmm_batch(model3, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=1)
@@ -174,5 +174,5 @@ def run_experiment(K):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    #run_experiment(K=int(sys.argv[1]))
-    run_experiment(K=4)
+    run_experiment(K=int(sys.argv[1]),regu=float(sys.argv[2]),LR=float(sys.argv[3]))
+    #run_experiment(K=4)

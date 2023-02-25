@@ -46,7 +46,11 @@ def train_hmm_batch(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_sto
                     np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))
                     best_like = epoch_likelihood_collector[epoch]
                     like_best = np.array((epoch,epoch_likelihood_collector[epoch]))
-
+    if early_stopping:
+        model.load_state_dict(torch.load('../data/interim/model_checkpoint'+str(ident)+'.pt'))
+        return epoch_likelihood_collector,model,like_best
+    else: 
+        return epoch_likelihood_collector
 def train_hmm_subject(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=False,modeltype=0):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Currently using device: ')
