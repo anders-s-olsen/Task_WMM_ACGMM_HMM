@@ -92,15 +92,15 @@ class HiddenMarkovModel(nn.Module):
 
         subject_Z_path = []
         subject_Z_path_prob = []
-        subject_emissions = torch.zeros(num_subjects, seq_len, self.N).to(self.device)
+        subject_emissions = torch.zeros(num_subjects, seq_len, self.N,device=self.device)
 
         for subject in range(num_subjects):
             with torch.no_grad():
                 X_sub = X[subject]
 
                 # collectors
-                log_delta = torch.zeros(seq_len, self.N)
-                psi = torch.zeros(seq_len, self.N, dtype=torch.int32)  # intergers - state seqeunces
+                log_delta = torch.zeros(seq_len, self.N,device=self.device)
+                psi = torch.zeros(seq_len, self.N, dtype=torch.int32,device=self.device)  # intergers - state seqeunces
 
                 # Init - time t=0
                 subject_emissions[subject,0,:] = self.emission_models_forward(X_sub[0].unsqueeze(dim=0)).squeeze()
