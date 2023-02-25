@@ -84,7 +84,7 @@ def run_experiment(K):
                 elif m==1:
                     model1 = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=ACG,regu=1e-5)
                     optimizer = optim.Adam(model1.parameters(), lr=0.1)
-                    like,model1,like_best = train_hmm_batch(model1, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=1)
+                    like = train_hmm_batch(model1, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=1)
                     test_like = -model1.forward(data_test.to(device)).cpu()
                     param = get_param(model1)
                     A = torch.zeros((K,data_train.shape[2],data_train.shape[2]))
@@ -98,7 +98,7 @@ def run_experiment(K):
                 elif m==2:
                     model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                     optimizer = optim.Adam(model2.parameters(), lr=0.01)
-                    like,model2,like_best = train_hmm_batch(model2, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
+                    like = train_hmm_batch(model2, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
                     test_like = -model2.log_likelihood_mixture(data_test_concat.to(device)).cpu()
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_testlikelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like)
@@ -111,7 +111,7 @@ def run_experiment(K):
                 elif m==3:
                     model3 = HMM(num_states=K, observation_dim=data_train.shape[2], emission_dist=Watson)
                     optimizer = optim.Adam(model3.parameters(), lr=0.01)
-                    like,model3,like_best = train_hmm_batch(model3, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=1)
+                    like = train_hmm_batch(model3, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=1)
                     test_like = -model3.forward(data_test.to(device)).cpu()
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_testlikelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                     np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like)
