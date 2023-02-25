@@ -73,7 +73,7 @@ def run_experiment(regu,LR):
                     if m==0:
                         model0 = TorchMixtureModel(distribution_object=ACG,K=K, dist_dim=data_train.shape[2],regu=regu)
                         optimizer = optim.Adam(model0.parameters(), lr=LR)
-                        like,model0,like_best = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
+                        like = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
                         test_like = -model0.log_likelihood_mixture(data_test_concat.to(device))
                         #plt.figure(),plt.plot(like)
                         param = get_param(model0)
