@@ -42,7 +42,7 @@ def get_param(model, show=True):
 def run_experiment(K):
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 25000
+    int_epoch = 1000
     num_regions = 100
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
@@ -69,6 +69,7 @@ def run_experiment(K):
                     #like = train_hmm_lbfgs(model0, data=data_train_concat, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False)
                     #like,model0,like_best = train_hmm_subject(model0, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=0)
                     model0.eval()
+                    #model0.learn_prior(data_train_concat)
                     test_like = -model0.log_likelihood_mixture(data_test_concat.to(device)).cpu()
                     #plt.figure(),plt.plot(like)
                     param = get_param(model0)
@@ -93,8 +94,8 @@ def run_experiment(K):
                         np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',A[kk].detach())
                     np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_testlikelihood'+str(r)+'.csv',np.array((test_like.detach(),K)))
                     np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like)
-                    post = model1.viterbi2(data_test.to(device)).cpu()
-                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                    post,x,xx = model1.viterbi2(data_test.to(device))
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post))
                 elif m==2:
                     model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                     optimizer = optim.Adam(model2.parameters(), lr=0.01)
@@ -119,8 +120,8 @@ def run_experiment(K):
                     for kk in range(K):
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                         np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
-                    post = model3.viterbi2(data_test.to(device)).cpu()
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+                    post,x,xx = model3.viterbi2(data_test.to(device)).cpu()
+                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(post))
                 
                 continue
 
@@ -173,5 +174,5 @@ def run_experiment(K):
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
                             np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    run_experiment(K=int(sys.argv[1]))
-    #run_experiment(K=4)
+    #run_experiment(K=int(sys.argv[1]))
+    run_experiment(K=4)

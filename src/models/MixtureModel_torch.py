@@ -27,6 +27,7 @@ class TorchMixtureModel(nn.Module):
         inner_pdf = torch.stack([K_comp_pdf(X) for K_comp_pdf in self.mix_components]) #one component at a time but all X is input
 
         inner = inner_pi + inner_pdf
+        #inner = inner_pdf
         # print(torch.exp(inner))
 
         loglikelihood_x_i = torch.logsumexp(inner, dim=0)  # Log likelihood over a sample of p-dimensional vectors
@@ -47,6 +48,9 @@ class TorchMixtureModel(nn.Module):
         loglikelihood_x_i = torch.logsumexp(inner, dim=0)
 
         return torch.exp(inner-loglikelihood_x_i)
+    def learn_prior(self,X):
+        inner_pdf = torch.stack([K_comp_pdf(X) for K_comp_pdf in self.mix_components])
+        pi = inner_pdf-torch.logsumexp(inner_pdf)
         
 
 
