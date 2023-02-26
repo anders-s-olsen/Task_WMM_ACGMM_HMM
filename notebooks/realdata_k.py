@@ -60,7 +60,6 @@ def run_experiment(K):
     for r in range(num_repsouter):
         for m in range(4):
             if m==2:
-                continue
                 model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                 optimizer = optim.Adam(model2.parameters(), lr=0.01)
                 like = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
