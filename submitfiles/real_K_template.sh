@@ -1,5 +1,5 @@
 #!/bin/sh
-#BSUB -J real_fit_job
+#BSUB -J real_K_job
 #BSUB -q gpuv100
 #BSUB -R "rusage[mem=4GB]"
 #BSUB -B
