@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class TorchMixtureModel(nn.Module):
-    def __init__(self, distribution_object, K: int, dist_dim=90,D = 1,regu=0,init=None):
+    def __init__(self, distribution_object, K: int, dist_dim=90,D = None,regu=0,init=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.regu = regu

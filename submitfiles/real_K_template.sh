@@ -4,8 +4,8 @@
 #BSUB -R "rusage[mem=4GB]"
 #BSUB -B
 #BSUB -N
-#BSUB -o real_fitjob_out_%J.txt
-#BSUB -e real_fitjob_err_%J.txt
+#BSUB -o real_K_job_out_%J.txt
+#BSUB -e real_K_job_err_%J.txt
 #BSUB -W 24:00 
 #BSUB -n 1
 #BSUB -gpu "num=1:mode=exclusive_process"
