@@ -1,14 +1,14 @@
 #!/bin/sh
 #BSUB -J real_K_job
-#BSUB -q gpuv100
+#BSUB -q hpc
 #BSUB -R "rusage[mem=4GB]"
 #BSUB -B
 #BSUB -N
 #BSUB -o real_K_job_out_%J.txt
 #BSUB -e real_K_job_err_%J.txt
-#BSUB -W 24:00 
-#BSUB -n 1
-#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -W 48:00 
+#BSUB -n 8
+#BSUB -R "span[hosts=1]"
 
 # -- commands you want to execute -- 
 module load python3/3.10.7

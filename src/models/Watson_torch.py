@@ -14,8 +14,8 @@ class Watson(nn.Module):
 
         self.p = torch.tensor(p,device=self.device)
         self.c = torch.tensor(self.p/2,device=self.device)
-        self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p), dim=0).to(self.device))
-        self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32).to(self.device))
+        self.mu = nn.Parameter(nn.functional.normalize(torch.rand(self.p,device=self.device), dim=0))
+        self.kappa = nn.Parameter(torch.randint(1,10,(1,),dtype=torch.float32,device=self.device))
         self.SoftPlus = nn.Softplus(beta=20, threshold=1)
         self.const_a = torch.tensor(0.5,device=self.device)  # a = 1/2,  !constant
         self.logSA = torch.lgamma(self.c) - torch.log(torch.tensor(2,device=self.device)) -self.c* torch.log(torch.tensor(np.pi,device=self.device))

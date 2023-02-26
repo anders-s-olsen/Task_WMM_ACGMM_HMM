@@ -60,7 +60,6 @@ def run_experiment(K):
     for r in range(num_repsouter):
         for m in range(4):
             if m==2:
-                continue
                 model2 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
                 optimizer = optim.Adam(model2.parameters(), lr=0.01)
                 like = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=False,modeltype=0)
@@ -88,5 +87,5 @@ def run_experiment(K):
                 np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(post))
                 
 if __name__=="__main__":
-    #run_experiment(K=int(sys.argv[1]))
-    run_experiment(K=4)
+    run_experiment(K=int(sys.argv[1]))
+    #run_experiment(K=4)
