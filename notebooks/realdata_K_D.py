@@ -99,5 +99,5 @@ def run_experiment(K):
                 np.savetxt('../data/real_K_D/K'+str(K)+'ACG_HMM_testlikelihood'+str(r)+'.csv',test_like.detach())
                 
 if __name__=="__main__":
-    #run_experiment(K=int(sys.argv[1]))
-    run_experiment(K=4)
+    run_experiment(K=int(sys.argv[1]))
+    #run_experiment(K=4)
