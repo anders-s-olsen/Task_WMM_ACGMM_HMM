@@ -12,41 +12,66 @@ class AngularCentralGaussian(nn.Module):
     "Tyler 1987 - Statistical analysis for the angular central Gaussian distribution on the sphere"
     """
 
-    def __init__(self, p,regu=0,init=None):
+    def __init__(self, p,D,init=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.p = p
-        self.regu = regu
-        self.num_params = int(self.p*(self.p-1)/2+self.p)
-        # assert self.p % 2 == 0, 'P must be an even positive integer'
+        self.D = D
         self.half_p = torch.tensor(p / 2)
         self.logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
-        self.regumat = (self.regu*torch.eye(self.p)).to(self.device)
-        #self.L_diag = nn.Parameter(torch.rand(self.p))
-        #self.L_under_diag = nn.Parameter(torch.tril(torch.randn(self.p, self.p), -1))
-
-        # Anders addition here: 
-        #self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
-        self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
-        
-        self.tril_indices = torch.tril_indices(self.p,self.p)
-
-        self.diag_indices = torch.zeros(self.p).type(torch.LongTensor)
-        for i in range(1,self.p+1):   
-            self.diag_indices[i-1] = ((i**2+i)/2)-1
-        
-
-        self.SoftPlus = nn.Softplus()
+        if init is None:
+            self.L = nn.Parameter(torch.randn(self.p,self.D,dtype=torch.double).to(self.device))
+        else:
+            self.L = init
+            num_missing = self.D-init.shape[1]
+            L_extra = torch.randn(self.p,num_missing,dtype=torch.double)
+            self.L = nn.Parameter(torch.cat([init,L_extra],dim=1))
         assert self.p != 1, 'Not matmul not stable for this dimension'
 
     def get_params(self):
-        return self.Alter_compose_A(read_A_param=True)
+        return self.lowrank_compose_A(read_A_param=True)
 
-    #def log_sphere_surface(self):
-    #    #logSA = torch.lgamma(self.half_p) - torch.log(2 * np.pi ** self.half_p)
-    #    logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
-    #    return logSA
+    def lowrank_compose_A(self,read_A_param=False):
+        
+        
+        if read_A_param:
+            return self.L
+            if self.D==1:
+                A = torch.outer(self.L,self.L)+torch.eye(self.p)
+            else:
+                A = self.L@self.L.T+torch.eye(self.p)
+            return A
+
+        
+        #log_det_A = torch.log(1+self.L.T@self.L)
+        
+        log_det_A = 2 * torch.sum(torch.log(torch.abs(torch.diag(torch.linalg.cholesky(torch.eye(self.D)+self.L.T@self.L)))))
+        #log_det_A = torch.log(torch.det(torch.eye(self.D)+self.L.T@self.L))
+        
+        return log_det_A
+    def lowrank_log_pdf(self,X):
+        log_det_A = self.lowrank_compose_A()
+
+        B = X@self.L
+        matmul2 = 1-torch.sum(B@torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L)*B,dim=1)
+
+        #if any(matmul2<0):
+        #    print("stop here")
+
+
+        #if torch.isnan(torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L).sum()) or torch.isinf(torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L).sum()):
+        #    print("stop here")
+        #if torch.isnan(matmul2.sum()):
+        #    print(matmul2)
+        #    print(L_tri_inv)
+        #   print(self.L_diag)
+        #    raise ValueError('NaN was produced!')
+
+        # minus log_det_A instead of + log_det_A_inv
+        log_acg_pdf = self.logSA - 0.5 * log_det_A - self.half_p * torch.log(matmul2)
+        return log_acg_pdf
+
 
     def Alter_compose_A(self, read_A_param=False):
 
@@ -102,7 +127,7 @@ class AngularCentralGaussian(nn.Module):
         return log_acg_pdf
 
     def forward(self, X):
-        return self.log_pdf(X)
+        return self.lowrank_log_pdf(X)
     
     def __repr__(self):
         return 'ACG'

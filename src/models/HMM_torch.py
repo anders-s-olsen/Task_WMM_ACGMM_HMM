@@ -7,16 +7,26 @@ class HiddenMarkovModel(nn.Module):
     Hidden Markov model w. Continues observation density
     """
 
-    def __init__(self, num_states, emission_dist, observation_dim: int = 90,regu=0):
+    def __init__(self, K, emission_dist, observation_dim: int = 90,D=None,init=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.N = num_states
-        self.regu = regu
-        self.transition_matrix = nn.Parameter(torch.rand(self.N, self.N,device=self.device))
+        self.K = K
+        self.D = D
         self.emission_density = emission_dist
         self.obs_dim = observation_dim
-        self.state_priors = nn.Parameter(torch.rand(self.N,device=self.device))
-        self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim,self.regu) for _ in range(self.N)])
+
+
+        if init is None:
+            self.state_priors = nn.Parameter(torch.rand(self.K,device=self.device))
+            self.transition_matrix = nn.Parameter(torch.rand(self.K, self.K,device=self.device))
+            self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim,self.D) for _ in range(self.K)])
+        else:
+            self.state_priors = nn.Parameter(init['pi'])
+            self.transition_matrix = nn.Parameter(init['T'])
+            self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim,self.D,init['comp'][k]) for k in range(self.K)])
+
+        
+        
         self.softplus = nn.Softplus()
         self.logsoftmax_transition = nn.LogSoftmax(dim=1)
         self.logsoftmax_prior = nn.LogSoftmax(dim=0)
@@ -48,9 +58,9 @@ class HiddenMarkovModel(nn.Module):
         log_pi = self.logsoftmax_prior(self.state_priors)
         num_subjects = X.shape[0]
         seq_max = X.shape[1]
-        log_alpha = torch.zeros(num_subjects, seq_max, self.N,device=self.device)
+        log_alpha = torch.zeros(num_subjects, seq_max, self.K,device=self.device)
 
-        emissions = torch.reshape(self.emission_models_forward(torch.concatenate([X[:,t,:] for t in range(seq_max)])),(self.N,seq_max,num_subjects))
+        emissions = torch.reshape(self.emission_models_forward(torch.concatenate([X[:,t,:] for t in range(seq_max)])),(self.K,seq_max,num_subjects))
         
         # time t=0
         # log_pi: (n states priors)
@@ -92,15 +102,15 @@ class HiddenMarkovModel(nn.Module):
 
         subject_Z_path = []
         subject_Z_path_prob = []
-        subject_emissions = torch.zeros(num_subjects, seq_len, self.N,device=self.device)
+        subject_emissions = torch.zeros(num_subjects, seq_len, self.K,device=self.device)
 
         for subject in range(num_subjects):
             with torch.no_grad():
                 X_sub = X[subject]
 
                 # collectors
-                log_delta = torch.zeros(seq_len, self.N,device=self.device)
-                psi = torch.zeros(seq_len, self.N, dtype=torch.int32,device=self.device)  # intergers - state seqeunces
+                log_delta = torch.zeros(seq_len, self.K,device=self.device)
+                psi = torch.zeros(seq_len, self.K, dtype=torch.int32,device=self.device)  # intergers - state seqeunces
 
                 # Init - time t=0
                 subject_emissions[subject,0,:] = self.emission_models_forward(X_sub[0].unsqueeze(dim=0)).squeeze()

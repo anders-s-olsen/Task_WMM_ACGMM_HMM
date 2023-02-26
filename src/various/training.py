@@ -7,8 +7,8 @@ from tqdm import tqdm
 
 def train_hmm_batch(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_stopping=False,modeltype=0):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Currently using device: ')
-    print(device)
+    #print('Currently using device: ')
+    #print(device)
     model = HMM.to(device).train()
 
     epoch_likelihood_collector = np.zeros(num_epoch)

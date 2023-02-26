@@ -3,13 +3,18 @@ import torch.nn as nn
 
 
 class TorchMixtureModel(nn.Module):
-    def __init__(self, distribution_object, K: int, dist_dim=90,regu=0):
+    def __init__(self, distribution_object, K: int, dist_dim=90,D = 1,regu=0,init=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.regu = regu
+        self.D = D #for lowrank ACG
         self.distribution, self.K, self.p = distribution_object, K, dist_dim
-        self.pi = nn.Parameter(torch.rand(self.K,device=self.device))
-        self.mix_components = nn.ModuleList([self.distribution(self.p,self.regu) for _ in range(self.K)])
+        if init is None:
+            self.pi = nn.Parameter(torch.rand(self.K,device=self.device))
+            self.mix_components = nn.ModuleList([self.distribution(self.p,self.D) for _ in range(self.K)])
+        else:
+            self.pi = nn.Parameter(init['pi'])
+            self.mix_components = nn.ModuleList([self.distribution(self.p,self.D,init['comp'][k]) for k in range(self.K)])
         self.LogSoftMax = nn.LogSoftmax(dim=0)
         self.softplus = nn.Softplus()
         

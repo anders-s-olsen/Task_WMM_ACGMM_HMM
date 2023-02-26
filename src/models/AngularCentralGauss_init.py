@@ -12,7 +12,7 @@ class AngularCentralGaussian(nn.Module):
     "Tyler 1987 - Statistical analysis for the angular central Gaussian distribution on the sphere"
     """
 
-    def __init__(self, p,regu=0,init=None):
+    def __init__(self, p,regu=0,init_mu=None,init_kappa=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -28,9 +28,13 @@ class AngularCentralGaussian(nn.Module):
 
         # Anders addition here: 
         #self.L_tri_inv = nn.Parameter(torch.tril(torch.randn(self.p, self.p)).to(self.device)) # addition
-        self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
-        
         self.tril_indices = torch.tril_indices(self.p,self.p)
+        if init_mu is None:
+            self.L_vec = nn.Parameter(torch.randn(self.num_params).to(self.device)) # addition
+        else:
+            L = torch.linalg.cholesky(torch.linalg.inv(init_kappa*torch.outer(init_mu,init_mu)+torch.eye(self.p)))
+            self.L_vec = nn.Parameter(L[self.tril_indices[0],self.tril_indices[1]])
+        
 
         self.diag_indices = torch.zeros(self.p).type(torch.LongTensor)
         for i in range(1,self.p+1):   
