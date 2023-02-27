@@ -79,13 +79,12 @@ def run_experiment(K):
                         init['comp'][kk] = param['mix_comp_'+str(kk)]
                     test_like[D] = -model0.log_likelihood_mixture(data_test_concat.to(device)).cpu()
                 np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_testlikelihood'+str(r)+'.csv',test_like.detach())
-                np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like)
+                np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like)
                 param = get_param(model0)
                 for kk in range(K):
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
                 post = model0.posterior(data_test_concat.to(device))
-                np.savetxt('../data/real_K/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.cpu().detach()))
+                np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.cpu().detach()))
             elif m==1:
                 for D in np.arange(50):
                     print(D)
@@ -104,13 +103,12 @@ def run_experiment(K):
                         init['comp'][kk] = param['emission_model_'+str(kk)]
                     test_like[D] = -model0.forward(data_test.to(device)).cpu()
                 np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_testlikelihood'+str(r)+'.csv',test_like.detach())
-                np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like)
+                np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like)
                 param = get_param(model0)
                 for kk in range(K):
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
-                    np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
+                    np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
                 post,x,xx = model0.viterbi2(data_test.to(device))
-                np.savetxt('../data/real_K/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(post.cpu()))
+                np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post.cpu()))
                 
 if __name__=="__main__":
     run_experiment(K=int(sys.argv[1]))
