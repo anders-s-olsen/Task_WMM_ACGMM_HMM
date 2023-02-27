@@ -22,7 +22,7 @@ from src.models.AngularCentralGauss_torch import AngularCentralGaussian as ACG
 from src.models.Watson_torch import Watson
 from src.models.MixtureModel_torch import TorchMixtureModel
 from src.models.HMM_torch import HiddenMarkovModel as HMM
-from src.various.training import train_hmm
+from src.various.training import train_hmm,train_hmm_batch
 
 def get_param(model, show=True):
     para = model.get_model_param()
@@ -40,9 +40,9 @@ def get_param(model, show=True):
 
 # In[2]:
 
-noise_levels = np.arange(-80,1,10)
-num_reps = 5
-int_epoch = 200
+noise_levels = np.arange(-60,1,10)
+num_reps = 1
+int_epoch = 500
 LR = 0.1
 
 for noise in noise_levels:
@@ -59,32 +59,22 @@ for noise in noise_levels:
             thres_like = 10000000
             for r2 in range(num_reps):
                 if m==0:
-                    continue
                     model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
+                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==1:
-                    continue
                     model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
+                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==2:
-                    continue
                     model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like = train_hmm(model, data=torch.squeeze(data), optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
+                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
                 elif m==3:
                     model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like = train_hmm(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
-                    model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
+                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
 
-                # load best model and calculate posterior or viterbi
-                model.load_state_dict(torch.load('../data/interim/model_checkpoint.pt'))
-                like_best = np.loadtxt('../data/interim/likelihood.txt')
 
                 if like_best[1]<thres_like:
                     thres_like = like_best[1]
