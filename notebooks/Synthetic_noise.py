@@ -44,6 +44,7 @@ noise_levels = np.arange(-60,1,10)
 num_reps = 1
 int_epoch = 500
 LR = 0.1
+torch.set_num_threads(16)
 
 for noise in noise_levels:
     try:
@@ -61,19 +62,19 @@ for noise in noise_levels:
                 if m==0:
                     model = TorchMixtureModel(distribution_object=ACG,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=0)
                 elif m==1:
                     model = HMM(num_states=2, observation_dim=3, emission_dist=ACG)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=1)
                 elif m==2:
                     model = TorchMixtureModel(distribution_object=Watson,K=2, dist_dim=3)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm_batch(model, data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=0)
                 elif m==3:
                     model = HMM(num_states=2, observation_dim=3, emission_dist=Watson)
                     optimizer = optim.Adam(model.parameters(), lr=LR)
-                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True)
+                    like,model,like_best = train_hmm_batch(model, data=data, optimizer=optimizer, num_epoch=int_epoch, keep_bar=False,early_stopping=True,modeltype=1)
 
 
                 if like_best[1]<thres_like:
