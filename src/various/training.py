@@ -26,7 +26,10 @@ def train_hmm_batch(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_sto
             else:
                 idx = indices
             if modeltype==0:
-                batch_likelihood = -model(torch.concatenate([subject_leida_vectors[idx][sub] for sub in range(len(idx))]))  # OBS! Negative
+                if len(idx)==0:
+                    batch_likelihood = -model(torch.squeeze(subject_leida_vectors))
+                else:
+                    batch_likelihood = -model(torch.concatenate([subject_leida_vectors[idx][sub] for sub in range(len(idx))]))  # OBS! Negative
             else:
                 batch_likelihood = -model(subject_leida_vectors[idx])  # OBS! Negative
             epoch_likelihood += batch_likelihood
