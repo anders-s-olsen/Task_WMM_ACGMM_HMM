@@ -55,13 +55,13 @@ def run_experiment(K):
     for r in range(5):
         model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2])
         optimizer = optim.Adam(model0.parameters(), lr=0.1)
-        like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=200, keep_bar=False,early_stopping=False,modeltype=0)
+        like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=2000, keep_bar=False,early_stopping=False,modeltype=0)
         test_like_ACG = -model0.log_likelihood_mixture(data_test_concat)
         np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_scratch'+str(r)+'.csv',np.array((test_like_ACG.detach(),1)))
         
         model1 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
         optimizer = optim.Adam(model1.parameters(), lr=0.1)
-        like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=2500, keep_bar=False,early_stopping=False,modeltype=0)
+        like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=25000, keep_bar=False,early_stopping=False,modeltype=0)
         param = get_param(model1)
         init = {}
         init['pi'] = param['un_norm_pi']
@@ -71,7 +71,7 @@ def run_experiment(K):
         
         model2 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2],init=init)
         optimizer = optim.Adam(model2.parameters(), lr=0.1)
-        like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=200, keep_bar=False,early_stopping=False,modeltype=0)
+        like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=2000, keep_bar=False,early_stopping=False,modeltype=0)
         test_like_ACG_init = -model2.log_likelihood_mixture(data_test_concat)
         np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_Watsoninit'+str(r)+'.csv',np.array((test_like_ACG_init.detach(),1)))
     #return
