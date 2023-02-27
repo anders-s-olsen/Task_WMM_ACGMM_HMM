@@ -1,0 +1,9 @@
+#!/bin/sh
+for K in 1 2 3 4 5 6 7 8 9 10
+do
+
+    sed -i '$ d' real_K_ACGtemplate.sh
+    echo "python3 realdata_K_chosenD.py $K" >> real_K_ACGtemplate.sh
+    bsub < real_K_ACGtemplate.sh
+
+done
