@@ -43,7 +43,7 @@ def get_param(model, show=False):
 def run_experiment(K):
     num_repsouter = 5
     num_repsinner = 1
-    int_epoch = 1000
+    int_epoch = 10
     num_regions = 100
 
     datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
@@ -86,7 +86,7 @@ def run_experiment(K):
                 post = model0.posterior(data_test_concat.to(device))
                 np.savetxt('../data/real_K/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.cpu().detach()))
             elif m==1:
-                for D in np.arange(50):
+                for D in np.arange(15):
                     print(D)
                     if D==0:
                         model0 = HMM(K=K, emission_dist=ACG_lowrank, observation_dim=data_train.shape[2],D=D+1)
@@ -108,7 +108,7 @@ def run_experiment(K):
                 for kk in range(K):
                     np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
                 post,x,xx = model0.viterbi2(data_test.to(device))
-                np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post.cpu()))
+                np.savetxt('../data/real_K/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(post))
                 
 if __name__=="__main__":
     run_experiment(K=int(sys.argv[1]))
