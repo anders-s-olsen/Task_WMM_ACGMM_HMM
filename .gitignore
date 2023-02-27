@@ -82,9 +82,12 @@ target/
 /data/interim/
 /data/synthetic_K/
 /data/syntheticLR/
+/data/real_K_regu_LR/
+/data/real_K_D/
 /data/real_K/
 /data/real_regu/
 /data/realLR/
+/data/real_fit/
 /data/synthetic_noise/
 /submitfiles/*.txt
 

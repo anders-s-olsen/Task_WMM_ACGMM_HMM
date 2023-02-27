@@ -18,18 +18,22 @@ T(2,2) = mean(next2==2);
 
 sig2 = eye(3)+0.99*(ones(3)-eye(3)); %noise is one minus the off diagonal element, log space
 sig3 = diag([1e-02,1,1])+0.9*[0,0,0;0,0,1;0,1,0]; %noise is the first diagonal element, log space
+
+% sig2 = eye(3)+0.999*(ones(3)-eye(3)); %noise is one minus the off diagonal element, log space
+% sig3 = diag([1e-03,1,1])+0.9*[0,0,0;0,0,1;0,1,0]; %noise is the first diagonal element, log space
+
 SIGMAs = cat(3,sig2,sig3);
 [X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1),0);
 pointsspherefig(X,cluster_id);
-delete('data/synthetic_methods/HMMdata_orig.h5')
-h5create('data/synthetic_methods/HMMdata_orig.h5','/X',size(X))
-h5write('data/synthetic_methods/HMMdata_orig.h5','/X',X)
-h5create('data/synthetic_methods/HMMdata_orig.h5','/cluster_id',size(cluster_id))
-h5write('data/synthetic_methods/HMMdata_orig.h5','/cluster_id',cluster_id)
+% delete('data/synthetic_methods/HMMdata_orig.h5')
+% h5create('data/synthetic_methods/HMMdata_orig.h5','/X',size(X))
+% h5write('data/synthetic_methods/HMMdata_orig.h5','/X',X)
+% h5create('data/synthetic_methods/HMMdata_orig.h5','/cluster_id',size(cluster_id))
+% h5write('data/synthetic_methods/HMMdata_orig.h5','/cluster_id',cluster_id)
 
 %% generate data according to noise levels
 
-noise = logspace(-4,0,9);
+noise = logspace(-3,0,7);
 noisedB = 20*log10(noise);
 noisedB
 
@@ -40,11 +44,11 @@ for i = 1:numel(noise)
     SIGMAs = cat(3,sig2,sig3);
     [X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1),0);
         pointsspherefig(X,cluster_id);
-%     delete(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'])
-%     h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',size(X))
-%     h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',X)
-%     h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',size(cluster_id))
-%     h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',cluster_id)
+    delete(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'])
+    h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',size(X))
+    h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',X)
+    h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',size(cluster_id))
+    h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',cluster_id)
     
 end
 

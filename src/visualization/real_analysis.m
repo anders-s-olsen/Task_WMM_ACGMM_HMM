@@ -1,6 +1,25 @@
 %%
 clear,close all
 
+%% ACG K vs D
+K = [1,4,7,10]
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+modelnames = {'ACG-MM','ACG-HMM','Watson-MM','Watson-HMM'};
+cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
+for m = 1:2%numel(models)
+    figure,hold on
+    for k = 1:numel(K)
+        test_like = nan(50,5);
+        d = dir(['data/real_K_D/K',num2str(K(k)),models{m},'_testlikelihood*.csv'])
+        for i = 1:numel(d)
+            test_like(:,i) = table2array(readtable([d(i).folder,'/',d(i).name]));
+        end
+        errorbar(1:50,nanmean(test_like,2),nanstd(test_like,[],2),'DisplayName',['K=',num2str(K(k))])
+    end
+    legend
+end
+
+
 %% regu, K, LR experiment, test likelihood
 
 K = [2,4,8];
@@ -31,7 +50,7 @@ for k = 1:numel(K)
 end
 legend
 
-%% regu, K, LR experiment
+%% regu, K, LR experiment, full likelihood
 
 K = [2,4,8];
 regus = [1e-06,1e-05,0.0001,0.001,0.01,0.1];
@@ -59,6 +78,117 @@ for k = 1:numel(K)
             c = c + 1;
         end
     end
+end
+
+%% with chosen regu factor 1e-05, plot over K
+close all
+figure('Position',[100,100,1700,600]),
+K = 1:10;
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+modelnames = {'ACG-MM','ACG-HMM','Watson-MM','Watson-HMM'};
+cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
+testlikes = nan(numel(K),5);
+for m = 1:numel(models)
+    for k = 1:numel(K)
+        d = dir(['data/real_K/K',num2str(K(k)),models{m},'_testlikelihood*.csv']);
+        for r = 1:numel(d)
+            data = table2array(readtable([d.folder,'/',d.name]));
+            testlikes(k,r) = data(1);
+        end
+    end
+    errorbar(K,nanmean(testlikes,2),nanstd(testlikes,[],2),'color',cols{m},'DisplayName',modelnames{m})
+end
+
+%% check fit, ACG
+close all
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+m=1;K=8;
+likes_onemodel = nan(1,5);
+d = dir(['data/real_K/K',num2str(K),models{m},'_testlikelihood*.csv']);
+for i = 1:numel(d)
+    data = table2array(readtable([d(i).folder,'/',d(i).name]));
+    likes_onemodel(i) = data(1);
+end
+[~,idx] = nanmin(likes_onemodel);
+
+figure('Position',[100,100,1700,900])
+tiledlayout(3,K)
+nexttile(1,[1,K])
+assignment = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_assignment',num2str(idx-1),'.csv']));
+plot(assignment+[0:K-1]*1.1)
+ylim([-0.1,K*1.1+0.1])
+xticks([])
+
+task_raw = table2array(readtable('data/raw/motor_ref.txt'));
+task = repmat(task_raw(1:120,:),29,1);
+nexttile(K+1,[1,K])
+plot(task(:,1),'LineWidth',1.5,'color',[0,0.5,0]),hold on
+plot(task(:,2)+0.2+max(task(:)),'LineWidth',1.5,'color',[0.5,0,0])
+title('Right/left hand motor task')
+% xlabel('Time [min]'),
+ylim([-.3,2.7])
+% xlim([-.1 4.1])
+% xticks(0:4)
+yticks([mean(task(:,1)),mean(task(:))+max(task(:))+0.2])
+yticklabels({'RH','LH'})
+
+for kk = 1:K
+    b = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_comp',num2str(kk-1),'_',num2str(idx-1),'.csv']));
+    nexttile(K*2+kk)
+    imagesc(b),colorbar,axis square
+    load('data/external/labels_cell_100.mat')
+    yticks(1:100);yticklabels((labels));
+%     xticks(1:100);xticklabels((labels));
+    set(gca,'FontSize',7)
+    title(['Component ',num2str(kk)])
+end
+%% check NMI
+addpath('/dtu-compute/macaroni/Task_WMM_ACGMM_HMM/src/visualization')
+PI = (task-min(task))./sum(task-min(task),2);
+calcNMI(PI',assignment');
+calcNMI(PI(2:end,:)',assignment(1:end-1,:)');
+
+%% Check components, ACG
+close all
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+m=1;K=6;
+likes_onemodel = nan(1,5);
+d = dir(['data/real_K/K',num2str(K),models{m},'_testlikelihood*.csv']);
+for i = 1:numel(d)
+    data = table2array(readtable([d(i).folder,'/',d(i).name]));
+    likes_onemodel(i) = data(1);
+end
+
+[~,idx] = nanmin(likes_onemodel);
+for kk = 1:K
+    b = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_comp',num2str(kk-1),'_',num2str(idx-1),'.csv']));
+    figure('Position',[100,100,1000,1000]),
+    imagesc(b),colorbar,axis square
+    load('data/external/labels_cell_100.mat')
+    yticks(1:100);yticklabels((labels));
+    xticks(1:100);xticklabels((labels));
+    set(gca,'FontSize',7)
+end
+
+%% Check components, watson
+close all
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+m=4;K=5;
+likes_onemodel = nan(1,5);
+d = dir(['data/real_K/K',num2str(K),models{m},'_likelihood*.csv']);
+for i = 1:numel(d)
+    data = table2array(readtable([d(i).folder,'/',d(i).name]));
+    likes_onemodel(i) = data(1);
+end
+
+[~,idx] = nanmin(likes_onemodel);
+figure
+for kk = 1:K
+    b = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_comp',num2str(kk-1),'_mu',num2str(idx-1),'.csv']));
+    subplot(1,K,kk),barh(1:100,b)
+    load('data/external/labels_cell_100.mat')
+    yticks(1:100);yticklabels((labels));
+    set(gca,'FontSize',7)
 end
 
 
@@ -155,98 +285,6 @@ for m = 1:numel(models)
     errorbar(1:10,likes_mean(:,m),likes_std(:,m),'color',cols{m},'DisplayName',modelnames{m},'LineWidth',1.5),hold on
 end
 legend
-
-
-%% Check components, watson
-close all
-models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
-m=4;K=5;
-likes_onemodel = nan(1,5);
-d = dir(['data/real_K/K',num2str(K),models{m},'_likelihood*.csv']);
-for i = 1:numel(d)
-    data = table2array(readtable([d(i).folder,'/',d(i).name]));
-    likes_onemodel(i) = data(1);
-end
-
-[~,idx] = nanmin(likes_onemodel);
-figure
-for kk = 1:K
-    b = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_comp',num2str(kk-1),'_mu',num2str(idx-1),'.csv']));
-    subplot(1,K,kk),barh(1:100,b)
-    load('data/external/labels_cell_100.mat')
-    yticks(1:100);yticklabels((labels));
-    set(gca,'FontSize',7)
-end
-%% Check components, ACG
-close all
-models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
-m=1;K=2;
-likes_onemodel = nan(1,5);
-d = dir(['data/real_K/K',num2str(K),models{m},'_likelihood*.csv']);
-for i = 1:numel(d)
-    data = table2array(readtable([d(i).folder,'/',d(i).name]));
-    likes_onemodel(i) = data(1);
-end
-
-[~,idx] = nanmin(likes_onemodel);
-for kk = 1:K
-    b = table2array(readtable(['data/real_K/K',num2str(K),models{m},'_comp',num2str(kk-1),'_',num2str(idx-1),'.csv']));
-    figure('Position',[100,100,1000,1000]),
-    imagesc(b),colorbar,axis square
-    load('data/external/labels_cell_100.mat')
-    yticks(1:100);yticklabels((labels));
-    xticks(1:100);xticklabels((labels));
-    set(gca,'FontSize',7)
-end
-
-%% check fit, ACG
-close all
-models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
-m=1;K=4;
-likes_onemodel = nan(1,5);
-d = dir(['data/real_K/K',num2str(K),models{m},'_likelihood*.csv']);
-for i = 1:numel(d)
-    data = table2array(readtable([d(i).folder,'/',d(i).name]));
-    likes_onemodel(i) = data(1);
-end
-[~,idx] = nanmin(likes_onemodel);
-
-figure('Position',[100,100,1700,900])
-tiledlayout(3,K)
-nexttile(1,[1,K])
-assignment = table2array(readtable(['data/real_fit/K',num2str(K),models{m},'_assignment',num2str(idx-1),'.csv']));
-plot(assignment+[0:K-1]*1.1)
-ylim([-0.1,K*1.1+0.1])
-xticks([])
-
-task_raw = repmat(table2array(readtable('data/raw/motor_ref.txt')),29,1);
-nexttile(K+1,[1,K])
-plot(task_raw(:,1),'LineWidth',1.5,'color',[0,0.5,0]),hold on
-plot(task_raw(:,2)+0.2+max(task_raw(:)),'LineWidth',1.5,'color',[0.5,0,0])
-title('Right/left hand motor task')
-% xlabel('Time [min]'),
-ylim([-.3,2.7])
-% xlim([-.1 4.1])
-% xticks(0:4)
-yticks([mean(task_raw(:,1)),mean(task_raw(:))+max(task_raw(:))+0.2])
-yticklabels({'RH','LH'})
-
-for kk = 1:K
-    b = table2array(readtable(['data/real_fit/K',num2str(K),models{m},'_comp',num2str(kk-1),'_',num2str(idx-1),'.csv']));
-    nexttile(K*2+kk)
-    imagesc(b),colorbar,axis square
-    load('data/external/labels_cell_100.mat')
-    yticks(1:100);yticklabels((labels));
-%     xticks(1:100);xticklabels((labels));
-    set(gca,'FontSize',7)
-    title(['Component ',num2str(kk)])
-end
-
-%% check NMI
-
-PI = (task_raw-min(task_raw))./sum(task_raw-min(task_raw),2);
-calcNMI(PI',assignment');
-
 
 
 %% check components
