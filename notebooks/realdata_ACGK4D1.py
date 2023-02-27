@@ -51,25 +51,27 @@ def run_experiment(K):
         data_train[idx] = torch.DoubleTensor(np.array(datah5[subject][0:120]))
         data_test[idx] = torch.DoubleTensor(np.array(datah5[subject][120:]))
 
-    #for m in range(4):
-    model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2])
-    optimizer = optim.Adam(model0.parameters(), lr=0.1)
-    like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
-    
-    model1 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
-    optimizer = optim.Adam(model1.parameters(), lr=0.1)
-    like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=5000, keep_bar=False,early_stopping=False,modeltype=0)
-    param = get_param(model1)
-    init = {}
-    init['pi'] = param['un_norm_pi']
-    init['comp'] = torch.zeros((K,data_train.shape[2],1),dtype=torch.double)
-    for kk in range(K):
-        init['comp'][kk] = torch.sqrt(param['mix_comp_'+str(kk)]['kappa'])*torch.unsqueeze(param['mix_comp_'+str(kk)]['mu'],dim=1)
-    
-    model2 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2],init=init)
-    optimizer = optim.Adam(model2.parameters(), lr=0.1)
-    like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
-    
+    for r in range(5):
+        model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2])
+        optimizer = optim.Adam(model0.parameters(), lr=0.1)
+        like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
+        np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_scract'+str(r)+'.csv',like_ACG)
+        
+        model1 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
+        optimizer = optim.Adam(model1.parameters(), lr=0.1)
+        like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=10000, keep_bar=False,early_stopping=False,modeltype=0)
+        param = get_param(model1)
+        init = {}
+        init['pi'] = param['un_norm_pi']
+        init['comp'] = torch.zeros((K,data_train.shape[2],1),dtype=torch.double)
+        for kk in range(K):
+            init['comp'][kk] = torch.sqrt(param['mix_comp_'+str(kk)]['kappa'])*torch.unsqueeze(param['mix_comp_'+str(kk)]['mu'],dim=1)
+        
+        model2 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2],init=init)
+        optimizer = optim.Adam(model2.parameters(), lr=0.1)
+        like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
+        np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_Watsoninit'+str(r)+'.csv',like_ACG)
+    return
     p0 = get_param(model0)
     p1 = get_param(model1)
     p2 = get_param(model2)
@@ -91,4 +93,4 @@ def run_experiment(K):
     y=8
                 
 if __name__=="__main__":
-    run_experiment(K=4)
+    run_experiment(K=int(sys.argv[1]))
