@@ -31,7 +31,7 @@ ylim([0,8000])
 
 
 close all
-noise = logspace(-4,0,9);
+noise = logspace(-3,0,7);
 noisedB = 20*log10(noise);
 figure('Position',[50,50,700,400]),hold on
 figure('Position',[50,50,700,400]),hold on
