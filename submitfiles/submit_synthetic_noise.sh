@@ -7,7 +7,7 @@
 #BSUB -o syntheticnoisejob_out_%J.txt
 #BSUB -e syntheticnoisejob_err_%J.txt
 #BSUB -W 10:00 
-#BSUB -n 16
+#BSUB -n 8
 #BSUB -R "span[hosts=1]"
 
 # -- commands you want to execute -- 

@@ -43,7 +43,7 @@ def train_hmm_batch(HMM, data, optimizer, num_epoch=100, keep_bar=True,early_sto
                 ident = torch.randint(0,10000000,(1,1)).detach()
                 torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
                 best_like = epoch_likelihood_collector[epoch]
-            elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/100+1))):
+            elif np.isin(epoch,np.linspace(0,num_epoch,int(num_epoch/5+1))):
                 if epoch_likelihood_collector[epoch]<epoch_likelihood_collector[epoch-5] and epoch_likelihood_collector[epoch]<best_like:
                     torch.save(model.state_dict(),'../data/interim/model_checkpoint'+str(ident)+'.pt')
                     np.savetxt('../data/interim/likelihood'+str(ident)+'.txt',np.array((epoch,epoch_likelihood_collector[epoch])))

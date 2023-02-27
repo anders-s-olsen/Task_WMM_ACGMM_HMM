@@ -46,17 +46,17 @@ int_epoch = 500
 LR = 0.1
 torch.set_num_threads(16)
 
-for noise in noise_levels:
-    try:
-        synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'.h5'
-        dataf = h5py.File(synth_dataset, mode='r')
-    except:
-        synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'h5'
-        dataf = h5py.File(synth_dataset, mode='r')
-    data = torch.tensor(np.array(dataf['X']))
-    data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
-    for m in range(4):
-        for r in range(num_reps):
+def run_experiment(r):
+    for noise in noise_levels:
+        try:
+            synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'.h5'
+            dataf = h5py.File(synth_dataset, mode='r')
+        except:
+            synth_dataset = '../data/synthetic_noise/HMMdata_noise_'+np.array2string(noise)+'h5'
+            dataf = h5py.File(synth_dataset, mode='r')
+        data = torch.tensor(np.array(dataf['X']))
+        data = torch.unsqueeze(torch.transpose(data,dim0=0,dim1=1),dim=0).float()
+        for m in range(4):
             thres_like = 10000000
             for r2 in range(num_reps):
                 if m==0:
@@ -96,3 +96,5 @@ for noise in noise_levels:
                         best_path,xx,xxx = model.viterbi2(data,external_eval=False)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_likelihood'+str(r)+'.csv',like_best)
                         np.savetxt('../data/synthetic_noise/noise_'+str(noise)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+if __name__=="__main__":
+    run_experiment(r=int(sys.argv[1]))
