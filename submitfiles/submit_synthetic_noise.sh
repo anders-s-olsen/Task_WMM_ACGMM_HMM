@@ -1,6 +1,6 @@
 #!/bin/sh
 #BSUB -J syntheticnoisejob
-#BSUB -q hpc
+#BSUB -q computebigbigmem
 #BSUB -R "rusage[mem=100MB]"
 #BSUB -B
 #BSUB -N
