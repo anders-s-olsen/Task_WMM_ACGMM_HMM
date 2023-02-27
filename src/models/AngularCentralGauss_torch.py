@@ -12,7 +12,7 @@ class AngularCentralGaussian(nn.Module):
     "Tyler 1987 - Statistical analysis for the angular central Gaussian distribution on the sphere"
     """
 
-    def __init__(self, p,regu=0,init=None):
+    def __init__(self, p,D=0,init=None,regu=0):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
