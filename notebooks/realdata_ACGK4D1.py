@@ -39,27 +39,26 @@ def get_param(model, show=False):
     
     return para
 
+num_regions = 100
 
-def run_experiment(K):
-    num_regions = 100
-
-    datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
-    #print(len(datah5.keys()))
-    data_train = torch.zeros((29,120,num_regions),dtype=torch.double)
-    data_test = torch.zeros((29,120,num_regions),dtype=torch.double)
-    for idx,subject in enumerate(list(datah5.keys())):
-        data_train[idx] = torch.DoubleTensor(np.array(datah5[subject][0:120]))
-        data_test[idx] = torch.DoubleTensor(np.array(datah5[subject][120:]))
-
+datah5 = h5py.File('../data/processed/dataset_all_subjects_LEiDA_100.hdf5', 'r')
+#print(len(datah5.keys()))
+data_train = torch.zeros((29,120,num_regions),dtype=torch.double)
+data_test = torch.zeros((29,120,num_regions),dtype=torch.double)
+for idx,subject in enumerate(list(datah5.keys())):
+    data_train[idx] = torch.DoubleTensor(np.array(datah5[subject][0:120]))
+    data_test[idx] = torch.DoubleTensor(np.array(datah5[subject][120:]))
+for K in np.array((1,4,7,10)):
+    
     for r in range(5):
         model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2])
         optimizer = optim.Adam(model0.parameters(), lr=0.1)
-        like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
-        np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_scract'+str(r)+'.csv',like_ACG)
+        like_ACG = train_hmm_batch(model0, data=data_train, optimizer=optimizer, num_epoch=2000, keep_bar=False,early_stopping=False,modeltype=0)
+        np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_scratch'+str(r)+'.csv',like_ACG)
         
         model1 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
         optimizer = optim.Adam(model1.parameters(), lr=0.1)
-        like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=10000, keep_bar=False,early_stopping=False,modeltype=0)
+        like_Watson = train_hmm_batch(model1, data=data_train.to(torch.float32), optimizer=optimizer, num_epoch=25000, keep_bar=False,early_stopping=False,modeltype=0)
         param = get_param(model1)
         init = {}
         init['pi'] = param['un_norm_pi']
@@ -69,28 +68,29 @@ def run_experiment(K):
         
         model2 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=1,dist_dim=data_train.shape[2],init=init)
         optimizer = optim.Adam(model2.parameters(), lr=0.1)
-        like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=1000, keep_bar=False,early_stopping=False,modeltype=0)
+        like_ACG_init = train_hmm_batch(model2, data=data_train, optimizer=optimizer, num_epoch=2000, keep_bar=False,early_stopping=False,modeltype=0)
         np.savetxt('../data/real_ACG_initexperiment/K'+str(K)+'ACG_MM_Watsoninit'+str(r)+'.csv',like_ACG)
-    return
-    p0 = get_param(model0)
-    p1 = get_param(model1)
-    p2 = get_param(model2)
-    plt.figure()
-    fig,ax = plt.subplots(5,3)
-
-    for k in range(K):
-        ax[k+1,0].imshow((p0['mix_comp_'+str(k)]@p0['mix_comp_'+str(k)].T).detach())
-    for k in range(K):
-        ax[k+1,1].imshow(torch.sqrt(p1['mix_comp_'+str(k)]['kappa'])*torch.outer(p1['mix_comp_'+str(k)]['mu'],p1['mix_comp_'+str(k)]['mu']).detach())
-        
-    for k in range(K):
-        ax[k+1,2].imshow((p2['mix_comp_'+str(k)]@p2['mix_comp_'+str(k)].T).detach())
-
-    ax[0,0].plot(like_ACG)
-    ax[0,1].plot(like_Watson)
-    ax[0,2].plot(like_ACG_init)
-    fig.show()
-    y=8
+    #return
+    #p0 = get_param(model0)
+    #p1 = get_param(model1)
+    #p2 = get_param(model2)
+    #plt.figure()
+    #fig,ax = plt.subplots(5,3)
+#
+#    for k in range(K):
+#        ax[k+1,0].imshow((p0['mix_comp_'+str(k)]@p0['mix_comp_'+str(k)].T).detach())
+#    for k in range(K):
+#        ax[k+1,1].imshow(torch.sqrt(p1['mix_comp_'+str(k)]['kappa'])*torch.outer(p1['mix_comp_'+str(k)]['mu'],p1['mix_comp_'+str(k)]['mu']).detach())
+#        
+#    for k in range(K):
+#        ax[k+1,2].imshow((p2['mix_comp_'+str(k)]@p2['mix_comp_'+str(k)].T).detach())#
+#
+#    ax[0,0].plot(like_ACG)
+#    ax[0,1].plot(like_Watson)
+#    ax[0,2].plot(like_ACG_init)
+#    fig.show()
+#    y=8
                 
-if __name__=="__main__":
-    run_experiment(K=int(sys.argv[1]))
+#if __name__=="__main__":
+    #run_experiment(K=int(sys.argv[1]))
+#    run_experiment(K=1)
