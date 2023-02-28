@@ -1,22 +1,175 @@
 %%
 clear,close all
 
-%% ACG K vs D
-K = [1,4,7,10]
+%% ACG K vs D + ACG scratch vs ACG full
+close all
+figure('Position',[100,100,800,300])
+tiledlayout(1,2,'TileSpacing','compact','Padding','none')
+nexttile
+K = [1,4,7,10];
+
+for k = 1:numel(K)
+    d1 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_scratch*.csv']);
+    tmp = nan(numel(d1),1);
+    for r = 1:numel(d1)
+        data = table2array(readtable([d1(r).folder,'/',d1(r).name]));
+        tmp(r)=min(data);
+    end
+    likes(k,1) = mean(tmp);
+    errors(k,1) = std(tmp);
+    
+    d2 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_Watsoninit*.csv']);
+    tmp = nan(numel(d2),1);
+    for r = 1:numel(d2)
+        data = table2array(readtable([d2(r).folder,'/',d2(r).name]));
+        tmp(r)=min(data);
+    end
+    likes(k,2) = mean(tmp);
+    errors(k,2) = std(tmp);
+end
+b=bar(likes);hold on
+b(1).FaceColor = [0.7,0.7,0.7];b(2).FaceColor = [0.3,0.3,0.3];
+ngroups = size(likes, 1);
+nbars = size(likes, 2);
+% Calculating the width for each bar group
+groupwidth = min(0.8, nbars/(nbars + 1.5));
+for i = 1:nbars
+    x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+    er = errorbar(x, likes(:,i), errors(:,i));
+    er.Color = [0 0 0];                            
+    er.LineStyle = 'none';
+end
+xticks(1:4);
+xticklabels({'1','4','7','10'});
+
+xlabel('Number of components (K)')
+ylabel('Negative log-likelihood')
+% set(gca,'YDir','reverse')
+legend('Random initialization','Watson initialization','Location','SouthWest')
+ylim([-5.6*10^(5),-5*10^(5)])
+yticks([-5.6:0.2:-5]*10^(5))
+
+nexttile,hold on
+K = [1,4,10];
 models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
 modelnames = {'ACG-MM','ACG-HMM','Watson-MM','Watson-HMM'};
 cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
+linestyles = {'-','--',':'};
 for m = 1:2%numel(models)
-    figure,hold on
     for k = 1:numel(K)
         test_like = nan(50,5);
-        d = dir(['data/real_K_D/K',num2str(K(k)),models{m},'_testlikelihood*.csv'])
+        d = dir(['data/real_K_D/K',num2str(K(k)),models{m},'_testlikelihood*.csv']);
         for i = 1:numel(d)
             test_like(:,i) = table2array(readtable([d(i).folder,'/',d(i).name]));
         end
-        errorbar(1:50,nanmean(test_like,2),nanstd(test_like,[],2),'DisplayName',['K=',num2str(K(k))])
+        errorbar(1:2:50,nanmean(test_like(1:2:50,:),2),nanstd(test_like(1:2:50,:),[],2),'color',cols{m},'LineStyle',linestyles{k},'DisplayName',[modelnames{m},': K=',num2str(K(k))])
     end
     legend
+end
+xlabel('ACG rank (r)')
+xticks(0:10:50)
+% yticks([])
+xlim([0,50])
+% ylabel('Negative log-likelihood')
+
+%% Likelihood plot over K
+close all
+figure('Position',[100,100,400,300]),
+% subplot(2,1,1),
+hold on
+K = 1:10;
+models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
+modelnames = {'Rank-15 ACG-MM','Rank-15 ACG-HMM','Watson-MM','Watson-HMM'};
+cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
+testlikes = nan(numel(K),5);
+for m = 1:numel(models)
+    testlikes = nan(10,5);
+    for k = 1:numel(K)
+        d = dir(['data/real_K/K',num2str(K(k)),models{m},'_testlikelihood*.csv']);
+        for r = 1:numel(d)
+            data = table2array(readtable([d(r).folder,'/',d(r).name]));
+            testlikes(k,r) = data(1);
+        end
+    end
+    
+    errorbar(K,nanmean(testlikes,2),nanstd(testlikes,[],2),'color',cols{m},'DisplayName',modelnames{m},'LineWidth',1.5)
+end
+legend
+xlim([0.7,10.3])
+ylim([-5.6,-4.3]*10^5)
+xlabel('Model order (K)')
+ylabel('Negative test log-likelihood')
+% title('Loss curves')
+
+% %%%%%% Same for NMI
+% subplot(2,1,2),hold on
+% testNMIs = nan(numel(K),5);
+% task_raw = table2array(readtable('data/raw/motor_ref.txt'));
+% task = repmat(task_raw(1:120,:),29,1);
+% task2 = repmat(task_raw(2:120,:),29,1);
+% addpath('src/visualization')
+% for m = 1:numel(models)
+%     testNMIs = nan(10,5);
+%     for k = 2:numel(K)
+%         d = dir(['data/real_K/K',num2str(K(k)),models{m},'_assignment*.csv']);
+%         for r = 1:numel(d)
+%             data = table2array(readtable([d(r).folder,'/',d(r).name]));
+%             
+%             if m==1 || m==3
+%                 testNMIs(k,r) = calcNMI(data',task');
+%             else
+%                 data2 = data(1:end-1,:);
+%                 for kk = 1:k
+%                     data3(kk,:) = data2(:)==kk-1;
+%                 end
+%                 testNMIs(k,r) = calcNMI(data3,task2');
+%             end
+%         end
+%     end
+%     
+%     errorbar(K,nanmean(testNMIs,2),nanstd(testNMIs,[],2),'color',cols{m},'DisplayName',modelnames{m},'LineWidth',1.5)
+% end
+% legend
+% xlim([1.5,10.5])
+% xlabel('Model order (K)')
+% ylabel('Normalized mutual information')
+% return
+% 
+% K=10
+% figure,subplot(2,1,1)
+% plot(data2'+1.1*(1:K)),xlim([0,1000])
+% subplot(2,1,2)
+% plot(task+[0,1.1]),xlim([0,1000])
+
+%% any of them?
+
+task_raw = table2array(readtable('data/raw/motor_ref.txt'));
+task = repmat(task_raw(1:120,:),29,1);
+task2 = repmat(task_raw(2:120,:),29,1);
+addpath('src/visualization')
+for m = 1:numel(models)
+    
+    for k = 2:numel(K)
+        testNMIs = nan(10,5,k);
+        d = dir(['data/real_K/K',num2str(K(k)),models{m},'_assignment*.csv']);
+        for r = 1:numel(d)
+            data = table2array(readtable([d(r).folder,'/',d(r).name]));
+            
+            if m==1 || m==3
+                for kk = 1:k
+                testNMIs(k,r,kk) = calcNMI(data(:,kk)',task');
+                end
+            else
+                data2 = data(1:end-1,:);
+                for kk = 1:k
+                    data3 = data2(:)==kk-1;
+                    testNMIs(k,r,kk) = calcNMI(data3,task2');
+                end
+                
+            end
+        end
+    end
+    
 end
 
 
@@ -80,24 +233,7 @@ for k = 1:numel(K)
     end
 end
 
-%% with chosen regu factor 1e-05, plot over K
-close all
-figure('Position',[100,100,1700,600]),
-K = 1:10;
-models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
-modelnames = {'ACG-MM','ACG-HMM','Watson-MM','Watson-HMM'};
-cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
-testlikes = nan(numel(K),5);
-for m = 1:numel(models)
-    for k = 1:numel(K)
-        d = dir(['data/real_K/K',num2str(K(k)),models{m},'_testlikelihood*.csv']);
-        for r = 1:numel(d)
-            data = table2array(readtable([d.folder,'/',d.name]));
-            testlikes(k,r) = data(1);
-        end
-    end
-    errorbar(K,nanmean(testlikes,2),nanstd(testlikes,[],2),'color',cols{m},'DisplayName',modelnames{m})
-end
+
 
 %% check fit, ACG
 close all

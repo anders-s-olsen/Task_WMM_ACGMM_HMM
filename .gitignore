@@ -88,7 +88,7 @@ target/
 /data/real_regu/
 /data/realLR/
 /data/real_fit/
-# /data/synthetic_noise/
+/data/synthetic_noise/
 /submitfiles/*.txt
 
 # Mac OS-specific storage files

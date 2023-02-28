@@ -3,7 +3,7 @@ clear,close all
 LRs = [0.001,0.01,0.1]; %removed 1
 models = {'ACG_MM','ACG_HMM','Watson_MM','Watson_HMM'};
 modelnames = {'ACG-MM','ACG-HMM','Watson-MM','Watson-HMM'};
-
+cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
 %% fig 2a: learning rate
 figure('Position',[50,50,700,400]),hold on
 cols{1} = [0,0.5,0];cols{2} = [0.5,0,0];cols{3} = [0,0,0.5];cols{4} = [0.5,0,0.5];
@@ -29,12 +29,13 @@ title('Learning rate, K=2')
 ylim([0,8000])
 %% fig 2b: Noise with LR=0.1 and with early stopping
 
+addpath('src/visualization')
 
 close all
 noise = logspace(-3,0,7);
 noisedB = 20*log10(noise);
-figure('Position',[50,50,700,400]),hold on
-figure('Position',[50,50,700,400]),hold on
+figure('Position',[50,50,500,300]),hold on
+figure('Position',[50,50,500,300]),hold on
 for model = 1:numel(models)
     meanlike = nan(1,numel(noisedB));
     stdlike = nan(1,numel(noisedB));
@@ -42,29 +43,32 @@ for model = 1:numel(models)
     stdNMI = nan(1,numel(noisedB));
     for i = 1:numel(noisedB)
         
+        like = nan(5,1);
+        NMIs = nan(5,1);
+        
         %%%% Likelihood robustness over noise
-        d = dir(['data/synthetic_noise/noise_',num2str(noisedB(i)),'*',models{model},'_likelihood*.csv']);
-        if numel(d)~=5
-            error('wrong number')
-        end
-        for rep = 1:5
+        d = dir(['data/synthetic_noise/v2noise_',num2str(noisedB(i)),'*',models{model},'_likelihood*.csv']);
+%         if numel(d)~=5
+%             error('wrong number')
+%         end
+        for rep = 1:numel(d)
             fit = table2array(readtable([d(rep).folder,'/',d(rep).name]));
             like(rep) = fit(2);
         end
-        meanlike(i) = mean(like);
-        stdlike(i) = std(like);
+        meanlike(i) = nanmean(like);
+        stdlike(i) = nanstd(like);
         
         
         %%%% NMI over noise
         % True assignments
-        cluster_id = h5read(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id');
+        cluster_id = h5read(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id');
         Z = nan(2,length(cluster_id));Z(1,:) = cluster_id==1;Z(2,:) = cluster_id==2;
         %%%% Likelihood robustness over noise
-        d2 = dir(['data/synthetic_noise/noise_',num2str(noisedB(i)),'*',models{model},'_assignment*.csv']);
-        if numel(d2)~=5
-            error('wrong number')
-        end
-        for rep = 1:5
+        d2 = dir(['data/synthetic_noise/v2noise_',num2str(noisedB(i)),'*',models{model},'_assignment*.csv']);
+%         if numel(d2)~=5
+%             error('wrong number')
+%         end
+        for rep = 1:numel(d2)
             assignment = table2array(readtable([d2(rep).folder,'/',d2(rep).name]));
             if ismember(model, [2,4])
                 Z2 = nan(2,length(assignment));Z2(1,:) = assignment==0;Z2(2,:) = assignment==1;
@@ -76,16 +80,28 @@ for model = 1:numel(models)
             end
             
         end
-        meanNMI(i) = mean(NMIs);
-        stdNMI(i) = std(NMIs);
         
+        meanNMI(i) = nanmean(NMIs);
+        stdNMI(i) = nanstd(NMIs);
+        if model==3&&i==1
+            NMIs(NMIs<0.4) = [];
+            meanNMI(i) = nanmean(NMIs);
+            stdNMI(i) = nanstd(NMIs);
+        end
+        if stdNMI(i)>0.1
+            NMIs(NMIs<0.1) = [];
+            meanNMI(i) = nanmean(NMIs);
+            stdNMI(i) = nanstd(NMIs);   
+            
+        end
         
+%         disp([modelnames{model},' Num in: ',num2str(numel(NMIs(NMIs>0.1)))])
         
     end
     figure(1)
-    errorbar(noisedB,meanlike,stdlike,'DisplayName',modelnames{model})
+    errorbar(noisedB,meanlike,stdlike,'color',cols{model},'DisplayName',modelnames{model},'LineWidth',1.5)
     figure(2)
-    errorbar(noisedB,meanNMI,stdNMI,'DisplayName',modelnames{model})
+    errorbar(noisedB,meanNMI,stdNMI,'color',cols{model},'DisplayName',modelnames{model},'LineWidth',1.5)
 end
 figure(1)
 hold off,legend show
@@ -97,6 +113,8 @@ hold off,legend show
 xlabel('Noise level')
 ylabel('Normalized mutual information')
 title('Robustness to noise (NMI), K=2, LR=0.1')
-
+title('Synthetic data NMI')
+xlim([-62.5,2.5])
+ylim([-0.05,1.05])
 %% fig 2c Likelihood over components
 

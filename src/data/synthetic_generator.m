@@ -42,13 +42,14 @@ for i = 1:numel(noise)
     sig3 = diag([noise(i),1,1])+0.9*[0,0,0;0,0,1;0,1,0]; %noise is the first diagonal element, log space
     
     SIGMAs = cat(3,sig2,sig3);
-    [X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1),0);
+%     [X,cluster_id] = syntheticMixture3D(PI,SIGMAs,size(PI,1),0);
+    [X,cluster_id] = syntheticMixture3Dv2(PI,SIGMAs,size(PI,1),0);
         pointsspherefig(X,cluster_id);
-    delete(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'])
-    h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',size(X))
-    h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',X)
-    h5create(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',size(cluster_id))
-    h5write(['data/synthetic_noise/HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',cluster_id)
+    delete(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'])
+    h5create(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',size(X))
+    h5write(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/X',X)
+    h5create(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',size(cluster_id))
+    h5write(['data/synthetic_noise/v2HMMdata_noise_',num2str(noisedB(i)),'.h5'],'/cluster_id',cluster_id)
     
 end
 
@@ -67,6 +68,27 @@ X = zeros(num_points,point_dim);
 cluster_allocation = zeros(num_points,1);
 for n = 1:num_points
     n_clust_id = randsample(num_clusters,1,true,PI(n,:));
+    nx = chol(SIGMAs(:,:,n_clust_id),'lower') * randn(point_dim,1)+noise*randn(point_dim,1);
+    
+%     nx = SIGMAs(:,:,n_clust_id) * ones(point_dim,1)+noise*randn(point_dim,1);
+    X(n,:) = normc(nx);
+    cluster_allocation(n) = n_clust_id;
+end
+end
+%% function v2 sequence
+function [X,cluster_allocation] = syntheticMixture3Dv2(PI,SIGMAs,num_points,noise)
+
+num_clusters = size(SIGMAs,3);
+point_dim = size(SIGMAs,2);
+% Lower_chol = zeros(point_dim,point_dim,num_clusters);
+% for idx = 1:num_clusters
+%     Lower_chol(:,:,idx) = chol(SIGMAs(:,:,idx),'lower');
+% end
+
+X = zeros(num_points,point_dim);
+cluster_allocation = zeros(num_points,1);
+for n = 1:num_points
+    [~,n_clust_id] = max(PI(n,:));
     nx = chol(SIGMAs(:,:,n_clust_id),'lower') * randn(point_dim,1)+noise*randn(point_dim,1);
     
 %     nx = SIGMAs(:,:,n_clust_id) * ones(point_dim,1)+noise*randn(point_dim,1);
