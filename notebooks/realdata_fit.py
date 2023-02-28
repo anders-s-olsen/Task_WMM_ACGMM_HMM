@@ -95,7 +95,7 @@ def run_experiment(m,r):
         optimizer = optim.Adam(model2.parameters(), lr=0.1)
         like = train_hmm_batch(model2, data=data_train_W, optimizer=optimizer, num_epoch=25000, keep_bar=False,early_stopping=False,modeltype=0)
     elif m==3:
-        model3 = HMM(num_states=K, observation_dim=num_regions, emission_dist=Watson)
+        model3 = HMM(K=K, observation_dim=num_regions, emission_dist=Watson)
         optimizer = optim.Adam(model3.parameters(), lr=0.1)
         like = train_hmm_batch(model3, data=data_train_W, optimizer=optimizer, num_epoch=25000, keep_bar=False,early_stopping=False,modeltype=1)
 

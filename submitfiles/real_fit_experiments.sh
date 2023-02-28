@@ -1,6 +1,7 @@
 #!/bin/sh
-for m in 0 1 2 3
-do
+# for m in 0 1 2 3
+# do
+m=3
 for r in 0 1 2 3 4
 do
 
@@ -9,4 +10,4 @@ do
     bsub < real_fit_template.sh
 
 done
-done
+# done
