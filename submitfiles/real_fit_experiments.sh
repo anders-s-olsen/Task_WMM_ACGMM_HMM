@@ -9,4 +9,4 @@ do
     bsub < real_fit_template.sh
 
 done
-# done
+done
