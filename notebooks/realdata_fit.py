@@ -115,7 +115,8 @@ def run_experiment(m,r):
         np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
         np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
         for kk in range(K):
-            np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T).detach())
+            #np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T).detach())
+            np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
     elif m==1:
         param = get_param(model1)
         best_path,xx,xxx = model1.viterbi2(data_train)
@@ -124,7 +125,8 @@ def run_experiment(m,r):
         np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
         np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
         for kk in range(K):
-            np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T).detach())
+            #np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T).detach())
+            np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
     elif m==2:
         param = get_param(model2)
         post = model2.posterior(data_train_concat_W)

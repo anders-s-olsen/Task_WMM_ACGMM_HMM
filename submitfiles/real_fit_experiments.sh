@@ -1,7 +1,6 @@
 #!/bin/sh
-# for m in 0 1 2 3
-# do
-m=3
+for m in 0 1
+do
 for r in 0 1 2 3 4
 do
 
