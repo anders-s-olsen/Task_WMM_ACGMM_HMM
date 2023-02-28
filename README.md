@@ -1,7 +1,7 @@
 task
 ==============================
 
-Eusipco2023 submission on WMM and ACG and HMM for modeling task fMRI data
+ICASSP2023 submission on WMM and ACG and HMM for modeling task fMRI data
 
 Project Organization
 ------------
