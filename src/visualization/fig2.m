@@ -8,15 +8,16 @@ cols{1} = [0,0.4,0];cols{2} = [0,0.7,0];cols{3} = [0.4,0,0];cols{4} = [0.8,0,0];
 cols{1} = [0,0,0.5];cols{2} = [0.5,0,0.5];cols{3} = [0,0.3,0];cols{4} = [0,0.6,0];
 addpath('src/visualization')
 
-figure('Position',[100,100,720,500])
-tiledlayout(2,2,'TileSpacing','compact','Padding','none')
+% figure('Position',[100,100,720,500])
+% tiledlayout(2,2,'TileSpacing','compact','Padding','none')
 
 
 %% fig A: Synth. 
 
 noise = logspace(-3,0,7);%noise(end)=[];
 noisedB = 20*log10(noise);
-nexttile,hold on
+% nexttile,hold on
+figure('Position',[100,100,500,300]),hold on
 for model = 1:numel(models)
     meanlike = nan(1,numel(noisedB));
     stdlike = nan(1,numel(noisedB));
@@ -74,11 +75,14 @@ title('Robustness to noise (NMI), K=2, LR=0.1')
 title('Synthetic data robustness to noise')
 xlim([-62.5,2.5])
 ylim([-0.05,1.05])
+exportgraphics(gcf,'reports/figures/fig2_1.png','Resolution','300')
 
 %% ACG K vs D + ACG scratch vs ACG full
-nexttile
+% nexttile
+figure('Position',[100,100,500,600])
+tiledlayout(2,1,'TileSpacing','compact','Padding','none')
 K = [1,4,7,10];
-
+nexttile
 for k = 1:numel(K)
     d1 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_scratch*.csv']);
     tmp = nan(numel(d1),1);
@@ -142,9 +146,11 @@ xticks(0:10:50)
 xlim([0,50])
 title('ACG rank')
 ylabel('Test nll')
+exportgraphics(gcf,'reports/figures/fig2_2.png','Resolution','300')
 
 %% Likelihood plot over K
-nexttile
+% nexttile
+figure('Position',[100,100,500,300])
 % subplot(2,1,1),
 hold on
 K = 1:10;
@@ -168,7 +174,7 @@ for m = 1:numel(models)
     else
         yyaxis right
     end
-    errorbar(K,nanmean(testlikes,2),nanstd(testlikes,[],2),'color',cols{m},'DisplayName',modelnames{m},'LineWidth',1.5)
+    errorbar(K,nanmean(testlikes,2),nanstd(testlikes,[],2),'color',cols{m},'DisplayName',modelnames{m},'LineWidth',1.5,'LineStyle','-')
 end
 legend
 xlim([0.7,10.3])
