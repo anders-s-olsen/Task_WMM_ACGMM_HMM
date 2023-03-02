@@ -60,7 +60,18 @@ def run_experiment(m,r):
         for D in np.arange(15):
             print(D)
             if D==0:
-                model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=D+1,dist_dim=data_train.shape[2])
+                model5 = TorchMixtureModel(distribution_object=Watson,K=K, dist_dim=data_train.shape[2])
+                optimizer = optim.Adam(model5.parameters(), lr=0.1)
+                like_Watson = train_hmm_batch(model5, data=data_train_W, optimizer=optimizer, num_epoch=25000, keep_bar=False,early_stopping=False,modeltype=0)
+                param = get_param(model5)
+                init = {}
+                init['pi'] = param['un_norm_pi']
+                init['comp'] = torch.zeros((K,data_train.shape[2],1),dtype=torch.double)
+                for kk in range(K):
+                    init['comp'][kk] = torch.sqrt(param['mix_comp_'+str(kk)]['kappa'])*torch.unsqueeze(param['mix_comp_'+str(kk)]['mu'],dim=1)
+
+
+                model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=D+1,dist_dim=data_train.shape[2],init=init)
             else:
                 model0 = TorchMixtureModel(distribution_object=ACG_lowrank,K=K, D=D+1,dist_dim=data_train.shape[2],init=init)
             optimizer = optim.Adam(model0.parameters(), lr=0.1)
@@ -111,41 +122,41 @@ def run_experiment(m,r):
     if m==0:
         param = get_param(model0)
         post = model0.posterior(data_train_concat)
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like)
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_MM_likelihood'+str(r)+'.csv',like)
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
         for kk in range(K):
-            #np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T).detach())
-            np.savetxt('../data/real_fit/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
+            #np.savetxt('../data/real_fit2/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['mix_comp_'+str(kk)]@param['mix_comp_'+str(kk)].T).detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'ACG_MM_comp'+str(kk)+'_'+str(r)+'.csv',param['mix_comp_'+str(kk)].detach())
     elif m==1:
         param = get_param(model1)
         best_path,xx,xxx = model1.viterbi2(data_train)
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like)
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
-        np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_likelihood'+str(r)+'.csv',like)
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
         for kk in range(K):
-            #np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T).detach())
-            np.savetxt('../data/real_fit/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
+            #np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',torch.linalg.pinv(param['emission_model_'+str(kk)]@param['emission_model_'+str(kk)].T).detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'ACG_HMM_comp'+str(kk)+'_'+str(r)+'.csv',param['emission_model_'+str(kk)].detach())
     elif m==2:
         param = get_param(model2)
         post = model2.posterior(data_train_concat_W)
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like)
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_MM_likelihood'+str(r)+'.csv',like)
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_MM_assignment'+str(r)+'.csv',np.transpose(post.detach()))
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_MM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_pi'],dim=0).detach())
         for kk in range(K):
-            np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
-            np.savetxt('../data/real_fit/K'+str(K)+'Watson_MM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'Watson_MM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['mix_comp_'+str(kk)]['mu'].detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'Watson_MM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['mix_comp_'+str(kk)]['kappa'].detach())
     elif m==3:
         param = get_param(model3)
         best_path,xx,xxx = model3.viterbi2(data_train_W)
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like)
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
-        np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_likelihood'+str(r)+'.csv',like)
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_assignment'+str(r)+'.csv',np.transpose(best_path))
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_prior'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_priors'],dim=0).detach())
+        np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_T'+str(r)+'.csv',torch.nn.functional.softmax(param['un_norm_Transition_matrix'],dim=1).detach())
         for kk in range(K):
-            np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
-            np.savetxt('../data/real_fit/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_mu'+str(r)+'.csv',param['emission_model_'+str(kk)]['mu'].detach())
+            np.savetxt('../data/real_fit2/K'+str(K)+'Watson_HMM_comp'+str(kk)+'_kappa'+str(r)+'.csv',param['emission_model_'+str(kk)]['kappa'].detach())
 if __name__=="__main__":
-    run_experiment(m=int(sys.argv[1]),r=int(sys.argv[2]))
-    #run_experiment(K=4)
+    #run_experiment(m=int(sys.argv[1]),r=int(sys.argv[2]))
+    run_experiment(m=0,r=0)
