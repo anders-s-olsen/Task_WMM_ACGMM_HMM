@@ -71,7 +71,7 @@ end
 
 hold off,legend show
 % legend('Location','SouthWest')
-xlabel('Noise level')
+xlabel('Noise level [dB]')
 ylabel('Normalized mutual information')
 title('Robustness to noise (NMI), K=2, LR=0.1')
 title('Synthetic data robustness to noise')
