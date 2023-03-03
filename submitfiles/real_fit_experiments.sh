@@ -1,5 +1,5 @@
 #!/bin/sh
-for m in 0 1
+for m in 0
 do
 for r in 0 1 2 3 4
 do
