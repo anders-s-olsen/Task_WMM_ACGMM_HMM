@@ -1,57 +1,8 @@
-task
-==============================
+## ICASSP2023 submission on Watson and Angular central Gaussian mixture models and Hidden Markov models for modeling task fMRI data
 
-ICASSP2023 submission on WMM and ACG and HMM for modeling task fMRI data
+This repository contains a set of Python and Matlab functions to generate the results presented in the conference paper:
 
-Project Organization
-------------
+>[Angular Central gaussian and Watson Mixture Models for Assessing Dynamic Functional Brain Connectivity During a Motor Task ]() 
+Anders S. Olsen, Emil Ortvald, Kristoffer H. Madsen, Mikkel N. Schmidt, Morten Mørup.
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
-
-
---------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+The code is structured as follows: All source code including modules for Watson, ACG, mixture models, and HMM is located in src/models/. Preprocessing scripts is located in src/preprocessing/. Code for visualization is located in src/visualization/. All Python scripts used for executing the optimization of models is located in the experiments folder. The submitfiles/ folder exclusively contains shell scripts for submitting training jobs to DTU's compute cluster. 

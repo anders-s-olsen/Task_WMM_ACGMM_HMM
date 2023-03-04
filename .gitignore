@@ -93,8 +93,6 @@ target/
 /data/real_fit/
 /data/real_fit2/
 /data/real_ACG_initexperiment/
-/data/synthetic_noise/
-/data/synthetic_methods/
 /data/syntheticLR/
 /submitfiles/*.txt
 
