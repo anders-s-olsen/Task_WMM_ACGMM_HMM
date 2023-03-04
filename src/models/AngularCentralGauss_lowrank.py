@@ -19,6 +19,8 @@ class AngularCentralGaussian(nn.Module):
         self.p = p
         self.D = D
         self.half_p = torch.tensor(p / 2)
+
+        # log sphere surface area
         self.logSA = torch.lgamma(self.half_p) - torch.log(torch.tensor(2)) -self.half_p* torch.log(torch.tensor(np.pi))
         if init is None:
             self.L = nn.Parameter(torch.randn(self.p,self.D,dtype=torch.double).to(self.device))
@@ -34,96 +36,21 @@ class AngularCentralGaussian(nn.Module):
 
     def lowrank_compose_A(self,read_A_param=False):
         
-        
         if read_A_param:
             return self.L
-            if self.D==1:
-                A = torch.outer(self.L,self.L)+torch.eye(self.p)
-            else:
-                A = self.L@self.L.T+torch.eye(self.p)
-            return A
 
-        
-        #log_det_A = torch.log(1+self.L.T@self.L)
-        
         log_det_A = 2 * torch.sum(torch.log(torch.abs(torch.diag(torch.linalg.cholesky(torch.eye(self.D)+self.L.T@self.L)))))
-        #log_det_A = torch.log(torch.det(torch.eye(self.D)+self.L.T@self.L))
         
         return log_det_A
+    
     def lowrank_log_pdf(self,X):
         log_det_A = self.lowrank_compose_A()
 
         B = X@self.L
         matmul2 = 1-torch.sum(B@torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L)*B,dim=1)
 
-        #if any(matmul2<0):
-        #    print("stop here")
-
-
-        #if torch.isnan(torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L).sum()) or torch.isinf(torch.linalg.inv(torch.eye(self.D)+self.L.T@self.L).sum()):
-        #    print("stop here")
-        #if torch.isnan(matmul2.sum()):
-        #    print(matmul2)
-        #    print(L_tri_inv)
-        #   print(self.L_diag)
-        #    raise ValueError('NaN was produced!')
-
         # minus log_det_A instead of + log_det_A_inv
         log_acg_pdf = self.logSA - 0.5 * log_det_A - self.half_p * torch.log(matmul2)
-        return log_acg_pdf
-
-
-    def Alter_compose_A(self, read_A_param=False):
-
-        """ Cholesky Component -> A """
-        #L_diag_pos_definite = self.SoftPlus(self.L_diag)  # this is only semidefinite...Need definite
-        #L_inv = torch.tril(self.L_under_diag, -1) + torch.diag(L_diag_pos_definite)
-        
-        L_tri_inv = torch.zeros(self.p,self.p,device=self.device)
-        L_tri_inv[self.tril_indices[0],self.tril_indices[1]] = self.L_vec
-
-        # addition with regularization
-        if self.regu>0:
-            
-            A_inv = L_tri_inv@L_tri_inv.T
-            fac = torch.sqrt(torch.linalg.matrix_norm(A_inv)**2/self.p**2)
-
-            L_tri_inv = torch.linalg.cholesky(A_inv/fac+self.regumat)
-
-            #L_tri_inv = torch.linalg.cholesky(torch.matrix_exp(A_inv-A_inv.T)+self.regu*torch.eye(self.p))
-            #L_tri_inv = torch.linalg.cholesky(torch.exp(-torch.trace(A_inv)/self.p)*torch.matrix_exp(A_inv)+self.regu*torch.eye(self.p))
-
-            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(torch.diag(L_tri_inv))))  # - det(A)
-            
-            #print(log_det_A_inv)
-        else:
-            log_det_A_inv = 2 * torch.sum(torch.log(torch.abs(self.L_vec[self.diag_indices])))  # - det(A)
-        
-        
-        if read_A_param:
-            #return torch.linalg.inv((self.L_tri_inv @ self.L_tri_inv.T))
-            return L_tri_inv
-
-        return log_det_A_inv,L_tri_inv
-
-    # Probability Density function
-    def log_pdf(self, X):
-        log_det_A_inv,L_tri_inv = self.Alter_compose_A()
-
-
-        #matmul1 = torch.diag(X @ L_inv @ X.T)
-
-        B = X @ L_tri_inv
-        matmul2 = torch.sum(B * B, dim=1)
-
-        if torch.isnan(matmul2.sum()):
-            print(matmul2)
-            print(L_tri_inv)
-            print(self.L_diag)
-            raise ValueError('NaN was produced!')
-        
-        log_acg_pdf = self.logSA + 0.5 * log_det_A_inv - self.half_p * torch.log(matmul2)
-
         return log_acg_pdf
 
     def forward(self, X):
@@ -134,6 +61,7 @@ class AngularCentralGaussian(nn.Module):
 
 
 if __name__ == "__main__":
+    # test that the code works
     import matplotlib as mpl
     import matplotlib.pyplot as plt
     import scipy

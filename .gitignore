@@ -77,6 +77,7 @@ target/
 
 # exclude data from source control by default
 /data/raw/
+/data/processed/
 
 # Exclude model checkpoints
 /data/interim/
@@ -85,10 +86,16 @@ target/
 /data/real_K_regu_LR/
 /data/real_K_D/
 /data/real_K/
+/data/real_K_LR/
+/data/real_K_regu_LR/
 /data/real_regu/
 /data/realLR/
 /data/real_fit/
+/data/real_fit2/
+/data/real_ACG_initexperiment/
 /data/synthetic_noise/
+/data/synthetic_methods/
+/data/syntheticLR/
 /submitfiles/*.txt
 
 # Mac OS-specific storage files

@@ -4,7 +4,7 @@ import numpy as np
 
 class HiddenMarkovModel(nn.Module):
     """
-    Hidden Markov model w. Continues observation density
+    Hidden Markov model w. Continuous observation density
     """
 
     def __init__(self, K, emission_dist, observation_dim: int = 90,D=None,init=None):
@@ -15,7 +15,6 @@ class HiddenMarkovModel(nn.Module):
         self.emission_density = emission_dist
         self.obs_dim = observation_dim
 
-
         if init is None:
             self.state_priors = nn.Parameter(torch.rand(self.K,device=self.device))
             self.transition_matrix = nn.Parameter(torch.rand(self.K, self.K,device=self.device))
@@ -25,8 +24,6 @@ class HiddenMarkovModel(nn.Module):
             self.transition_matrix = nn.Parameter(init['T'])
             self.emission_models = nn.ModuleList([self.emission_density(self.obs_dim,self.D,init['comp'][k]) for k in range(self.K)])
 
-        
-        
         self.softplus = nn.Softplus()
         self.logsoftmax_transition = nn.LogSoftmax(dim=1)
         self.logsoftmax_prior = nn.LogSoftmax(dim=0)
@@ -65,12 +62,10 @@ class HiddenMarkovModel(nn.Module):
         # time t=0
         # log_pi: (n states priors)
         # emission forward return: -> transpose -> (subject, [state1_prop(x)...stateN_prop(x)])
-        #log_alpha[:, 0, :] = log_pi + self.emission_models_forward(X[:, 0, :]).T
         log_alpha[:, 0, :] = log_pi + emissions[:,0,:].T
 
         # Induction 2)
         # for time:  t = 1 -> seq_max
-        # precompute emissions
 
         for t in range(1, seq_max):
             log_alpha[:, t, :] = emissions[:, t, :].T \
@@ -149,8 +144,9 @@ class HiddenMarkovModel(nn.Module):
 
 
 if __name__ == '__main__':
+    # Test that the code works
     from Watson_torch import Watson
-    from AngularCentralGauss_torch import AngularCentralGaussian as ACG
+    from AngularCentralGauss_chol import AngularCentralGaussian as ACG
 
     torch.manual_seed(5)
     dim = 3

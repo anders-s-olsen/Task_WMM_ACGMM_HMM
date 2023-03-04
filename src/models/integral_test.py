@@ -1,10 +1,14 @@
+"""
+Code to check that the implemented distributions integrate to 1
+"""
+
 import torch
 import torch.nn as nn
 
 import numpy as np
 import scipy
 from Watson_torch import Watson
-from AngularCentralGauss_torch import AngularCentralGaussian
+from AngularCentralGauss_chol import AngularCentralGaussian
 
 torch.set_printoptions(precision=15)
 

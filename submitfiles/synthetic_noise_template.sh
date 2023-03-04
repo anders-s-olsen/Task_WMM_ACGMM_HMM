@@ -1,13 +1,13 @@
 #!/bin/sh
-#BSUB -J syntheticLRjob
-#BSUB -q hpc
-#BSUB -R "rusage[mem=1GB]"
+#BSUB -J syntheticnoisejob
+#BSUB -q computebigbigmem
+#BSUB -R "rusage[mem=100MB]"
 #BSUB -B
 #BSUB -N
-#BSUB -o syntheticLRjob_out_%J.txt
-#BSUB -e syntheticLRjob_err_%J.txt
+#BSUB -o syntheticnoisejob_out_%J.txt
+#BSUB -e syntheticnoisejob_err_%J.txt
 #BSUB -W 10:00 
-#BSUB -n 16
+#BSUB -n 8
 #BSUB -R "span[hosts=1]"
 
 # -- commands you want to execute -- 
@@ -18,4 +18,4 @@ module load h5py/3.7.0-python-3.10.7
 python3 -m pip install --user tqdm torch
 cd ..
 cd experiments
-python3 Synthetic_LR.py
+python3 Synthetic_noise.py 4

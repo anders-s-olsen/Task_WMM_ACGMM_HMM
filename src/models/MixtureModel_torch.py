@@ -3,10 +3,13 @@ import torch.nn as nn
 
 
 class TorchMixtureModel(nn.Module):
+    """
+    Mixture model class
+    """
     def __init__(self, distribution_object, K: int, dist_dim=90,D = None,regu=0,init=None):
         super().__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.regu = regu
+        self.regu = regu # for regularized cholesky decomposition
         self.D = D #for lowrank ACG
         self.distribution, self.K, self.p = distribution_object, K, dist_dim
         if init is None:
@@ -53,15 +56,11 @@ class TorchMixtureModel(nn.Module):
         loglikelihood_x_i = torch.logsumexp(inner, dim=0)
 
         return torch.exp(inner-loglikelihood_x_i)
-    def learn_prior(self,X):
-        inner_pdf = torch.stack([K_comp_pdf(X) for K_comp_pdf in self.mix_components])
-        pi = inner_pdf-torch.logsumexp(inner_pdf)
         
-
-
 if __name__ == "__main__":
+    # test that the code works
     from Watson_torch import Watson
-    from AngularCentralGauss_torch import AngularCentralGaussian
+    from AngularCentralGauss_chol import AngularCentralGaussian
 
     torch.set_printoptions(precision=4)
     MW = TorchMixtureModel(Watson, K=2, dist_dim=3)

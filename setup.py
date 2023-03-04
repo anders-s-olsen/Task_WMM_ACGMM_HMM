@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description='Eusipco2023 submission on WMM and ACG and HMM for modeling task fMRI data',
+    description='ICASSP2023 submission on WMM and ACGMM and HMM for modeling task fMRI data',
     author='ansol',
     license='MIT',
 )

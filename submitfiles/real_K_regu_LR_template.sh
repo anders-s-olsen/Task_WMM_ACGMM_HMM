@@ -17,5 +17,5 @@ module load matplotlib/3.6.0-numpy-1.23.3-python-3.10.7
 module load h5py/3.7.0-python-3.10.7
 python3 -m pip install --user tqdm torch
 cd ..
-cd notebooks
+cd experiments
 python3 realdata_regu_K_LR.py 0.1 10
