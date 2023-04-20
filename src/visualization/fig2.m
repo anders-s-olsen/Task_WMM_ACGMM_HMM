@@ -77,6 +77,7 @@ title('Robustness to noise (NMI), K=2, LR=0.1')
 title('Synthetic data robustness to noise')
 xlim([-62.5,2.5])
 ylim([-0.05,1.05])
+set(gca,'fontsize',9)
 exportgraphics(gcf,'reports/figures/fig2_1.png','Resolution','300')
 
 %% ACG K vs D + ACG scratch vs ACG full
@@ -208,7 +209,7 @@ close all
 % states = dir('data/nodes_edges/K3ACG_MM_comp*0.csv');
 
 for m = [1]
-    d = dir(['data/real_fit/K4',models{m},'_likelihood*.csv'])
+    d = dir(['data/real_fit2/K4',models{m},'_likelihood*.csv'])
     likes = nan(1,5);
     for r = 1:numel(d)
         data = table2array(readtable([d(r).folder,'/',d(r).name]));
@@ -216,9 +217,9 @@ for m = [1]
     end
     [~,best] = nanmin(likes);
     if m==1
-        states = dir(['data/real_fit/K4',models{m},'_comp*_',num2str(best-1),'.csv'])
+        states = dir(['data/real_fit2/K4',models{m},'_comp*_',num2str(best-1),'.csv'])
     elseif m==3
-        states = dir(['data/real_fit/K4',models{m},'_comp*_mu',num2str(best-1),'.csv'])
+        states = dir(['data/real_fit2/K4',models{m},'_comp*_mu',num2str(best-1),'.csv'])
     end
     for i = 1:numel(states)
         
@@ -306,16 +307,16 @@ for m = [1]
         %                'XTick', [-0.04,-0.01,0.01,0.04],...
         %                'FontSize',13)
         
-        exportgraphics(gcf,['data/nodes_edges/',models{m},'_state_map',num2str(i),'.png'],'resolution','300');
+%         exportgraphics(gcf,['data/nodes_edges/',models{m},'_state_map',num2str(i),'.png'],'resolution','300');
         
     end
-    figure('Position',[0,0,400,400])
-    tiledlayout(1,1,'Padding','none')
-    cmap=[-0.15,0.45];
-    imagesc(A,cmap);colormap jet,colorbar
-    xticks([])
-    yticks([])
-    print(gcf,['data/nodes_edges/',models{m},'_state_map_colorbar'],'-dpng','-r300');
+%     figure('Position',[0,0,400,400])
+%     tiledlayout(1,1,'Padding','none')
+%     cmap=[-0.15,0.45];
+%     imagesc(A,cmap);colormap jet,colorbar
+%     xticks([])
+%     yticks([])
+%     print(gcf,['data/nodes_edges/',models{m},'_state_map_colorbar'],'-dpng','-r300');
     
 end
 
