@@ -199,6 +199,7 @@ yticks([-5.5:0.5:-4.5]*10^5)
 ax = gca;
 ax.YAxis(1).Color = [0.25,0,0.5];
 ax.YAxis(2).Color = [0,0.45,0];
+set(gca,'fontsize',9)
 exportgraphics(gcf,'reports/figures/fig2_3.png','Resolution','300')
 %%
 % exportgraphics(gcf,'reports/figures/fig2.png','Resolution','300')
