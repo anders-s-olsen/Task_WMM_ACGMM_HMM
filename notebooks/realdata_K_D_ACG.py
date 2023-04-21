@@ -19,12 +19,12 @@ import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 
-from models.AngularCentralGauss_chol import AngularCentralGaussian as ACG
+from src.models.AngularCentralGauss_chol import AngularCentralGaussian as ACG
 from src.models.AngularCentralGauss_lowrank import AngularCentralGaussian as ACG_lowrank
 from src.models.Watson_torch import Watson
 from src.models.MixtureModel_torch import TorchMixtureModel
 from src.models.HMM_torch import HiddenMarkovModel as HMM
-from src.various.training import train_hmm_batch, train_hmm,train_hmm_lbfgs,train_hmm_subject
+from src.various.training import train_hmm_batch#, train_hmm,train_hmm_lbfgs,train_hmm_subject
 
 torch.set_num_threads(16)
 
@@ -99,5 +99,5 @@ def run_experiment(K):
                 np.savetxt('../data/real_K_D/K'+str(K)+'ACG_HMM_testlikelihood'+str(r)+'.csv',test_like.detach())
                 
 if __name__=="__main__":
-    run_experiment(K=int(sys.argv[1]))
-    #run_experiment(K=4)
+    #run_experiment(K=int(sys.argv[1]))
+    run_experiment(K=4)
