@@ -82,53 +82,54 @@ exportgraphics(gcf,'reports/figures/fig2_1.png','Resolution','300')
 
 %% ACG K vs D + ACG scratch vs ACG full
 % nexttile
-figure('Position',[100,100,500,500])
-tiledlayout(2,1,'TileSpacing','compact','Padding','none')
-K = [1,4,7,10];
-nexttile
-for k = 1:numel(K)
-    d1 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_scratch*.csv']);
-    tmp = nan(numel(d1),1);
-    for r = 1:numel(d1)
-        data = table2array(readtable([d1(r).folder,'/',d1(r).name]));
-        tmp(r)=min(data);
-    end
-    likes(k,1) = mean(tmp);
-    errors(k,1) = std(tmp);
-    
-    d2 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_Watsoninit*.csv']);
-    tmp = nan(numel(d2),1);
-    for r = 1:numel(d2)
-        data = table2array(readtable([d2(r).folder,'/',d2(r).name]));
-        tmp(r)=min(data);
-    end
-    likes(k,2) = mean(tmp);
-    errors(k,2) = std(tmp);
-end
-b=bar(likes);hold on
-b(1).FaceColor = [0.7,0.7,0.7];b(2).FaceColor = [0.3,0.3,0.3];
-ngroups = size(likes, 1);
-nbars = size(likes, 2);
-% Calculating the width for each bar group
-groupwidth = min(0.8, nbars/(nbars + 1.5));
-for i = 1:nbars
-    x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
-    er = errorbar(x, likes(:,i), errors(:,i));
-    er.Color = [0 0 0];
-    er.LineStyle = 'none';
-end
-xticks(1:4);
-xticklabels({'1','4','7','10'});
-
-xlabel('Number of components (K)')
-ylabel('Test nll')
-% set(gca,'YDir','reverse')
-legend('Random initialization','Watson initialization','Location','SouthWest')
-ylim([-5.6*10^(5),-5*10^(5)])
-yticks([-5.6:0.2:-5]*10^(5))
-title('Rank-1 ACG initialization')
-
-nexttile,hold on
+% figure('Position',[100,100,500,500])
+% tiledlayout(2,1,'TileSpacing','compact','Padding','none')
+% K = [1,4,7,10];
+% nexttile
+% for k = 1:numel(K)
+%     d1 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_scratch*.csv']);
+%     tmp = nan(numel(d1),1);
+%     for r = 1:numel(d1)
+%         data = table2array(readtable([d1(r).folder,'/',d1(r).name]));
+%         tmp(r)=min(data);
+%     end
+%     likes(k,1) = mean(tmp);
+%     errors(k,1) = std(tmp);
+%     
+%     d2 = dir(['data/real_ACG_initexperiment/K',num2str(K(k)),'ACG_MM_Watsoninit*.csv']);
+%     tmp = nan(numel(d2),1);
+%     for r = 1:numel(d2)
+%         data = table2array(readtable([d2(r).folder,'/',d2(r).name]));
+%         tmp(r)=min(data);
+%     end
+%     likes(k,2) = mean(tmp);
+%     errors(k,2) = std(tmp);
+% end
+% b=bar(likes);hold on
+% b(1).FaceColor = [0.7,0.7,0.7];b(2).FaceColor = [0.3,0.3,0.3];
+% ngroups = size(likes, 1);
+% nbars = size(likes, 2);
+% % Calculating the width for each bar group
+% groupwidth = min(0.8, nbars/(nbars + 1.5));
+% for i = 1:nbars
+%     x = (1:ngroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*nbars);
+%     er = errorbar(x, likes(:,i), errors(:,i));
+%     er.Color = [0 0 0];
+%     er.LineStyle = 'none';
+% end
+% xticks(1:4);
+% xticklabels({'1','4','7','10'});
+% 
+% xlabel('Number of components (K)')
+% ylabel('Test nll')
+% % set(gca,'YDir','reverse')
+% legend('Random initialization','Watson initialization','Location','SouthWest')
+% ylim([-5.6*10^(5),-5*10^(5)])
+% yticks([-5.6:0.2:-5]*10^(5))
+% title('Rank-1 ACG initialization')
+% 
+% nexttile,hold on
+figure('Position',[100,100,500,250]),hold on
 K = [1,4,10];
 linestyles = {'-','--',':'};
 for m = 1:2%numel(models)
@@ -149,6 +150,7 @@ xticks(0:10:50)
 xlim([0,50])
 title('ACG rank')
 ylabel('Test nll')
+set(gca,'fontsize',9)
 exportgraphics(gcf,'reports/figures/fig2_2.png','Resolution','300')
 
 %% Likelihood plot over K
