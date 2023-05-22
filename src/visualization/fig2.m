@@ -17,7 +17,7 @@ addpath('src/visualization')
 noise = logspace(-3,0,7);%noise(end)=[];
 noisedB = 20*log10(noise);
 % nexttile,hold on
-figure('Position',[100,100,500,250]),
+figure('Position',[100,100,300,250]),
 tiledlayout(2,1,'TileSpacing','compact','Padding','none')
 hold on
 for model = 1:numel(models)
@@ -129,7 +129,7 @@ exportgraphics(gcf,'reports/figures/fig2_1.png','Resolution','300')
 % title('Rank-1 ACG initialization')
 % 
 % nexttile,hold on
-figure('Position',[100,100,500,250]),hold on
+figure('Position',[100,100,300,250]),hold on
 K = [1,4,10];
 linestyles = {'-','--',':'};
 for m = 1:2%numel(models)
@@ -148,7 +148,7 @@ xlabel('ACG rank (r)')
 xticks(0:10:50)
 % yticks([])
 xlim([0,50])
-title('ACG rank')
+title('ACG rank (real data)')
 ylabel('Test nll')
 set(gca,'fontsize',9)
 exportgraphics(gcf,'reports/figures/fig2_2.png','Resolution','300')
