@@ -105,3 +105,6 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+*.pptx
+*.pdf
